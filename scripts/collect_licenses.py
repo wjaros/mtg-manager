@@ -24,6 +24,8 @@ from packaging.requirements import Requirement
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "build" / "licenses"
 LICENSE_FILE = re.compile(r"(^|/)(LICEN[CS]E|COPYING|NOTICE|AUTHORS)[^/]*$", re.IGNORECASE)
+# Not license texts although named like one (pyobjc's test module PyObjCTest/copying.cpython-312-darwin.so).
+NOT_LICENSE = re.compile(r"\.(so|pyd|dylib|dll|py|pyc|yml|plist)$|\.dSYM/", re.IGNORECASE)
 # PEP 639 / REUSE: everything under a licenses folder (e.g. pypdfium2's PDFium build licenses).
 LICENSE_DIR = re.compile(r"(^|/)(LICENSES|BUILD_LICENSES)/", re.IGNORECASE)
 # Bundled although not a runtime dependency of mtgdm: the executable's bootloader.
@@ -42,7 +44,10 @@ def main() -> int:
     missing = []
     for dist in python_distributions():
         name = f"{dist.metadata['Name']}-{dist.version}"
-        files = [f for f in dist.files or [] if LICENSE_FILE.search(str(f)) or LICENSE_DIR.search(str(f))]
+        files = [
+            f for f in dist.files or []
+            if (LICENSE_FILE.search(str(f)) or LICENSE_DIR.search(str(f))) and not NOT_LICENSE.search(str(f))
+        ]
         target = OUT / "python" / name
         for f in files:
             # Keep the path below a licenses folder (pypdfium2 has one file per bundled library).

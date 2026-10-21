@@ -37,7 +37,13 @@ DMG_NAME="MTG-Deck-Manager-$VERSION-$ARCH.dmg"
 mkdir "$STAGE/dmg"
 ditto "$STAGE/MTG Deck Manager.app" "$STAGE/dmg/MTG Deck Manager.app"
 ln -s /Applications "$STAGE/dmg/Applications"
-hdiutil create -quiet -volname "MTG Deck Manager" -srcfolder "$STAGE/dmg" -ov -format UDZO "$STAGE/$DMG_NAME"
+# hdiutil fails now and then on CI runners ("Resource busy"): retry.
+for attempt in 1 2 3 4 5; do
+  hdiutil create -volname "MTG Deck Manager" -srcfolder "$STAGE/dmg" -ov -format UDZO "$STAGE/$DMG_NAME" && break
+  [ "$attempt" = 5 ] && exit 1
+  echo "hdiutil failed, retrying in 10 s" >&2
+  sleep 10
+done
 
 rm -rf "$APP"
 ditto "$STAGE/MTG Deck Manager.app" "$APP"
