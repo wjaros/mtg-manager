@@ -7,6 +7,7 @@ import {
   type DeckFormat,
   type Holding,
   type Platform,
+  type DeckStats,
   type ValidationResult,
 } from '../api/client'
 import { CardDetailPanel } from '../components/CardDetailPanel'
@@ -35,7 +36,7 @@ import { EMPTY_FILTERS, toQuery, type FilterState } from '../filters'
 import { useCardPages } from '../hooks/useCardPages'
 import { useDebounced } from '../hooks/useDebounced'
 import { useDeck } from '../hooks/useDeck'
-import { formatNumber, t } from '../i18n'
+import { formatNumber, locale, t } from '../i18n'
 
 export type DeckTab = 'pool' | 'stats' | 'missing' | 'history'
 
@@ -112,6 +113,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
     [deck],
   )
   const [validation, setValidation] = useState<ValidationResult | null>(null)
+  const [price, setPrice] = useState<DeckStats['price'] | null>(null)
   // Paper decks: which cards you don't own, or own but not in the deck's box.
   const [holdings, setHoldings] = useState<Map<string, Holding> | null>(null)
   const paper = deck?.platform === 'paper'
@@ -137,6 +139,10 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
       api.validateDeck(deckId).then(
         (r) => !cancelled && setValidation(r),
         () => !cancelled && setValidation(null),
+      )
+      api.deckStats(deckId).then(
+        (s) => !cancelled && setPrice(s.price),
+        () => !cancelled && setPrice(null),
       )
     }, 250)
     return () => {
@@ -236,7 +242,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
         if (value !== null) actions.setCategory(card.id, board, value.trim())
       },
     })
-    items.push({ label: t.builder.changePrinting, onClick: () => setDetail({ cardId: card.id, entry }) })
+    items.push({ label: t.builder.details, onClick: () => setDetail({ cardId: card.id, entry }) })
     items.push({ label: t.builder.removeAll, danger: true, onClick: () => actions.remove(card.id, board) })
     setMenu({ x: e.clientX, y: e.clientY, title: card.name, items })
   }
@@ -316,6 +322,17 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
           {deck.counts.total}
           {target ? ` / ${target}` : ''}
         </span>
+        {price && (
+          <span
+            className="deck-price"
+            title={t.builder.priceTitle(price.usd, price.as_of ? new Date(price.as_of).toLocaleDateString(locale) : null)}
+          >
+            €{price.eur.toFixed(2)}
+            {paper && price.missing_eur > 0 && (
+              <span className="warn-text"> · {t.builder.missingPrice(price.missing_eur.toFixed(2))}</span>
+            )}
+          </span>
+        )}
         {deck.platform === 'paper' && (
           <button
             className="button header-action"

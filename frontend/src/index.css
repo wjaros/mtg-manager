@@ -946,6 +946,12 @@ nav {
   font-variant-numeric: tabular-nums;
 }
 
+.deck-price {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .deckbuilder-pool {
   grid-area: pool;
   display: flex;
