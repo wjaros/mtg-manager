@@ -1,0 +1,61 @@
+[project]
+name = "mtgdm"
+version = "0.1.0"
+description = "MTG Deck Manager: local card collection, deckbuilding and Arena export"
+authors = [
+    { name = "Wojciech Jaros" }
+]
+requires-python = ">=3.12"
+license = "GPL-3.0-or-later"
+# onnxruntime has no Intel macOS wheels any more; the macOS app uses Apple Vision anyway.
+dependencies = [
+    "fastapi>=0.153.0",
+    "httpx>=0.28.1",
+    "ijson>=3.6.0",
+    "numpy>=2.5.4",
+    "onnxruntime>=1.31.0 ; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "opencv-python-headless>=5.0.0.93",
+    "pillow>=13.0.0",
+    "platformdirs>=4.13.5",
+    "pyobjc-framework-vision>=12.2.2 ; sys_platform == 'darwin'",
+    "pypdfium2>=5.14.0",
+    "python-multipart>=0.0.32",
+    "pywebview>=6.2.1",
+    "rapidfuzz>=3.14.6",
+    "rapidocr>=3.10.0 ; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+mtgdm = "mtgdm.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.13.3,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+# With `python -X warn_default_encoding`: text I/O without an explicit encoding fails in our code
+# (Windows defaults to cp1252); third-party libraries (e.g. OpenCV's loader) are not our concern.
+filterwarnings = [
+    "ignore::EncodingWarning",
+    "error::EncodingWarning:mtgdm",
+    "error::EncodingWarning:tests",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.15.1",
+    "pyinstaller>=6.22.3",
+    "pytest>=9.1.1",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["F", "I"]

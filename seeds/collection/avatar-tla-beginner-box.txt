@@ -1,0 +1,170 @@
+# name: Avatar: The Last Airbender – Beginner Box
+# format: freeform
+# platform: paper
+# preferred-sets: tle, tla
+# source: official Wizards contents article (2025-10-28); no collector numbers published
+# printings: chosen 2026-10-21 from Scryfall data (TLE 265-304 = non-foil Beginner Box versions);
+#   lines marked 'printing unverified' are a best guess
+Deck
+# --- Aang Tutorial (W) ---
+1 Plains (TLE) 297
+1 Plains (TLE) 298
+1 Plains (TLE) 299
+1 Plains (TLE) 300
+1 Plains (TLE) 301
+1 Plains (TLE) 302
+1 Plains (TLE) 303
+1 Plains (TLE) 304
+1 Aardvark Sloth (TLE) 267
+1 Razor Rings (TLE) 272
+1 Path to Redemption (TLE) 271
+1 Appa, Aang's Companion (TLE) 268
+1 Sledding Otter-Penguin (TLE) 273
+1 Aang, Air Nomad (TLE) 265
+1 Katara, Heroic Healer (TLE) 269
+1 Momo, Rambunctious Rascal (TLE) 270
+1 Aang's Defense (TLE) 266
+1 Sokka, Wolf Cove's Protector (TLE) 274
+1 Tundra Wall (TLE) 275
+1 Wolf Cove Villager (TLE) 276
+# --- Zuko Tutorial (R) ---
+1 Mountain (TLE) 289
+1 Mountain (TLE) 290
+1 Mountain (TLE) 291
+1 Mountain (TLE) 292
+1 Mountain (TLE) 293
+1 Mountain (TLE) 294
+1 Mountain (TLE) 295
+1 Mountain (TLE) 296
+1 Dragon Moose (TLE) 278
+1 Explosive Shot (TLE) 279
+1 Run Amok (TLE) 284
+1 Fire Nation's Conquest (TLE) 281
+1 Komodo Rhino (TLE) 283
+1 Zuko, Avatar Hunter (TLE) 287
+1 Zhao, the Seething Flame (TLE) 286
+1 Iroh, Firebending Instructor (TLE) 282
+1 Zuko's Offense (TLE) 288
+1 Fire Nation Soldier (TLE) 280
+1 Capital Guard (TLE) 277
+1 Warship Scout (TLE) 285
+# --- Allies (W) ---
+7 Plains (TLA) 282 # printing unverified: one of three TLA arts
+1 Kyoshi Warrior Guard (TLE) 216
+1 Jeong Jeong's Deserters (TLA) 25
+1 Glider Kids (TLA) 21
+1 Avatar Enthusiasts (TLA) 11
+1 Allied Teamwork (TLE) 213
+1 Aang, the Last Airbender (TLA) 4
+1 Suki, Kyoshi Warrior (TLA) 243
+1 Rabaroo Troop (TLA) 32
+1 Master Piandao (TLA) 28
+1 Mechanical Glider (TLE) 256
+1 Path to Redemption (TLA) 31 # printing unverified: TLA or the Beginner Box TLE version
+1 Airbending Lesson (TLA) 8
+1 Thriving Heath (TLE) 262
+# --- Waterbending (U) ---
+7 Island (TLA) 283 # printing unverified: one of three TLA arts
+1 Flying Dolphin-Fish (TLE) 223
+1 Otter-Penguin (TLA) 67
+1 Katara, Bending Prodigy (TLA) 59
+1 Sokka, Lateral Strategist (TLA) 241
+1 Cat-Owl (TLA) 212
+1 Flexible Waterbender (TLA) 50
+1 Giant Koi (TLA) 53
+1 The Terror of Serpent's Pass (TLE) 225
+1 Watery Grasp (TLA) 82
+1 Bender's Waterskin (TLA) 255
+1 Deny Entry (TLE) 222
+1 Waterbending Lesson (TLA) 80
+1 Thriving Isle (TLE) 263
+# --- Spells (U) ---
+7 Island (TLA) 283 # printing unverified: one of three TLA arts
+1 First-Time Flyer (TLA) 49
+1 Master Pakku (TLA) 63
+1 Rowdy Snowballers (TLA) 68
+1 Iguana Parrot (TLA) 56
+1 Turtle-Seals (TLE) 226
+1 Geyser Leaper (TLA) 52
+1 Serpent of the Pass (TLA) 70
+1 Barrels of Blasting Jelly (TLA) 254
+1 Abandon Attachments (TLA) 205
+1 It'll Quench Ya! (TLA) 58
+1 Lost in the Spirit World (TLE) 224
+1 Water Whip (TLE) 227
+1 Thriving Isle (TLE) 263
+# --- Attacking (B) ---
+7 Swamp (TLA) 284 # printing unverified: one of three TLA arts
+1 Purple Pentapus (TLE) 233
+1 Corrupt Court Official (TLA) 92
+1 Merchant of Many Hats (TLA) 110
+1 Pretending Poxbearers (TLA) 237
+1 Fire Nation Ambushers (TLE) 229
+1 Hei Bai, Spirit of Balance (TLA) 225
+1 Lion Vulture (TLE) 232
+1 Beetle-Headed Merchants (TLA) 86
+1 Cat-Gator (TLA) 91
+1 Heartless Act (TLA) 103
+1 Epic Downfall (TLA) 96
+1 Dai Li Indoctrination (TLA) 93
+1 Thriving Moor (TLE) 264
+# --- Counters (B) ---
+7 Swamp (TLA) 284 # printing unverified: one of three TLA arts
+1 Gilacorn (TLE) 231
+1 Elephant-Rat (TLE) 228
+1 Long Feng, Grand Secretariat (TLA) 233
+1 Dai Li Indoctrination (TLA) 93
+1 Fire Nation Engineer (TLA) 99
+1 Earth Village Ruffians (TLA) 219
+1 Hog-Monkey (TLA) 104
+1 Buzzard-Wasp Colony (TLA) 88
+1 Fire Nation Sentinels (TLE) 230
+1 Azula Always Lies (TLA) 84
+1 Feed the Swarm (TLE) 257
+1 Ozai's Cruelty (TLA) 113
+1 Thriving Moor (TLE) 264
+# --- Firebending (R) ---
+7 Mountain (TLA) 285 # printing unverified: one of three TLA arts
+1 Deserter's Disciple (TLA) 131
+1 Fire Sages (TLA) 136
+1 Yuyan Archers (TLA) 161
+1 Vindictive Warden (TLA) 249
+1 Loyal Fire Sage (TLE) 242
+1 Zuko, Exiled Prince (TLA) 163
+1 Fire Nation Archers (TLE) 237
+1 Rough Rhino Cavalry (TLA) 152
+1 Mongoose Lizard (TLA) 148
+1 Lightning Strike (TLA) 146
+1 How to Start a Riot (TLA) 140
+1 Roku's Mastery (TLE) 243
+1 Thriving Bluff (TLE) 260
+# --- Big Creatures (G) ---
+7 Forest (TLA) 286 # printing unverified: one of three TLA arts
+1 Turtle-Duck (TLA) 200
+1 Raucous Audience (TLA) 190
+1 Frog-Squirrels (TLE) 251
+1 Ostrich-Horse (TLA) 188
+1 Match the Odds (TLE) 253
+1 Eel-Hounds (TLE) 250
+1 Hippo-Cows (TLE) 252
+1 Saber-Tooth Moose-Lion (TLA) 194
+1 Flopsie, Bumi's Buddy (TLA) 179
+1 Mechanical Glider (TLE) 256
+1 Hog-Monkey Rampage (TLE) 255
+1 Seismic Tutelage (TLE) 254
+1 Thriving Grove (TLE) 261
+# --- Earthbending (G) ---
+7 Forest (TLA) 286 # printing unverified: one of three TLA arts
+1 Rebellious Captives (TLA) 191
+1 Haru, Hidden Talent (TLA) 182
+1 Earth Village Ruffians (TLA) 219
+1 Toph, the Blind Bandit (TLA) 198
+1 Earth Kingdom Soldier (TLA) 216
+1 Earthbending Lesson (TLA) 176
+1 Badgermole (TLA) 166
+1 Bumi, Eclectic Earthbender (TLE) 248
+1 Rocky Rebuke (TLA) 193
+1 Explore (TLE) 259
+1 Pillar Launch (TLA) 189
+1 Earth Rumble (TLA) 174
+1 Thriving Grove (TLE) 261

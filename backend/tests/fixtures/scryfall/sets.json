@@ -1,0 +1,1541 @@
+[
+ {
+  "code": "2x2",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Double Masters 2022",
+  "set_type": "masters",
+  "released_at": "2022-07-08",
+  "digital": 0
+ },
+ {
+  "code": "2xm",
+  "arena_code": "2xm",
+  "mtgo_code": "2xm",
+  "name": "Double Masters",
+  "set_type": "masters",
+  "released_at": "2020-08-07",
+  "digital": 0
+ },
+ {
+  "code": "aa1",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Arena Anthology 1",
+  "set_type": "box",
+  "released_at": "2025-08-19",
+  "digital": 1
+ },
+ {
+  "code": "aa2",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Arena Anthology 2",
+  "set_type": "box",
+  "released_at": "2025-08-19",
+  "digital": 1
+ },
+ {
+  "code": "aa3",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Arena Anthology 3",
+  "set_type": "box",
+  "released_at": "2025-09-23",
+  "digital": 1
+ },
+ {
+  "code": "abro",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "The Brothers' War Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2022-11-18",
+  "digital": 0
+ },
+ {
+  "code": "acmm",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Commander Masters Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2023-08-04",
+  "digital": 0
+ },
+ {
+  "code": "acr",
+  "arena_code": "acr",
+  "mtgo_code": "acr",
+  "name": "Assassin's Creed",
+  "set_type": "draft_innovation",
+  "released_at": "2024-07-05",
+  "digital": 0
+ },
+ {
+  "code": "adsk",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Duskmourn: House of Horror Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2024-09-27",
+  "digital": 0
+ },
+ {
+  "code": "aeoe",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Edge of Eternities Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2025-08-01",
+  "digital": 0
+ },
+ {
+  "code": "aer",
+  "arena_code": "aer",
+  "mtgo_code": "aer",
+  "name": "Aether Revolt",
+  "set_type": "expansion",
+  "released_at": "2017-01-20",
+  "digital": 0
+ },
+ {
+  "code": "afdn",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Foundations Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2024-11-15",
+  "digital": 0
+ },
+ {
+  "code": "afr",
+  "arena_code": "afr",
+  "mtgo_code": "afr",
+  "name": "Adventures in the Forgotten Realms",
+  "set_type": "expansion",
+  "released_at": "2021-07-23",
+  "digital": 0
+ },
+ {
+  "code": "afra",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Reality Fracture Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2026-10-02",
+  "digital": 0
+ },
+ {
+  "code": "ahob",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "The Hobbit Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2026-08-14",
+  "digital": 0
+ },
+ {
+  "code": "ajmp",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Jumpstart Arena Exclusives",
+  "set_type": "starter",
+  "released_at": "2020-07-17",
+  "digital": 1
+ },
+ {
+  "code": "akh",
+  "arena_code": "akh",
+  "mtgo_code": "akh",
+  "name": "Amonkhet",
+  "set_type": "expansion",
+  "released_at": "2017-04-28",
+  "digital": 0
+ },
+ {
+  "code": "akr",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Amonkhet Remastered",
+  "set_type": "masters",
+  "released_at": "2020-08-13",
+  "digital": 1
+ },
+ {
+  "code": "alci",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "The Lost Caverns of Ixalan Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2023-11-17",
+  "digital": 0
+ },
+ {
+  "code": "altr",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Tales of Middle-earth Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2023-06-23",
+  "digital": 0
+ },
+ {
+  "code": "amh1",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Modern Horizons Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2019-06-14",
+  "digital": 0
+ },
+ {
+  "code": "amid",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Midnight Hunt Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2021-09-24",
+  "digital": 0
+ },
+ {
+  "code": "amom",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "March of the Machine Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2023-04-21",
+  "digital": 0
+ },
+ {
+  "code": "amsh",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Marvel Super Heroes Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2026-06-26",
+  "digital": 0
+ },
+ {
+  "code": "aneo",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Neon Dynasty Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2022-02-18",
+  "digital": 0
+ },
+ {
+  "code": "aotj",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Outlaws of Thunder Junction Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2024-04-19",
+  "digital": 0
+ },
+ {
+  "code": "asnc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "New Capenna Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2022-04-29",
+  "digital": 0
+ },
+ {
+  "code": "asos",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Secrets of Strixhaven Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2026-04-24",
+  "digital": 0
+ },
+ {
+  "code": "astx",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Strixhaven Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2021-04-23",
+  "digital": 0
+ },
+ {
+  "code": "atla",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Avatar: the Last Airbender Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2025-11-21",
+  "digital": 0
+ },
+ {
+  "code": "atmt",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Teenage Mutant Ninja Turtles Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2026-03-06",
+  "digital": 0
+ },
+ {
+  "code": "avow",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Crimson Vow Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2021-11-19",
+  "digital": 0
+ },
+ {
+  "code": "awoe",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Wilds of Eldraine Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2023-09-08",
+  "digital": 0
+ },
+ {
+  "code": "aznr",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Zendikar Rising Art Series",
+  "set_type": "memorabilia",
+  "released_at": "2020-09-25",
+  "digital": 0
+ },
+ {
+  "code": "bbd",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Battlebond",
+  "set_type": "draft_innovation",
+  "released_at": "2018-06-08",
+  "digital": 0
+ },
+ {
+  "code": "blb",
+  "arena_code": "blb",
+  "mtgo_code": "blb",
+  "name": "Bloomburrow",
+  "set_type": "expansion",
+  "released_at": "2024-08-02",
+  "digital": 0
+ },
+ {
+  "code": "blc",
+  "arena_code": "blc",
+  "mtgo_code": "blc",
+  "name": "Bloomburrow Commander",
+  "set_type": "commander",
+  "released_at": "2024-08-02",
+  "digital": 0
+ },
+ {
+  "code": "bro",
+  "arena_code": "bro",
+  "mtgo_code": "bro",
+  "name": "The Brothers' War",
+  "set_type": "expansion",
+  "released_at": "2022-11-18",
+  "digital": 0
+ },
+ {
+  "code": "c13",
+  "arena_code": "c13",
+  "mtgo_code": "c13",
+  "name": "Commander 2013",
+  "set_type": "commander",
+  "released_at": "2013-11-01",
+  "digital": 0
+ },
+ {
+  "code": "c14",
+  "arena_code": "c14",
+  "mtgo_code": "c14",
+  "name": "Commander 2014",
+  "set_type": "commander",
+  "released_at": "2014-11-07",
+  "digital": 0
+ },
+ {
+  "code": "c21",
+  "arena_code": "c21",
+  "mtgo_code": "c21",
+  "name": "Commander 2021",
+  "set_type": "commander",
+  "released_at": "2021-04-23",
+  "digital": 0
+ },
+ {
+  "code": "clb",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Commander Legends: Battle for Baldur's Gate",
+  "set_type": "draft_innovation",
+  "released_at": "2022-06-10",
+  "digital": 0
+ },
+ {
+  "code": "cmd",
+  "arena_code": "cmd",
+  "mtgo_code": "cmd",
+  "name": "Commander 2011",
+  "set_type": "commander",
+  "released_at": "2011-06-17",
+  "digital": 0
+ },
+ {
+  "code": "cmm",
+  "arena_code": "cmm",
+  "mtgo_code": "cmm",
+  "name": "Commander Masters",
+  "set_type": "masters",
+  "released_at": "2023-08-04",
+  "digital": 0
+ },
+ {
+  "code": "cmr",
+  "arena_code": "cmr",
+  "mtgo_code": "cmr",
+  "name": "Commander Legends",
+  "set_type": "draft_innovation",
+  "released_at": "2020-11-20",
+  "digital": 0
+ },
+ {
+  "code": "dbl",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Innistrad: Double Feature",
+  "set_type": "draft_innovation",
+  "released_at": "2022-01-28",
+  "digital": 0
+ },
+ {
+  "code": "ddj",
+  "arena_code": "ddj",
+  "mtgo_code": "ddj",
+  "name": "Duel Decks: Izzet vs. Golgari",
+  "set_type": "duel_deck",
+  "released_at": "2012-09-07",
+  "digital": 0
+ },
+ {
+  "code": "dmr",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Dominaria Remastered",
+  "set_type": "masters",
+  "released_at": "2023-01-13",
+  "digital": 0
+ },
+ {
+  "code": "dmu",
+  "arena_code": "dmu",
+  "mtgo_code": "dmu",
+  "name": "Dominaria United",
+  "set_type": "expansion",
+  "released_at": "2022-09-09",
+  "digital": 0
+ },
+ {
+  "code": "dom",
+  "arena_code": "dar",
+  "mtgo_code": "dar",
+  "name": "Dominaria",
+  "set_type": "expansion",
+  "released_at": "2018-04-27",
+  "digital": 0
+ },
+ {
+  "code": "drc",
+  "arena_code": "drc",
+  "mtgo_code": "drc",
+  "name": "Aetherdrift Commander",
+  "set_type": "commander",
+  "released_at": "2025-02-14",
+  "digital": 0
+ },
+ {
+  "code": "dsc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Duskmourn: House of Horror Commander",
+  "set_type": "commander",
+  "released_at": "2024-09-27",
+  "digital": 0
+ },
+ {
+  "code": "dtk",
+  "arena_code": "dtk",
+  "mtgo_code": "dtk",
+  "name": "Dragons of Tarkir",
+  "set_type": "expansion",
+  "released_at": "2015-03-27",
+  "digital": 0
+ },
+ {
+  "code": "ea3",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Explorer Anthology 3",
+  "set_type": "box",
+  "released_at": "2023-07-18",
+  "digital": 1
+ },
+ {
+  "code": "ecc",
+  "arena_code": "ecc",
+  "mtgo_code": "ecc",
+  "name": "Lorwyn Eclipsed Commander",
+  "set_type": "commander",
+  "released_at": "2026-01-23",
+  "digital": 0
+ },
+ {
+  "code": "eld",
+  "arena_code": "eld",
+  "mtgo_code": "eld",
+  "name": "Throne of Eldraine",
+  "set_type": "expansion",
+  "released_at": "2019-10-04",
+  "digital": 0
+ },
+ {
+  "code": "eoc",
+  "arena_code": "eoc",
+  "mtgo_code": "eoc",
+  "name": "Edge of Eternities Commander",
+  "set_type": "commander",
+  "released_at": "2025-08-01",
+  "digital": 0
+ },
+ {
+  "code": "eoe",
+  "arena_code": "eoe",
+  "mtgo_code": "eoe",
+  "name": "Edge of Eternities",
+  "set_type": "expansion",
+  "released_at": "2025-08-01",
+  "digital": 0
+ },
+ {
+  "code": "eos",
+  "arena_code": "eos",
+  "mtgo_code": "eos",
+  "name": "Edge of Eternities: Stellar Sights",
+  "set_type": "masterpiece",
+  "released_at": "2025-08-01",
+  "digital": 0
+ },
+ {
+  "code": "f06",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Friday Night Magic 2006",
+  "set_type": "promo",
+  "released_at": "2006-01-01",
+  "digital": 0
+ },
+ {
+  "code": "fdc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Foundations Commander",
+  "set_type": "commander",
+  "released_at": "2024-11-15",
+  "digital": 0
+ },
+ {
+  "code": "fdn",
+  "arena_code": "fdn",
+  "mtgo_code": "fdn",
+  "name": "Foundations",
+  "set_type": "core",
+  "released_at": "2024-11-15",
+  "digital": 0
+ },
+ {
+  "code": "fic",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Final Fantasy Commander",
+  "set_type": "commander",
+  "released_at": "2025-06-13",
+  "digital": 0
+ },
+ {
+  "code": "fra",
+  "arena_code": "fra",
+  "mtgo_code": "fra",
+  "name": "Reality Fracture",
+  "set_type": "expansion",
+  "released_at": "2026-10-02",
+  "digital": 0
+ },
+ {
+  "code": "frc",
+  "arena_code": "frc",
+  "mtgo_code": "frc",
+  "name": "Reality Fracture Commander",
+  "set_type": "commander",
+  "released_at": "2026-10-02",
+  "digital": 0
+ },
+ {
+  "code": "gn2",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Game Night 2019",
+  "set_type": "box",
+  "released_at": "2019-11-15",
+  "digital": 0
+ },
+ {
+  "code": "gnt",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Game Night",
+  "set_type": "box",
+  "released_at": "2018-11-16",
+  "digital": 0
+ },
+ {
+  "code": "gpt",
+  "arena_code": "gpt",
+  "mtgo_code": "gpt",
+  "name": "Guildpact",
+  "set_type": "expansion",
+  "released_at": "2006-02-03",
+  "digital": 0
+ },
+ {
+  "code": "grn",
+  "arena_code": "grn",
+  "mtgo_code": "grn",
+  "name": "Guilds of Ravnica",
+  "set_type": "expansion",
+  "released_at": "2018-10-05",
+  "digital": 0
+ },
+ {
+  "code": "ha1",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Historic Anthology 1",
+  "set_type": "box",
+  "released_at": "2019-11-21",
+  "digital": 1
+ },
+ {
+  "code": "ha7",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Historic Anthology 7",
+  "set_type": "box",
+  "released_at": "2023-07-18",
+  "digital": 1
+ },
+ {
+  "code": "hbg",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Alchemy Horizons: Baldur's Gate",
+  "set_type": "alchemy",
+  "released_at": "2022-07-07",
+  "digital": 1
+ },
+ {
+  "code": "hoc",
+  "arena_code": "hoc",
+  "mtgo_code": "hoc",
+  "name": "The Hobbit Eternal",
+  "set_type": "eternal",
+  "released_at": "2026-08-14",
+  "digital": 0
+ },
+ {
+  "code": "hou",
+  "arena_code": "hou",
+  "mtgo_code": "hou",
+  "name": "Hour of Devastation",
+  "set_type": "expansion",
+  "released_at": "2017-07-14",
+  "digital": 0
+ },
+ {
+  "code": "ice",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Ice Age",
+  "set_type": "expansion",
+  "released_at": "1995-06-03",
+  "digital": 0
+ },
+ {
+  "code": "iko",
+  "arena_code": "iko",
+  "mtgo_code": "iko",
+  "name": "Ikoria: Lair of Behemoths",
+  "set_type": "expansion",
+  "released_at": "2020-04-24",
+  "digital": 0
+ },
+ {
+  "code": "inr",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Innistrad Remastered",
+  "set_type": "masters",
+  "released_at": "2025-01-24",
+  "digital": 0
+ },
+ {
+  "code": "isd",
+  "arena_code": "isd",
+  "mtgo_code": "isd",
+  "name": "Innistrad",
+  "set_type": "expansion",
+  "released_at": "2011-09-30",
+  "digital": 0
+ },
+ {
+  "code": "j21",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Jumpstart: Historic Horizons",
+  "set_type": "draft_innovation",
+  "released_at": "2021-08-26",
+  "digital": 1
+ },
+ {
+  "code": "j22",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Jumpstart 2022",
+  "set_type": "draft_innovation",
+  "released_at": "2022-12-02",
+  "digital": 0
+ },
+ {
+  "code": "j25",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Foundations Jumpstart",
+  "set_type": "draft_innovation",
+  "released_at": "2024-11-15",
+  "digital": 0
+ },
+ {
+  "code": "khm",
+  "arena_code": "khm",
+  "mtgo_code": "khm",
+  "name": "Kaldheim",
+  "set_type": "expansion",
+  "released_at": "2021-02-05",
+  "digital": 0
+ },
+ {
+  "code": "kld",
+  "arena_code": "kld",
+  "mtgo_code": "kld",
+  "name": "Kaladesh",
+  "set_type": "expansion",
+  "released_at": "2016-09-30",
+  "digital": 0
+ },
+ {
+  "code": "klr",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Kaladesh Remastered",
+  "set_type": "masters",
+  "released_at": "2020-11-12",
+  "digital": 1
+ },
+ {
+  "code": "lcc",
+  "arena_code": "lcc",
+  "mtgo_code": "lcc",
+  "name": "The Lost Caverns of Ixalan Commander",
+  "set_type": "commander",
+  "released_at": "2023-11-17",
+  "digital": 0
+ },
+ {
+  "code": "ltc",
+  "arena_code": "ltc",
+  "mtgo_code": "ltc",
+  "name": "Tales of Middle-earth Commander",
+  "set_type": "commander",
+  "released_at": "2023-06-23",
+  "digital": 0
+ },
+ {
+  "code": "m10",
+  "arena_code": "m10",
+  "mtgo_code": "m10",
+  "name": "Magic 2010",
+  "set_type": "core",
+  "released_at": "2009-07-17",
+  "digital": 0
+ },
+ {
+  "code": "m19",
+  "arena_code": "m19",
+  "mtgo_code": "m19",
+  "name": "Core Set 2019",
+  "set_type": "core",
+  "released_at": "2018-07-13",
+  "digital": 0
+ },
+ {
+  "code": "m20",
+  "arena_code": "m20",
+  "mtgo_code": "m20",
+  "name": "Core Set 2020",
+  "set_type": "core",
+  "released_at": "2019-07-12",
+  "digital": 0
+ },
+ {
+  "code": "m21",
+  "arena_code": "m21",
+  "mtgo_code": "m21",
+  "name": "Core Set 2021",
+  "set_type": "core",
+  "released_at": "2020-07-03",
+  "digital": 0
+ },
+ {
+  "code": "m3c",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Modern Horizons 3 Commander",
+  "set_type": "commander",
+  "released_at": "2024-06-14",
+  "digital": 0
+ },
+ {
+  "code": "mar",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Marvel Universe",
+  "set_type": "masterpiece",
+  "released_at": "2025-09-26",
+  "digital": 0
+ },
+ {
+  "code": "mat",
+  "arena_code": "mat",
+  "mtgo_code": "mat",
+  "name": "March of the Machine: The Aftermath",
+  "set_type": "expansion",
+  "released_at": "2023-05-12",
+  "digital": 0
+ },
+ {
+  "code": "mb2",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Mystery Booster 2",
+  "set_type": "masters",
+  "released_at": "2024-08-02",
+  "digital": 0
+ },
+ {
+  "code": "mbc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Mystery Booster Commander Edition",
+  "set_type": "draft_innovation",
+  "released_at": "2026-10-19",
+  "digital": 0
+ },
+ {
+  "code": "mdd",
+  "arena_code": "mdd",
+  "mtgo_code": "mdd",
+  "name": "Marvel: Darkhold Destiny",
+  "set_type": "expansion",
+  "released_at": "2027-04-09",
+  "digital": 0
+ },
+ {
+  "code": "me1",
+  "arena_code": "med",
+  "mtgo_code": "med",
+  "name": "Masters Edition",
+  "set_type": "masters",
+  "released_at": "2007-09-10",
+  "digital": 1
+ },
+ {
+  "code": "med",
+  "arena_code": "ms4",
+  "mtgo_code": "ms4",
+  "name": "Mythic Edition",
+  "set_type": "masterpiece",
+  "released_at": "2018-10-05",
+  "digital": 0
+ },
+ {
+  "code": "mh2",
+  "arena_code": "mh2",
+  "mtgo_code": "mh2",
+  "name": "Modern Horizons 2",
+  "set_type": "draft_innovation",
+  "released_at": "2021-06-18",
+  "digital": 0
+ },
+ {
+  "code": "mh3",
+  "arena_code": "mh3",
+  "mtgo_code": "mh3",
+  "name": "Modern Horizons 3",
+  "set_type": "draft_innovation",
+  "released_at": "2024-06-14",
+  "digital": 0
+ },
+ {
+  "code": "mid",
+  "arena_code": "mid",
+  "mtgo_code": "mid",
+  "name": "Innistrad: Midnight Hunt",
+  "set_type": "expansion",
+  "released_at": "2021-09-24",
+  "digital": 0
+ },
+ {
+  "code": "mir",
+  "arena_code": "mi",
+  "mtgo_code": "mi",
+  "name": "Mirage",
+  "set_type": "expansion",
+  "released_at": "1996-10-08",
+  "digital": 0
+ },
+ {
+  "code": "mkc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Murders at Karlov Manor Commander",
+  "set_type": "commander",
+  "released_at": "2024-02-09",
+  "digital": 0
+ },
+ {
+  "code": "mm2",
+  "arena_code": "mm2",
+  "mtgo_code": "mm2",
+  "name": "Modern Masters 2015",
+  "set_type": "masters",
+  "released_at": "2015-05-22",
+  "digital": 0
+ },
+ {
+  "code": "moc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "March of the Machine Commander",
+  "set_type": "commander",
+  "released_at": "2023-04-21",
+  "digital": 0
+ },
+ {
+  "code": "mom",
+  "arena_code": "mom",
+  "mtgo_code": "mom",
+  "name": "March of the Machine",
+  "set_type": "expansion",
+  "released_at": "2023-04-21",
+  "digital": 0
+ },
+ {
+  "code": "msc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Marvel Super Heroes Commander",
+  "set_type": "commander",
+  "released_at": "2026-06-26",
+  "digital": 0
+ },
+ {
+  "code": "mul",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Multiverse Legends",
+  "set_type": "masterpiece",
+  "released_at": "2023-04-21",
+  "digital": 0
+ },
+ {
+  "code": "nec",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Neon Dynasty Commander",
+  "set_type": "commander",
+  "released_at": "2022-02-18",
+  "digital": 0
+ },
+ {
+  "code": "neo",
+  "arena_code": "neo",
+  "mtgo_code": "neo",
+  "name": "Kamigawa: Neon Dynasty",
+  "set_type": "expansion",
+  "released_at": "2022-02-18",
+  "digital": 0
+ },
+ {
+  "code": "oc21",
+  "arena_code": "oc21",
+  "mtgo_code": "oc21",
+  "name": "Commander 2021 Display Commanders",
+  "set_type": "memorabilia",
+  "released_at": "2021-04-23",
+  "digital": 0
+ },
+ {
+  "code": "one",
+  "arena_code": "one",
+  "mtgo_code": "one",
+  "name": "Phyrexia: All Will Be One",
+  "set_type": "expansion",
+  "released_at": "2023-02-10",
+  "digital": 0
+ },
+ {
+  "code": "ori",
+  "arena_code": "ori",
+  "mtgo_code": "ori",
+  "name": "Magic Origins",
+  "set_type": "core",
+  "released_at": "2015-07-17",
+  "digital": 0
+ },
+ {
+  "code": "otc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Outlaws of Thunder Junction Commander",
+  "set_type": "commander",
+  "released_at": "2024-04-19",
+  "digital": 0
+ },
+ {
+  "code": "otj",
+  "arena_code": "otj",
+  "mtgo_code": "otj",
+  "name": "Outlaws of Thunder Junction",
+  "set_type": "expansion",
+  "released_at": "2024-04-19",
+  "digital": 0
+ },
+ {
+  "code": "otp",
+  "arena_code": "otp",
+  "mtgo_code": "otp",
+  "name": "Breaking News",
+  "set_type": "masterpiece",
+  "released_at": "2024-04-19",
+  "digital": 0
+ },
+ {
+  "code": "pana",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "MTG Arena Promos",
+  "set_type": "promo",
+  "released_at": "2018-07-14",
+  "digital": 1
+ },
+ {
+  "code": "pbbd",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Battlebond Promos",
+  "set_type": "promo",
+  "released_at": "2018-06-08",
+  "digital": 0
+ },
+ {
+  "code": "pdom",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Dominaria Promos",
+  "set_type": "promo",
+  "released_at": "2018-04-27",
+  "digital": 0
+ },
+ {
+  "code": "pf26",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "MagicFest 2026",
+  "set_type": "promo",
+  "released_at": "2026-01-01",
+  "digital": 0
+ },
+ {
+  "code": "pfdn",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Foundations Promos",
+  "set_type": "promo",
+  "released_at": "2024-11-15",
+  "digital": 0
+ },
+ {
+  "code": "pfra",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Reality Fracture Promos",
+  "set_type": "promo",
+  "released_at": "2026-10-02",
+  "digital": 0
+ },
+ {
+  "code": "pio",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Pioneer Masters",
+  "set_type": "masters",
+  "released_at": "2024-12-10",
+  "digital": 1
+ },
+ {
+  "code": "pkhm",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Kaldheim Promos",
+  "set_type": "promo",
+  "released_at": "2021-02-05",
+  "digital": 0
+ },
+ {
+  "code": "plst",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "The List",
+  "set_type": "masters",
+  "released_at": "2020-09-26",
+  "digital": 0
+ },
+ {
+  "code": "pmom",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "March of the Machine Promos",
+  "set_type": "promo",
+  "released_at": "2023-04-21",
+  "digital": 0
+ },
+ {
+  "code": "prix",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Rivals of Ixalan Promos",
+  "set_type": "promo",
+  "released_at": "2018-01-19",
+  "digital": 0
+ },
+ {
+  "code": "prm",
+  "arena_code": "prm",
+  "mtgo_code": "prm",
+  "name": "Magic Online Promos",
+  "set_type": "promo",
+  "released_at": "2002-06-24",
+  "digital": 1
+ },
+ {
+  "code": "psnc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Streets of New Capenna Promos",
+  "set_type": "promo",
+  "released_at": "2022-04-29",
+  "digital": 0
+ },
+ {
+  "code": "purl",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "URL/Convention Promos",
+  "set_type": "promo",
+  "released_at": "2009-02-08",
+  "digital": 0
+ },
+ {
+  "code": "pz2",
+  "arena_code": "pz2",
+  "mtgo_code": "pz2",
+  "name": "Treasure Chest",
+  "set_type": "treasure_chest",
+  "released_at": "2016-11-16",
+  "digital": 1
+ },
+ {
+  "code": "q06",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Pioneer Challenger Decks 2021",
+  "set_type": "box",
+  "released_at": "2021-10-15",
+  "digital": 0
+ },
+ {
+  "code": "rav",
+  "arena_code": "rav",
+  "mtgo_code": "rav",
+  "name": "Ravnica: City of Guilds",
+  "set_type": "expansion",
+  "released_at": "2005-10-07",
+  "digital": 0
+ },
+ {
+  "code": "rix",
+  "arena_code": "rix",
+  "mtgo_code": "rix",
+  "name": "Rivals of Ixalan",
+  "set_type": "expansion",
+  "released_at": "2018-01-19",
+  "digital": 0
+ },
+ {
+  "code": "rna",
+  "arena_code": "rna",
+  "mtgo_code": "rna",
+  "name": "Ravnica Allegiance",
+  "set_type": "expansion",
+  "released_at": "2019-01-25",
+  "digital": 0
+ },
+ {
+  "code": "rvr",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Ravnica Remastered",
+  "set_type": "masters",
+  "released_at": "2024-01-12",
+  "digital": 0
+ },
+ {
+  "code": "scd",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Starter Commander Decks",
+  "set_type": "commander",
+  "released_at": "2022-12-02",
+  "digital": 0
+ },
+ {
+  "code": "sch",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Store Championships",
+  "set_type": "promo",
+  "released_at": "2022-07-09",
+  "digital": 0
+ },
+ {
+  "code": "sir",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Shadows over Innistrad Remastered",
+  "set_type": "masters",
+  "released_at": "2023-03-21",
+  "digital": 1
+ },
+ {
+  "code": "sis",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Shadows of the Past",
+  "set_type": "masters",
+  "released_at": "2023-03-21",
+  "digital": 1
+ },
+ {
+  "code": "slc",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Secret Lair Countdown",
+  "set_type": "box",
+  "released_at": "2022-11-01",
+  "digital": 0
+ },
+ {
+  "code": "sld",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Secret Lair Drop",
+  "set_type": "box",
+  "released_at": "2019-12-02",
+  "digital": 0
+ },
+ {
+  "code": "slz",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "The Zeta Set",
+  "set_type": "box",
+  "released_at": "2026-09-02",
+  "digital": 0
+ },
+ {
+  "code": "snc",
+  "arena_code": "snc",
+  "mtgo_code": "snc",
+  "name": "Streets of New Capenna",
+  "set_type": "expansion",
+  "released_at": "2022-04-29",
+  "digital": 0
+ },
+ {
+  "code": "soc",
+  "arena_code": "soc",
+  "mtgo_code": "soc",
+  "name": "Secrets of Strixhaven Commander",
+  "set_type": "commander",
+  "released_at": "2026-04-24",
+  "digital": 0
+ },
+ {
+  "code": "soi",
+  "arena_code": "soi",
+  "mtgo_code": "soi",
+  "name": "Shadows over Innistrad",
+  "set_type": "expansion",
+  "released_at": "2016-04-08",
+  "digital": 0
+ },
+ {
+  "code": "som",
+  "arena_code": "som",
+  "mtgo_code": "som",
+  "name": "Scars of Mirrodin",
+  "set_type": "expansion",
+  "released_at": "2010-10-01",
+  "digital": 0
+ },
+ {
+  "code": "sos",
+  "arena_code": "sos",
+  "mtgo_code": "sos",
+  "name": "Secrets of Strixhaven",
+  "set_type": "expansion",
+  "released_at": "2026-04-24",
+  "digital": 0
+ },
+ {
+  "code": "spg",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Special Guests",
+  "set_type": "masterpiece",
+  "released_at": "2023-11-17",
+  "digital": 0
+ },
+ {
+  "code": "stx",
+  "arena_code": "stx",
+  "mtgo_code": "stx",
+  "name": "Strixhaven: School of Mages",
+  "set_type": "expansion",
+  "released_at": "2021-04-23",
+  "digital": 0
+ },
+ {
+  "code": "tdc",
+  "arena_code": "tdc",
+  "mtgo_code": "tdc",
+  "name": "Tarkir: Dragonstorm Commander",
+  "set_type": "commander",
+  "released_at": "2025-04-11",
+  "digital": 0
+ },
+ {
+  "code": "tfdn",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Foundations Tokens",
+  "set_type": "token",
+  "released_at": "2024-11-15",
+  "digital": 0
+ },
+ {
+  "code": "tfra",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Reality Fracture Tokens",
+  "set_type": "token",
+  "released_at": "2026-10-02",
+  "digital": 0
+ },
+ {
+  "code": "thb",
+  "arena_code": "thb",
+  "mtgo_code": "thb",
+  "name": "Theros Beyond Death",
+  "set_type": "expansion",
+  "released_at": "2020-01-24",
+  "digital": 0
+ },
+ {
+  "code": "ths",
+  "arena_code": "ths",
+  "mtgo_code": "ths",
+  "name": "Theros",
+  "set_type": "expansion",
+  "released_at": "2013-09-27",
+  "digital": 0
+ },
+ {
+  "code": "tla",
+  "arena_code": "tla",
+  "mtgo_code": "tla",
+  "name": "Avatar: The Last Airbender",
+  "set_type": "expansion",
+  "released_at": "2025-11-21",
+  "digital": 0
+ },
+ {
+  "code": "tle",
+  "arena_code": "tle",
+  "mtgo_code": "tle",
+  "name": "Avatar: The Last Airbender Eternal",
+  "set_type": "eternal",
+  "released_at": "2025-11-21",
+  "digital": 0
+ },
+ {
+  "code": "tmc",
+  "arena_code": "tmc",
+  "mtgo_code": "tmc",
+  "name": "Teenage Mutant Ninja Turtles Eternal",
+  "set_type": "eternal",
+  "released_at": "2026-03-06",
+  "digital": 0
+ },
+ {
+  "code": "tmp",
+  "arena_code": "te",
+  "mtgo_code": "te",
+  "name": "Tempest",
+  "set_type": "expansion",
+  "released_at": "1997-10-14",
+  "digital": 0
+ },
+ {
+  "code": "trk",
+  "arena_code": "trk",
+  "mtgo_code": "trk",
+  "name": "Star Trek",
+  "set_type": "expansion",
+  "released_at": "2026-11-13",
+  "digital": 0
+ },
+ {
+  "code": "twho",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Doctor Who Tokens",
+  "set_type": "token",
+  "released_at": "2023-10-13",
+  "digital": 0
+ },
+ {
+  "code": "ulg",
+  "arena_code": "ul",
+  "mtgo_code": "ul",
+  "name": "Urza's Legacy",
+  "set_type": "expansion",
+  "released_at": "1999-02-15",
+  "digital": 0
+ },
+ {
+  "code": "uma",
+  "arena_code": "uma",
+  "mtgo_code": "uma",
+  "name": "Ultimate Masters",
+  "set_type": "masters",
+  "released_at": "2018-12-07",
+  "digital": 0
+ },
+ {
+  "code": "v17",
+  "arena_code": "v17",
+  "mtgo_code": "v17",
+  "name": "From the Vault: Transform",
+  "set_type": "from_the_vault",
+  "released_at": "2017-11-24",
+  "digital": 0
+ },
+ {
+  "code": "vow",
+  "arena_code": "vow",
+  "mtgo_code": "vow",
+  "name": "Innistrad: Crimson Vow",
+  "set_type": "expansion",
+  "released_at": "2021-11-19",
+  "digital": 0
+ },
+ {
+  "code": "war",
+  "arena_code": "war",
+  "mtgo_code": "war",
+  "name": "War of the Spark",
+  "set_type": "expansion",
+  "released_at": "2019-05-03",
+  "digital": 0
+ },
+ {
+  "code": "who",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Doctor Who",
+  "set_type": "commander",
+  "released_at": "2023-10-13",
+  "digital": 0
+ },
+ {
+  "code": "woe",
+  "arena_code": "woe",
+  "mtgo_code": "woe",
+  "name": "Wilds of Eldraine",
+  "set_type": "expansion",
+  "released_at": "2023-09-08",
+  "digital": 0
+ },
+ {
+  "code": "xln",
+  "arena_code": "xln",
+  "mtgo_code": "xln",
+  "name": "Ixalan",
+  "set_type": "expansion",
+  "released_at": "2017-09-29",
+  "digital": 0
+ },
+ {
+  "code": "yeoe",
+  "arena_code": null,
+  "mtgo_code": null,
+  "name": "Alchemy: Edge of Eternities",
+  "set_type": "alchemy",
+  "released_at": "2025-08-19",
+  "digital": 1
+ },
+ {
+  "code": "znr",
+  "arena_code": "znr",
+  "mtgo_code": "znr",
+  "name": "Zendikar Rising",
+  "set_type": "expansion",
+  "released_at": "2020-09-25",
+  "digital": 0
+ }
+]

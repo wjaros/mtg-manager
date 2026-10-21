@@ -1,0 +1,142 @@
+[
+ {
+  "id": "375fd2cb-443b-4be4-ad60-6d1a8e74f510",
+  "oracle_id": "b1544f21-7e98-461b-aed5-e748b0168c52",
+  "name": "Swords to Plowshares",
+  "set": "ice",
+  "collector_number": "54",
+  "layout": "normal",
+  "frame": "1993",
+  "border_color": "black"
+ },
+ {
+  "id": "435589bb-27c6-4a6d-9d63-394d5092b9d8",
+  "oracle_id": "4457ed35-7c10-48c8-9776-456485fdf070",
+  "name": "Lightning Bolt",
+  "set": "m10",
+  "collector_number": "146",
+  "layout": "normal",
+  "frame": "2003",
+  "border_color": "black"
+ },
+ {
+  "id": "8f8d6588-671d-4eb3-874f-f7139da2e05a",
+  "oracle_id": "c8909015-ea49-47cb-8d37-653904f965bb",
+  "name": "Seal Away",
+  "set": "dom",
+  "collector_number": "31",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "b56b9131-4f7e-4912-ba47-63ed82f21d1b",
+  "oracle_id": "4b7ac066-e5c7-43e6-9e7e-2739b24a905d",
+  "name": "Serra Angel",
+  "set": "dom",
+  "collector_number": "33",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "b3656310-093d-4724-a399-7f7010843b1f",
+  "oracle_id": "95e94dea-5ac0-4d6f-adec-ca147aee861f",
+  "name": "Ajani's Pridemate",
+  "set": "war",
+  "collector_number": "4",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "0e09b054-4d33-4a12-bf2a-9b0009f33044",
+  "oracle_id": "ae92942b-919c-4ea9-b693-85fcef765d5a",
+  "name": "Fire // Ice",
+  "set": "mh2",
+  "collector_number": "290",
+  "layout": "split",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "abff6c81-65a4-48fa-ba8f-580f87b0344a",
+  "oracle_id": "edd531b9-f615-4399-8c8c-1c5e18c4acbf",
+  "name": "Delver of Secrets // Insectile Aberration",
+  "set": "mid",
+  "collector_number": "47",
+  "layout": "transform",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "f29ba16f-c8fb-42fe-aabf-87089cb214a7",
+  "oracle_id": "4457ed35-7c10-48c8-9776-456485fdf070",
+  "name": "Lightning Bolt",
+  "set": "2x2",
+  "collector_number": "117",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "0a707ab3-b9b5-422a-8b0f-e963d3ad6606",
+  "oracle_id": "1bcc8ca6-5fd0-4fc9-8f0c-f81d8abf9249",
+  "name": "Calix, Guided by Fate",
+  "set": "mat",
+  "collector_number": "26",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "46ca0b66-a000-4483-b916-f5b89e710244",
+  "oracle_id": "6ad8011d-3471-4369-9d68-b264cc027487",
+  "name": "Sol Ring",
+  "set": "cmm",
+  "collector_number": "410",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "c84ea0fd-efc7-4614-9f8f-41a3c71fceaa",
+  "oracle_id": "c19fdee3-5fbc-4e2d-ac23-85b46eacafdc",
+  "name": "The Fourth Doctor",
+  "set": "who",
+  "collector_number": "2",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "8ae6fc26-cfad-4da8-98d9-49c27c24d293",
+  "oracle_id": "48e6d3d8-2f27-4017-acdd-40bce8cdbc02",
+  "name": "Giada, Font of Hope",
+  "set": "fdn",
+  "collector_number": "141",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ },
+ {
+  "id": "0b235e9f-a8a6-45d7-b301-bc6db752dda8",
+  "oracle_id": "48e6d3d8-2f27-4017-acdd-40bce8cdbc02",
+  "name": "Giada, Font of Hope",
+  "set": "fdn",
+  "collector_number": "298",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "borderless"
+ },
+ {
+  "id": "4ef17ed4-a9b5-4b8e-b4cb-2ecb7e5898c3",
+  "oracle_id": "bc71ebf6-2056-41f7-be35-b2e5c34afa99",
+  "name": "Plains",
+  "set": "fdn",
+  "collector_number": "272",
+  "layout": "normal",
+  "frame": "2015",
+  "border_color": "black"
+ }
+]

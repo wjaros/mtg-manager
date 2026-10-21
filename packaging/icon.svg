@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- macOS icon grid: 824px rounded square centered on a 1024px canvas -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#262c38"/>
+      <stop offset="1" stop-color="#0f1218"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0c968"/>
+      <stop offset="1" stop-color="#b8862c"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+  <rect x="300" y="215" width="330" height="460" rx="34" fill="#1f2430" stroke="#8b93a6" stroke-width="16" transform="rotate(-10 465 445)"/>
+  <rect x="380" y="300" width="350" height="490" rx="36" fill="#1f2430" stroke="url(#gold)" stroke-width="22"/>
+  <circle cx="555" cy="545" r="88" fill="url(#gold)"/>
+</svg>

@@ -1,0 +1,144 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch cancels the older run instead of queueing behind it.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }})
+    # Tests are platform-independent: Linux runners are fast and cheap, Windows catches path and
+    # encoding issues. macOS runners are reserved for building the macOS packages.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Backend tests
+        working-directory: backend
+        # Fail on file I/O without an explicit encoding in our code (see filterwarnings in pyproject).
+        run: uv run python -X warn_default_encoding -m pytest -q
+
+      - name: Python lint
+        working-directory: backend
+        run: uvx ruff check mtgdm tests ../scripts
+
+      - name: Frontend build and lint
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run lint
+
+  package:
+    name: Package (${{ matrix.name }})
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, name: macos-arm64 }
+          - { os: macos-15-intel, name: macos-x86_64 }
+          - { os: windows-latest, name: windows-x64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # The minimal OpenCV build (scripts/build_opencv.py) takes minutes; reuse it while the
+      # OpenCV version and the build script stay the same.
+      - name: Cache minimal OpenCV
+        uses: actions/cache@v4
+        with:
+          path: build/opencv-slim
+          key: opencv-slim-${{ matrix.name }}-${{ hashFiles('backend/uv.lock', 'scripts/build_opencv.py') }}
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: scripts/build_macos.sh
+
+      - name: Smoke test (macOS)
+        if: runner.os == 'macOS'
+        run: uv run --no-project python scripts/smoke_test.py "dist/MTG Deck Manager.app/Contents/MacOS/mtgdm"
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/build_windows.ps1
+
+      - name: Smoke test (Windows)
+        if: runner.os == 'Windows'
+        run: uv run --no-project python scripts/smoke_test.py "dist/MTG Deck Manager/MTG Deck Manager.exe"
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-deck-manager-${{ matrix.name }}
+          path: |
+            dist/*.dmg
+            dist/*.zip
+          if-no-files-found: error
+          # Push builds are for checking; releases keep their files in GitHub Releases.
+          retention-days: 14
+
+  release:
+    name: GitHub Release
+    # Tag pushes only (git tag v0.2.0 && git push origin v0.2.0), after every package built and passed
+    # its smoke test.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag matches the app version
+        run: |
+          version=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' backend/mtgdm/__init__.py)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match __version__ = $version (backend/mtgdm/__init__.py)"
+            exit 1
+          fi
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: release
+          pattern: mtg-deck-manager-*
+          merge-multiple: true
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l release
+          gh release create "$GITHUB_REF_NAME" release/* --title "MTG Deck Manager ${GITHUB_REF_NAME#v}" --generate-notes \
+            --notes "Download the file for your system:
+          - **macOS (Apple Silicon: M1/M2/M3/M4)**: \`…-arm64.dmg\`
+          - **macOS (Intel)**: \`…-x86_64.dmg\`
+          - **Windows**: \`…-windows-x64.zip\` (unpack it and run \`MTG Deck Manager.exe\`; needs the Edge WebView2 runtime, built into Windows 11)
+
+          macOS: the app is not notarized – the first time, right-click it → Open.
+          On first start, open Settings → Download card data."

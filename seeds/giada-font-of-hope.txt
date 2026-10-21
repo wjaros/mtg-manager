@@ -1,0 +1,72 @@
+# name: Giada, Font of Hope
+# format: commander
+# platform: paper
+# source: example mono-white angels deck (36 Plains fill it up to 100)
+Commander
+1 Giada, Font of Hope
+
+Deck
+1 Angel of the Dawn
+1 Angelheart Protector
+1 Angelic Curator
+1 Angelic Purge
+1 Angelic Quartermaster
+1 Aven of Enduring Hope
+1 Dawning Angel
+1 Dazzling Angel
+1 Emissary of Sunrise
+1 Emeria Captain
+1 Flensing Raptor
+1 Gale Swooper
+1 Gryffwing Cavalry
+1 Herald of the Sun
+1 Loxodon Restorer
+1 Planar Ally
+1 Razor Hippogriff
+1 Seraph of Dawn
+1 Serra Angel
+1 Shepherd of Heroes
+1 Soul-Guide Gryff
+1 Sunblade Angel
+1 Elite Scaleguard
+1 Squad Captain
+1 Dawn Evangel
+1 Banishing Light
+1 Circle of Confinement
+1 Arrest
+1 Fierce Retribution
+1 Angelic Exaltation
+1 Angel of the Ruins
+1 Dawnbringer Cleric
+1 Aerial Responder
+1 Ajani's Pridemate
+1 Daxos, Blessed by the Sun
+1 Rumor Gatherer
+1 Sunscorch Regent
+1 Bygone Bishop
+1 Cast Out
+1 Seal Away
+1 Rally the Ranks
+1 Glorious Protector
+1 Benalish Marshal
+1 Radiant Destiny
+1 Reprieve
+1 Spectral Procession
+1 Seal of Cleansing
+1 Consul's Lieutenant
+1 Mangara's Equity
+1 Femeref Knight
+1 Magus of the Balance
+1 Gleam of Authority
+1 Sacred Mesa
+1 Siege Veteran
+1 Mentor of the Meek
+1 Restoration Angel
+1 Angel of Invention
+1 Emeria Angel
+1 Youthful Valkyrie
+1 Windshaper Planetar
+1 Light of the Legion
+1 Serra's Guardian
+1 Regna, the Redeemer
+36 Plains

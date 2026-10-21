@@ -1,0 +1,38 @@
+# name: Code of the Orzhov – Guildpact theme deck
+# format: freeform
+# platform: paper
+# preferred-sets: gpt, rav
+# source: Guildpact theme deck, released 2006-02-03
+Deck
+2 Agent of Masks (GPT) 100
+1 Belfry Spirit (GPT) 2
+2 Blind Hunter (GPT) 102
+2 Infectious Host (RAV) 91
+1 Martyred Rusalka (GPT) 12
+2 Mourning Thrull (GPT) 146
+2 Orzhov Euthanist (GPT) 54
+1 Orzhov Guildmage (GPT) 147
+2 Ostiary Thrull (GPT) 55
+1 Plagued Rusalka (GPT) 56
+2 Poisonbelly Ogre (GPT) 57
+2 Shrieking Grotesque (GPT) 15
+1 Skeletal Vampire (GPT) 62
+2 Souls of the Faultless (GPT) 131
+1 Teysa, Orzhov Scion (GPT) 134
+2 Thoughtpicker Witch (RAV) 109
+1 Festival of the Guildpact (RAV) 17
+1 Mortify (GPT) 122
+2 Castigate (GPT) 106
+2 Hissing Miasma (GPT) 51
+2 Pillory of the Sleepless (GPT) 125
+2 Strands of Undeath (RAV) 108
+2 Orzhov Basilica (GPT) 161
+1 Orzhova, the Church of Deals (GPT) 162
+3 Plains (RAV) 287
+3 Plains (RAV) 288
+2 Plains (RAV) 289
+2 Plains (RAV) 290
+3 Swamp (RAV) 295
+3 Swamp (RAV) 296
+3 Swamp (RAV) 297
+2 Swamp (RAV) 298
