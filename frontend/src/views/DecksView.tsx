@@ -63,8 +63,8 @@ export function DecksView({ onOpen }: Props) {
               <div key={deck.id} className="deck-tile">
                 <button className="deck-tile-open" onClick={() => onOpen(deck.id)}>
                   <div className="deck-tile-art">
-                    {deck.commander_card_id ? (
-                      <CardImage cardId={deck.commander_card_id} name={deck.commander_name ?? ''} size="normal" />
+                    {deck.cover_card_id ? (
+                      <CardImage cardId={deck.cover_card_id} name={deck.commander_name ?? deck.name} size="normal" />
                     ) : (
                       <div className="card-image placeholder">
                         <span className="card-image-name">{deck.name}</span>

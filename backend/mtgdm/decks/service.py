@@ -259,6 +259,13 @@ def _summary(conn: sqlite3.Connection, deck_id: int, changes: DeckChanges | None
         if row:
             names.append(row["name"])
             identity.update(json.loads(row["color_identity"] or "[]"))
+    if not names:
+        for row in conn.execute(
+            "SELECT DISTINCT c.color_identity FROM deck_cards dc JOIN cards c ON c.id = dc.card_id "
+            "WHERE dc.deck_id = ? AND dc.board = 'main'",
+            (deck_id,),
+        ):
+            identity.update(json.loads(row[0] or "[]"))
 
     return DeckSummary(
         id=deck["id"],
@@ -270,6 +277,7 @@ def _summary(conn: sqlite3.Connection, deck_id: int, changes: DeckChanges | None
         partner_card_id=deck["partner_card_id"],
         companion_card_id=deck["companion_card_id"],
         commander_name=" & ".join(names) or None,
+        cover_card_id=deck["commander_card_id"] or deck["companion_card_id"] or _cover_card(conn, deck_id),
         color_identity=[c for c in COLOR_ORDER if c in identity],
         location_id=deck["location_id"],
         counts=DeckCounts(**counts, total=counts["main"] + counts["commander"]),
@@ -277,6 +285,24 @@ def _summary(conn: sqlite3.Connection, deck_id: int, changes: DeckChanges | None
         created_at=deck["created_at"],
         updated_at=deck["updated_at"],
     )
+
+
+def _cover_card(conn: sqlite3.Connection, deck_id: int) -> str | None:
+    """The deck's face without a commander: a legendary creature or planeswalker if there is one,
+    then the costliest creature / planeswalker, then the costliest other nonland card."""
+    row = conn.execute(
+        """
+        SELECT dc.card_id FROM deck_cards dc JOIN cards c ON c.id = dc.card_id
+        WHERE dc.deck_id = ? AND dc.board = 'main'
+        ORDER BY c.type_line LIKE '%Land%' AND c.type_line NOT LIKE '%Creature%',
+                 c.type_line LIKE '%Legendary%' AND (c.type_line LIKE '%Creature%' OR c.type_line LIKE '%Planeswalker%') DESC,
+                 c.type_line LIKE '%Creature%' OR c.type_line LIKE '%Planeswalker%' DESC,
+                 c.cmc DESC, dc.quantity DESC, dc.rowid
+        LIMIT 1
+        """,
+        (deck_id,),
+    ).fetchone()
+    return row[0] if row else None
 
 
 def _require_deck(conn: sqlite3.Connection, deck_id: int) -> None:

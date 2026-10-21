@@ -35,7 +35,10 @@ class DeckSummary(BaseModel):
     partner_card_id: str | None
     companion_card_id: str | None
     commander_name: str | None
-    color_identity: list[str]  # union of the commanders' identities (empty without commander)
+    # Card shown on the deck tile: the commander, else the companion, else a card of the main deck.
+    cover_card_id: str | None
+    # The commanders' identity; without a commander, the colours of the main deck's cards.
+    color_identity: list[str]
     location_id: int | None    # deck box in the collection ("I own this deck")
     counts: DeckCounts
     unsaved_changes: int  # cards changed since the latest saved version

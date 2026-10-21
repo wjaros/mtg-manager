@@ -874,6 +874,7 @@ nav {
 }
 
 .deck-tile-name {
+  padding-right: 1.25rem; /* room for the delete button */
   overflow: hidden;
   text-overflow: ellipsis;
 }

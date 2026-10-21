@@ -74,8 +74,25 @@ def test_commander_sets_identity_and_counts(client):
     summary = client.get("/api/decks").json()[0]
     assert summary["commander_name"] == "Giada, Font of Hope" and summary["counts"]["total"] == 2
 
+    assert deck["cover_card_id"] == giada
     deck = client.delete(f"/api/decks/{deck_id}/cards/{giada}", params={"board": "commander"}).json()
-    assert deck["commander_card_id"] is None and deck["color_identity"] == []
+    # Without a commander: the main deck's colours and one of its cards as the cover.
+    assert deck["commander_card_id"] is None and deck["color_identity"] == ["W"]
+    assert deck["cover_card_id"] == card_id("Serra Angel")
+
+
+def test_cover_without_commander(client):
+    deck_id = new_deck(client, name="Orzhov", format="freeform", platform="paper")["id"]
+    assert client.get(f"/api/decks/{deck_id}").json()["cover_card_id"] is None
+    for name in ("Plains", "Angel of the Ruins", "Blind Hunter"):
+        deck = client.post(f"/api/decks/{deck_id}/cards", json={"card_id": card_id(name)}).json()
+    # The costliest creature, as there is no legendary one.
+    assert deck["cover_card_id"] == card_id("Angel of the Ruins")
+    assert deck["color_identity"] == ["W", "B"]
+
+    deck = client.post(f"/api/decks/{deck_id}/cards", json={"card_id": card_id("Barbara Wright")}).json()
+    assert deck["cover_card_id"] == card_id("Barbara Wright")  # a legendary creature beats a bigger one
+    assert client.get("/api/decks").json()[0]["cover_card_id"] == card_id("Barbara Wright")
 
 
 def test_partner_commanders_union_identity(client):

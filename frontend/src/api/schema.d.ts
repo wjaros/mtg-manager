@@ -1483,6 +1483,8 @@ export interface components {
             companion_card_id: string | null;
             /** Commander Name */
             commander_name: string | null;
+            /** Cover Card Id */
+            cover_card_id: string | null;
             /** Color Identity */
             color_identity: string[];
             /** Location Id */
@@ -1560,6 +1562,8 @@ export interface components {
             companion_card_id: string | null;
             /** Commander Name */
             commander_name: string | null;
+            /** Cover Card Id */
+            cover_card_id: string | null;
             /** Color Identity */
             color_identity: string[];
             /** Location Id */
