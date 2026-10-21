@@ -93,7 +93,11 @@ def main() -> int:
     # Apache-2.0 (OpenCV, KleidiCV) and the bundled libjpeg-turbo, libpng, zlib, ... licenses must ship with
     # the binaries: OpenCV installs the licenses of exactly the components it built.
     licenses = out / "licenses" / "opencv"
-    shutil.copytree(install / "share" / "licenses", licenses / "3rdparty", dirs_exist_ok=True)
+    # share/licenses/opencv4 on macOS and Linux, etc/licenses on Windows (OpenCVInstallLayout.cmake).
+    installed = next((p for p in (install / "share" / "licenses", install / "etc" / "licenses") if p.is_dir()), None)
+    if installed is None:
+        raise SystemExit(f"OpenCV installed no licenses folder under {install}")
+    shutil.copytree(installed, licenses / "3rdparty", dirs_exist_ok=True)
     for name in ("LICENSE", "COPYRIGHT"):
         shutil.copy(source / name, licenses / name)
     if arm:
