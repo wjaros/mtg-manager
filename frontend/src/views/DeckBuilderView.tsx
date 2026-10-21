@@ -40,6 +40,21 @@ import { formatNumber, locale, t } from '../i18n'
 
 export type DeckTab = 'pool' | 'stats' | 'missing' | 'history'
 
+// How the height is shared between the pool (top) and the mana columns (bottom): the pool alone,
+// both, or the deck's columns over the whole height. Remembered per browser.
+const LAYOUTS = ['pool', 'split', 'deck'] as const
+type Layout = (typeof LAYOUTS)[number]
+const LAYOUT_KEY = 'mtgdm.deckbuilderLayout'
+
+function savedLayout(): Layout {
+  try {
+    const saved = localStorage.getItem(LAYOUT_KEY)
+    return LAYOUTS.find((l) => l === saved) ?? 'split'
+  } catch {
+    return 'split'
+  }
+}
+
 interface Props {
   deckId: number
   tab: DeckTab
@@ -55,7 +70,16 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
   const [hideAdded, setHideAdded] = useState(false)
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [detail, setDetail] = useState<{ cardId: string; entry?: DeckCard } | null>(null)
-  const [showColumns, setShowColumns] = useState(true)
+  const [layout, setLayout] = useState<Layout>(savedLayout)
+  const moveLayout = (step: 1 | -1) => {
+    const next = LAYOUTS[Math.min(LAYOUTS.length - 1, Math.max(0, LAYOUTS.indexOf(layout) + step))]
+    setLayout(next)
+    try {
+      localStorage.setItem(LAYOUT_KEY, next)
+    } catch {
+      // private mode: the layout just isn't remembered
+    }
+  }
   const [exporting, setExporting] = useState(false)
   const [dropZone, setDropZone] = useState<'pool' | 'deck' | null>(null)
   const [collectionNote, setCollectionNote] = useState<string | null>(null)
@@ -283,7 +307,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
   }
 
   return (
-    <div className={`view deckbuilder ${showColumns ? '' : 'no-columns'}`}>
+    <div className={`view deckbuilder layout-${layout}`}>
       <header className="deckbuilder-header">
         <button className="link-button" onClick={onBack}>
           {t.builder.back}
@@ -480,10 +504,15 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
       </aside>
 
       <section className={`deckbuilder-columns ${dropZone === 'deck' ? 'drop-target' : ''}`} {...deckDrop}>
-        <button className="columns-toggle" onClick={() => setShowColumns(!showColumns)}>
-          {showColumns ? t.builder.hideColumns : t.builder.showColumns}
-        </button>
-        {showColumns && (
+        <div className="columns-toggle">
+          <button onClick={() => moveLayout(1)} disabled={layout === 'deck'} title={t.builder.expandDeckTitle}>
+            {t.builder.expandDeck}
+          </button>
+          <button onClick={() => moveLayout(-1)} disabled={layout === 'pool'} title={t.builder.expandPoolTitle}>
+            {t.builder.expandPool}
+          </button>
+        </div>
+        {layout !== 'pool' && (
           <ManaColumns
             cards={deck.cards}
             changes={deck.changes.cards}

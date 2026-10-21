@@ -1075,17 +1075,67 @@ nav {
 
 .columns-toggle {
   position: absolute;
+  z-index: 2;
   top: -1px;
   right: 1rem;
+  display: flex;
   transform: translateY(-100%);
-  padding: 0.15rem 0.6rem;
   border: 1px solid var(--border);
   border-bottom: 0;
   border-radius: 6px 6px 0 0;
   background: #0c0f14;
+}
+
+.columns-toggle button {
+  padding: 0.15rem 0.6rem;
+  border: 0;
+  background: none;
   font-size: 0.75rem;
   color: var(--text-muted);
   cursor: pointer;
+}
+
+.columns-toggle button + button {
+  border-left: 1px solid var(--border);
+}
+
+.columns-toggle button:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.columns-toggle button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* The deck's columns over the whole height, next to the list; the pool is hidden. */
+.view.deckbuilder.layout-deck {
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    'header header'
+    'columns list';
+}
+
+.layout-deck .deckbuilder-pool {
+  display: none;
+}
+
+.layout-deck .deckbuilder-columns {
+  min-height: 0;
+  border-top: 0;
+}
+
+.layout-deck .columns-toggle {
+  top: 0;
+  transform: none;
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0 0 6px 6px;
+}
+
+.view.deckbuilder.layout-deck .mana-columns {
+  height: 100%;
+  padding-top: 1.75rem;
 }
 
 .mana-columns {

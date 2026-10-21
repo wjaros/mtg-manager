@@ -221,8 +221,10 @@ export const en: Messages = {
     poolCount: (n: string) => `${n} cards · click = add, right click = more`,
     chooseCommander: 'Choose a commander: right-click a legendary creature in the pool and pick “Set as commander”.',
     emptyDeck: 'The deck is empty. Click a card in the pool to add it.',
-    hideColumns: '▾ Hide columns',
-    showColumns: '▴ Show columns',
+    expandDeck: '▴ Deck',
+    expandDeckTitle: 'Slide the deck (mana columns) up over the collection',
+    expandPool: '▾ Collection',
+    expandPoolTitle: 'Slide the collection down over the deck',
   },
   panels: {
     boardCommander: 'Commander',

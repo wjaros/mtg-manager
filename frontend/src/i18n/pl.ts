@@ -225,8 +225,10 @@ export const pl = {
     poolCount: (n: string) => `${n} kart · klik = dodaj, prawy = więcej`,
     chooseCommander: 'Wybierz dowódcę: kliknij prawym przyciskiem legendarną istotę w puli i wybierz „Ustaw jako dowódcę”.',
     emptyDeck: 'Talia jest pusta. Kliknij kartę w puli, aby ją dodać.',
-    hideColumns: '▾ Ukryj kolumny',
-    showColumns: '▴ Pokaż kolumny',
+    expandDeck: '▴ Talia',
+    expandDeckTitle: 'Wysuń talię (kolumny many) w górę, nad kolekcję',
+    expandPool: '▾ Kolekcja',
+    expandPoolTitle: 'Wysuń kolekcję w dół, nad talię',
   },
   panels: {
     boardCommander: 'Dowódca',
