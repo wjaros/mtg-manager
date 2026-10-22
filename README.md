@@ -3,9 +3,10 @@
 # MTG Deck Manager
 
 A local desktop app for Magic: The Gathering players with a paper collection and an Arena account:
-keep track of your cards (by scanning them), build and validate decks, see what a deck still needs, and
-export decks to MTG Arena, Moxfield or a phone-friendly PDF. Everything runs on your computer; card
-data comes from [Scryfall](https://scryfall.com) and works offline once downloaded.
+keep track of your cards (by scanning them), build and validate decks, see what a deck still needs,
+print proxies of the cards you're missing, and export decks to MTG Arena, Moxfield or a
+phone-friendly PDF. Everything runs on your computer; card data comes from
+[Scryfall](https://scryfall.com) and works offline once downloaded.
 
 ![Deckbuilder](docs/screenshots/deckbuilder.webp)
 
@@ -68,16 +69,30 @@ review the result and choose finish, condition and location before anything reac
 ![Import](docs/screenshots/import.webp)
 
 **Proxy printing.** From a paper deck, *Proxies* lists the cards you can't put in its box: the ones
-you don't own and the ones sitting in another deck's box. Pick the quantities and printings, add
-any card by hand, tick the tokens the deck makes, and get a PDF of 3 × 3 card-size proxies with crop marks (A4 or Letter; double-faced
-cards print both faces). With a duplex printer the backs print too: a double-faced card's
-other face, or the app's own card back. A two-sided test page shows how far the printer puts the back off
-the front (read against the light on a 0.5 mm scale), and later backs are moved to match. Printers scale pages slightly, so *Settings → Printing* calibrates each
-printer: print a calibration page, measure two lengths with a ruler, and later prints come out at
-real card size. Any other cards (or tokens) print from *Collection → Print proxies*: pick them in
-the card grid (*Pick for printing*, or right click), search for them or paste a list. Card images are printed unaltered, for personal playtesting only. To save ink (or test a
-layout), print *text proxies* instead: name, mana cost, type, rules text, stats and price in a thin
-frame, with the app's logo where the art would be.
+you don't own and the ones sitting in another deck's box (with that deck's name), plus the tokens
+the deck makes. Pick quantities and printings, add any card by hand, and get a print-ready PDF:
+- 3 × 3 card-size proxies per A4 or Letter page, with crop marks;
+- card images from Scryfall, unaltered, or *text proxies* to save ink: name, mana cost, type,
+  rules text, stats and price in a thin frame, with the app's logo where the art would be;
+- two-sided for duplex printers: a double-faced card's other face on the back, other cards get
+  the app's own card back.
+
+Any other cards or tokens print from *Collection → Print proxies*: pick them in the card grid
+(*Pick for printing*, or right click), search for them or paste a list.
+
+![Proxy printing](docs/screenshots/proxies.webp)
+
+![Proxy pages: card images and text proxies](docs/screenshots/proxy-pages.webp)
+
+Printers scale and shift pages slightly. *Settings → Printing* calibrates each printer:
+- print a calibration page and measure two lengths with a ruler: later prints come out at real
+  card size, so cut proxies fit sleeves;
+- for two-sided prints, a test page shows how far the printer puts the back off the front (read
+  against the light on a 0.5 mm scale), and backs are moved to match.
+
+Proxies are for personal playtesting only, not for sale.
+
+![Printer calibration](docs/screenshots/printing.webp)
 
 The interface is in Polish and English (Settings → Language).
 

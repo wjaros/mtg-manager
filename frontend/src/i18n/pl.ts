@@ -399,6 +399,7 @@ export const pl = {
       token: 'Tokeny',
       extra: 'Dodane ręcznie',
     } as Record<'missing' | 'in_other_deck' | 'token' | 'extra', string>,
+    selectGroup: 'Zaznacz albo odznacz całą grupę',
     tokensHint: 'zaznacz te, które chcesz wydrukować',
     tokenFrom: (cards: string) => `z: ${cards}`,
     introFree: 'Dowolne karty do druku: wyszukaj je albo wklej listę. Strony 3 × 3 w rozmiarze karty, do wycięcia.',

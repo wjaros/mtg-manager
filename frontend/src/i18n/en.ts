@@ -398,6 +398,7 @@ export const en: Messages = {
       token: 'Tokens',
       extra: 'Added by hand',
     } as Record<'missing' | 'in_other_deck' | 'token' | 'extra', string>,
+    selectGroup: 'Select or clear the whole group',
     tokensHint: 'tick the ones you want to print',
     tokenFrom: (cards: string) => `from: ${cards}`,
     introFree: 'Any cards to print: search for them or paste a list. 3 × 3 card-size pages, ready to cut.',

@@ -229,6 +229,17 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
             return (
               <section key={reason} className="proxy-group">
                 <h3>
+                  <input
+                    type="checkbox"
+                    className="group-check"
+                    checked={group.every((r) => r.checked)}
+                    onChange={(e) => {
+                      const checked = e.target.checked
+                      setRows((prev) => prev && prev.map((r) => (r.reason === reason ? { ...r, checked } : r)))
+                    }}
+                    aria-label={t.print.selectGroup}
+                    title={t.print.selectGroup}
+                  />
                   {t.print.reason[reason]}{' '}
                   <span className="muted">
                     ({reason === 'token' ? group.length : group.reduce((n, r) => n + r.qty, 0)})

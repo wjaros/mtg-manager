@@ -2872,3 +2872,13 @@ label.button.disabled {
 .proxy-row:has(.link-button) {
   grid-template-columns: auto 3.5rem minmax(0, 1fr) minmax(0, 14rem) auto;
 }
+
+.proxy-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.proxy-group h3 .muted {
+  font-weight: normal;
+}
