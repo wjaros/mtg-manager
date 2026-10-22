@@ -54,6 +54,7 @@ export type OcrEngines = Schemas['OcrEngines']
 export type ProxyCandidate = Schemas['ProxyCandidate']
 export type DeckToken = Schemas['DeckToken']
 export type PrintHistory = Schemas['PrintHistory']
+export type CloudBackupStatus = Schemas['CloudBackupStatus']
 export type MarkResult = Schemas['MarkResult']
 export type ReplaceWithReal = Schemas['ReplaceWithReal']
 export type ItemKind = CollectionItem['kind']
@@ -224,6 +225,15 @@ export const api = {
   deckToCollection: (deckId: number, replace = false) =>
     request<DeckToCollectionResult>(`/api/decks/${deckId}/collection?replace=${replace}`, { method: 'POST' }),
 
+  cloudBackup: () => request<CloudBackupStatus>('/api/backup/cloud'),
+  saveCloudBackup: (folder: string | null, enabled: boolean) =>
+    request<CloudBackupStatus>('/api/backup/cloud', jsonBody('PUT', { folder, enabled })),
+  cloudBackupWrite: () => request<CloudBackupStatus>('/api/backup/cloud/write', { method: 'POST' }),
+  cloudBackupLoad: () => request<BackupImportResult>('/api/backup/cloud/load', { method: 'POST' }),
+  cloudBackupDismiss: () =>
+    fetch('/api/backup/cloud/dismiss', { method: 'POST' }).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+    }),
   backupImport: (data: unknown, replace: boolean) =>
     request<BackupImportResult>(`/api/backup/import?replace=${replace}`, jsonBody('POST', data)),
 

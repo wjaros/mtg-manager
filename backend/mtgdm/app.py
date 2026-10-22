@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from mtgdm import __version__
 from mtgdm.api import api_router
+from mtgdm.cloud_backup import CloudBackupWriter
 from mtgdm.config import Settings, load_settings
 from mtgdm.db import connect, migrate
 from mtgdm.i18n import LanguageMiddleware
@@ -32,9 +33,13 @@ def create_app(settings: Settings | None = None, scryfall: ScryfallClient | None
             migrate(conn)
         finally:
             conn.close()
+        # Backups into a synced folder, when enabled (Settings › Backup).
+        writer = CloudBackupWriter(lambda: connect(settings.db_path))
+        writer.start()
         try:
             yield
         finally:
+            writer.stop()
             app.state.recognizer.close()
             app.state.scryfall.close()
 

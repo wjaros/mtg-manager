@@ -3046,3 +3046,30 @@ label.button.disabled {
 .proxies-history-title {
   margin-top: 2rem;
 }
+
+/* ---------- Cloud backup ---------- */
+
+.cloud-backup {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.cloud-backup h3 {
+  margin: 0 0 0.25rem;
+}
+
+.cloud-folder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cloud-folder .input {
+  flex: 1 1 320px;
+}
+
+.cloud-banner {
+  background: rgb(143 168 255 / 0.12);
+}
