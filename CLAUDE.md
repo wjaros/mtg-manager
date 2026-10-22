@@ -19,6 +19,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     `pipeline.py` (auto/single/page, manual grid), `service.py` (scans as records, PDF pages, review, commit),
     `synth.py` (synthetic photos and A4 pages for tests)
   - `mtgdm/backup.py` – JSON backup of collection, locations and decks (cards by id, then set+number, then name)
+  - `mtgdm/cloud_backup.py` – the backup written to a chosen (synced) folder by a background thread when the data
+    changed (hash without timestamps); a newer file from another machine id is offered on start (never overwritten)
   - `mtgdm/decks/` – deck storage (`deck_cards` is the source of truth; decks.commander/partner/companion_card_id are derived),
     `textformat.py` (Arena list parser), `matcher.py` (line → printing, warnings instead of silent fallbacks), `export.py`,
     `validation.py` (format rules → issues), `stats.py`, `pdf.py` (deck PDF, one card per page, Pillow)

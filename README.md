@@ -211,6 +211,12 @@ The data directory holds the database, image cache, scans and logs:
 Override it with `MTGDM_DATA_DIR`. **Settings → Backup** saves your collection, locations and decks
 (with their history) as one JSON file.
 
+**Automatic cloud backup.** In *Settings → Backup*, choose a folder that iCloud Drive, OneDrive or
+Dropbox syncs (the app suggests the ones it finds). After every change the app writes
+`mtgdm-backup.json` there, with older copies in `history/`; the Scryfall card data stays local. On
+another computer using the same folder, the app offers to load newer data written there (its own
+data goes to `history/` first) or to keep its own.
+
 ## License
 
 Copyright © 2026 Wojciech Jaros. Licensed under the [GNU General Public License v3.0 or later](LICENSE):

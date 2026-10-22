@@ -266,6 +266,10 @@ MESSAGES: dict[str, dict[Lang, str]] = {
         "pl": "Ten wydruk nie jest z talii: wybierz, gdzie oznaczyć proxy.",
         "en": "This print isn't from a deck: choose where to put the proxies.",
     },
+    "cloud_folder_error": {
+        "pl": "Nie da się zapisać w tym folderze: {error}",
+        "en": "Can't write to that folder: {error}",
+    },
     "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
     "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
     "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},

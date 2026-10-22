@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, type Health, type SyncCheck, type SyncProgress, type SyncStatus } from '../api/client'
+import { CloudBackupSettings } from '../components/CloudBackupSettings'
 import { PrintingPanel } from '../components/PrintingPanel'
 import { formatNumber, lang, LANGUAGES, locale, setLang, t, type Lang } from '../i18n'
 
@@ -265,6 +266,7 @@ function BackupPanel() {
         </label>
       </div>
       {message && <p className={`status ${message.ok ? 'ok' : 'error'}`}>{message.text}</p>}
+      <CloudBackupSettings />
     </section>
   )
 }

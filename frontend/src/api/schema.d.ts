@@ -61,6 +61,89 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/backup/cloud": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cloud Status
+         * @description Automatic backups into a (synced) folder: settings, last write, and a newer backup written by
+         *     another computer, if there is one.
+         */
+        get: operations["cloud_status_api_backup_cloud_get"];
+        /** Cloud Settings */
+        put: operations["cloud_settings_api_backup_cloud_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/cloud/write": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cloud Write
+         * @description Write the backup now.
+         */
+        post: operations["cloud_write_api_backup_cloud_write_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/cloud/load": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cloud Load
+         * @description Replace this computer's data with the newer backup from another one (this one's is kept in
+         *     the folder's history).
+         */
+        post: operations["cloud_load_api_backup_cloud_load_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backup/cloud/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cloud Dismiss
+         * @description Keep this computer's data; don't offer that backup again.
+         */
+        post: operations["cloud_dismiss_api_backup_cloud_dismiss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cards": {
         parameters: {
             query?: never;
@@ -1474,6 +1557,32 @@ export interface components {
             /** Decks */
             decks: components["schemas"]["UsageDeck"][];
         };
+        /** CloudBackupSettings */
+        CloudBackupSettings: {
+            /** Folder */
+            folder: string | null;
+            /** Enabled */
+            enabled: boolean;
+        };
+        /** CloudBackupStatus */
+        CloudBackupStatus: {
+            /** Folder */
+            folder: string | null;
+            /** Enabled */
+            enabled: boolean;
+            /** Machine Name */
+            machine_name: string;
+            /** Last Written At */
+            last_written_at: string | null;
+            /** Error */
+            error?: string | null;
+            newer?: components["schemas"]["RemoteBackup"] | null;
+            /**
+             * Suggestions
+             * @default []
+             */
+            suggestions?: string[];
+        };
         /** CollectionImportCommit */
         CollectionImportCommit: {
             /** Entries */
@@ -2656,6 +2765,17 @@ export interface components {
             /** Deck Id */
             deck_id?: number | null;
         };
+        /** RemoteBackup */
+        RemoteBackup: {
+            /** Machine Name */
+            machine_name: string;
+            /** Written At */
+            written_at: string;
+            /** Decks */
+            decks: number;
+            /** Collection Items */
+            collection_items: number;
+        };
         /**
          * ReplaceWithReal
          * @description A proxy you now have the real card for. Either a new copy (printing, finish, condition,
@@ -2985,6 +3105,117 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    cloud_status_api_backup_cloud_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CloudBackupStatus"];
+                };
+            };
+        };
+    };
+    cloud_settings_api_backup_cloud_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloudBackupSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CloudBackupStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cloud_write_api_backup_cloud_write_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CloudBackupStatus"];
+                };
+            };
+        };
+    };
+    cloud_load_api_backup_cloud_load_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResult"];
+                };
+            };
+        };
+    };
+    cloud_dismiss_api_backup_cloud_dismiss_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

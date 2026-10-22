@@ -1,6 +1,6 @@
 # Idea: keep my data in a cloud folder
 
-Status: idea, not planned yet.
+Status: step 1 done (Settings → Backup → Automatic cloud backup, `mtgdm/cloud_backup.py`); step 2 open.
 
 ## What I want
 
