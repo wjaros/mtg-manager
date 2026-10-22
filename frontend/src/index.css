@@ -2818,3 +2818,57 @@ label.button.disabled {
     grid-column: 2 / -1;
   }
 }
+
+.proxy-add-bar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.proxy-add-bar .input {
+  flex: 1;
+}
+
+.proxy-paste {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.proxy-paste textarea {
+  width: 100%;
+}
+
+.collection-print {
+  margin-left: auto;
+}
+
+.card-button.marked {
+  box-shadow: 0 0 0 3px var(--ok), 0 10px 24px rgb(0 0 0 / 0.5);
+}
+
+.card-button.marked::after {
+  content: '🖨';
+  position: absolute;
+  bottom: 6%;
+  left: 6%;
+  padding: 0.05em 0.35em;
+  border-radius: 6px;
+  background: rgb(15 18 24 / 0.9);
+  color: var(--text);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.pick-toggle {
+  margin-left: 1rem;
+}
+
+.collection-header .pick-toggle + .zoom-control {
+  margin-left: 0;
+}
+
+.proxy-row:has(.link-button) {
+  grid-template-columns: auto 3.5rem minmax(0, 1fr) minmax(0, 14rem) auto;
+}

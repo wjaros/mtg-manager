@@ -74,7 +74,8 @@ cards print both faces). With a duplex printer the backs print too: a double-fac
 other face, or the app's own card back. A two-sided test page shows how far the printer puts the back off
 the front (read against the light on a 0.5 mm scale), and later backs are moved to match. Printers scale pages slightly, so *Settings → Printing* calibrates each
 printer: print a calibration page, measure two lengths with a ruler, and later prints come out at
-real card size. Card images are printed unaltered, for personal playtesting only. To save ink (or test a
+real card size. Any other cards (or tokens) print from *Collection → Print proxies*: pick them in
+the card grid (*Pick for printing*, or right click), search for them or paste a list. Card images are printed unaltered, for personal playtesting only. To save ink (or test a
 layout), print *text proxies* instead: name, mana cost, type, rules text, stats and price in a thin
 frame, with the app's logo where the art would be.
 

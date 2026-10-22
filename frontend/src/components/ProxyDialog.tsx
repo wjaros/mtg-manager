@@ -9,6 +9,7 @@ import {
   type ProxyCandidate,
 } from '../api/client'
 import { t } from '../i18n'
+import { printQueue } from '../printQueue'
 
 type Reason = ProxyCandidate['reason'] | 'token' | 'extra'
 
@@ -31,15 +32,36 @@ const REASONS: Reason[] = ['missing', 'in_other_deck', 'token', 'extra']
 // Scryfall's image_status values worth a warning: the printed proxy would be blurry or a stand-in.
 const POOR_IMAGES = ['lowres', 'placeholder', 'missing']
 
+/** The collection's print list as dialog rows. */
+function queuedRows(): Row[] {
+  return printQueue.items().map((q) => ({
+    key: `extra-${q.card_id}`,
+    card_id: q.card_id,
+    name: q.name,
+    reason: 'extra' as Reason,
+    qty: q.qty,
+    checked: true,
+    faces: q.faces,
+    other_decks: [],
+    image_status: null,
+  }))
+}
+
 interface Props {
-  deckId: number
-  deckName: string
+  deckId: number | null // null: any cards, picked by hand (from the collection page)
+  deckName?: string
   onClose: () => void
 }
 
-/** Print proxies for the cards this deck's box lacks: not owned, or sitting in another deck's box. */
-export function ProxyDialog({ deckId, deckName, onClose }: Props) {
-  const [rows, setRows] = useState<Row[] | null>(null)
+/** Print proxies for the cards this deck's box lacks (not owned, or sitting in another deck's box),
+the tokens it makes, and any card added by hand; without a deck, just the cards you add. */
+export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
+  // Without a deck the cards come from (and go back to) the collection's print list.
+  const [rows, setRows] = useState<Row[] | null>(() => (deckId === null ? queuedRows() : null))
+  useEffect(() => {
+    if (deckId !== null || rows === null) return
+    printQueue.replace(rows.map((r) => ({ card_id: r.card_id, name: r.name, faces: r.faces, qty: r.qty })))
+  }, [deckId, rows])
   const [includeBasics, setIncludeBasics] = useState(false)
   const [frontOnly, setFrontOnly] = useState(false)
   const [profiles, setProfiles] = useState<PrinterProfile[]>([])
@@ -54,6 +76,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (deckId === null) return
     let cancelled = false
     api.proxyCandidates(deckId, includeBasics).then(
       (list) =>
@@ -81,6 +104,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
 
   // Tokens the deck makes: listed unchecked, you pick the ones you want.
   useEffect(() => {
+    if (deckId === null) return
     let cancelled = false
     api.deckTokens(deckId).then(
       (list) =>
@@ -135,21 +159,27 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
   const update = (key: string, change: Partial<Row>) =>
     setRows((prev) => prev && prev.map((r) => (r.key === key ? { ...r, ...change } : r)))
 
-  const addExtra = (card: CardSummary) =>
-    setRows((prev) => [
-      ...(prev ?? []),
-      {
-        key: `extra-${card.id}-${Date.now()}`,
-        card_id: card.id,
-        name: card.name,
-        reason: 'extra',
-        qty: 1,
-        checked: true,
-        faces: Math.max(1, card.image_faces),
-        other_decks: [],
-        image_status: null,
-      },
-    ])
+  // A card added again (or twice in a pasted list) adds to its row.
+  const addExtra = (card: CardSummary, qty = 1) =>
+    setRows((prev) => {
+      const list = prev ?? []
+      const same = list.find((r) => r.reason === 'extra' && r.card_id === card.id)
+      if (same) return list.map((r) => (r === same ? { ...r, qty: Math.min(99, r.qty + qty), checked: true } : r))
+      return [
+        ...list,
+        {
+          key: `extra-${card.id}`,
+          card_id: card.id,
+          name: card.name,
+          reason: 'extra',
+          qty: Math.min(99, qty),
+          checked: true,
+          faces: Math.max(1, card.image_faces),
+          other_decks: [],
+          image_status: null,
+        },
+      ]
+    })
 
   const selected = (rows ?? []).filter((r) => r.checked && r.qty > 0)
   // Two-sided: one position per copy (a double-faced card's other face goes on the back).
@@ -170,7 +200,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
         cut_marks: cutMarks,
         duplex,
         style,
-        title: deckName,
+        title: deckName || t.print.title,
       })
       setOverflow(started.overflow ?? false)
       setJob(started)
@@ -188,7 +218,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             ×
           </button>
         </div>
-        <p className="muted small">{t.print.intro}</p>
+        <p className="muted small">{deckId === null ? t.print.introFree : t.print.intro}</p>
 
         {rows === null ? (
           <p className="muted">{t.common.loading}</p>
@@ -206,23 +236,39 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
                   {reason === 'token' && <span className="muted small"> · {t.print.tokensHint}</span>}
                 </h3>
                 {group.map((row) => (
-                  <ProxyRow key={row.key} row={row} onChange={(change) => update(row.key, change)} />
+                  <ProxyRow
+                    key={row.key}
+                    row={row}
+                    onChange={(change) => update(row.key, change)}
+                    onRemove={
+                      row.reason === 'extra'
+                        ? () => setRows((prev) => prev && prev.filter((r) => r.key !== row.key))
+                        : undefined
+                    }
+                  />
                 ))}
               </section>
             )
           })
         )}
-        {rows !== null && !rows.some((r) => r.reason === 'missing' || r.reason === 'in_other_deck') && (
+        {deckId !== null && rows !== null && !rows.some((r) => r.reason === 'missing' || r.reason === 'in_other_deck') && (
           <p className="muted">{t.print.nothingMissing}</p>
         )}
 
         <AddCard onAdd={addExtra} />
+        {deckId === null && (rows ?? []).length > 0 && (
+          <button className="link-button small" onClick={() => setRows([])}>
+            {t.print.clearList}
+          </button>
+        )}
 
         <div className="proxy-options">
-          <label className="checkbox">
-            <input type="checkbox" checked={includeBasics} onChange={(e) => setIncludeBasics(e.target.checked)} />
-            {t.print.includeBasics}
-          </label>
+          {deckId !== null && (
+            <label className="checkbox">
+              <input type="checkbox" checked={includeBasics} onChange={(e) => setIncludeBasics(e.target.checked)} />
+              {t.print.includeBasics}
+            </label>
+          )}
           {duplex === 'off' && (
             <label className="checkbox">
               <input type="checkbox" checked={frontOnly} onChange={(e) => setFrontOnly(e.target.checked)} />
@@ -330,7 +376,15 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
   )
 }
 
-function ProxyRow({ row, onChange }: { row: Row; onChange: (change: Partial<Row>) => void }) {
+function ProxyRow({
+  row,
+  onChange,
+  onRemove,
+}: {
+  row: Row
+  onChange: (change: Partial<Row>) => void
+  onRemove?: () => void
+}) {
   const [printings, setPrintings] = useState<CardSummary[] | null>(null)
   const load = () => {
     if (printings === null) api.printings(row.card_id).then(setPrintings, () => setPrintings([]))
@@ -376,12 +430,20 @@ function ProxyRow({ row, onChange }: { row: Row; onChange: (change: Partial<Row>
           </option>
         ))}
       </select>
+      {onRemove && (
+        <button className="link-button danger" onClick={onRemove} aria-label={t.common.delete} title={t.common.delete}>
+          ×
+        </button>
+      )}
     </div>
   )
 }
 
-function AddCard({ onAdd }: { onAdd: (card: CardSummary) => void }) {
+function AddCard({ onAdd }: { onAdd: (card: CardSummary, qty?: number) => void }) {
   const [query, setQuery] = useState('')
+  const [pasting, setPasting] = useState(false)
+  const [list, setList] = useState('')
+  const [notFound, setNotFound] = useState<string[]>([])
   const [results, setResults] = useState<CardSummary[]>([])
   const abort = useRef<AbortController | null>(null)
 
@@ -391,7 +453,8 @@ function AddCard({ onAdd }: { onAdd: (card: CardSummary) => void }) {
     const controller = new AbortController()
     abort.current = controller
     const timer = setTimeout(() => {
-      api.searchCards({ q: query.trim() }, 0, 8, controller.signal).then(
+      // Tokens too: they're printed like any card.
+      api.searchCards({ q: query.trim(), include_extras: true }, 0, 8, controller.signal).then(
         (page) => setResults(page.items),
         () => {},
       )
@@ -402,15 +465,51 @@ function AddCard({ onAdd }: { onAdd: (card: CardSummary) => void }) {
     }
   }, [query])
 
+  // A pasted list ("4 Lightning Bolt (2X2) 117", Arena / Moxfield style): exact printings when given.
+  const [listError, setListError] = useState<string | null>(null)
+  const addList = async () => {
+    setListError(null)
+    try {
+      const report = await api.parseImport(list)
+      for (const line of report.lines) if (line.card) onAdd(line.card, line.quantity)
+      setNotFound(report.lines.filter((l) => !l.card).map((l) => l.name))
+      setList('')
+      setPasting(false)
+    } catch (e) {
+      setListError((e as Error).message)
+    }
+  }
+
   const visible = query.trim().length < 2 ? [] : results
   return (
     <div className="proxy-add">
-      <input
-        className="input"
-        placeholder={t.print.addPlaceholder}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <div className="proxy-add-bar">
+        <input
+          className="input"
+          placeholder={t.print.addPlaceholder}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button className="button" onClick={() => setPasting(!pasting)}>
+          {t.print.pasteList}
+        </button>
+      </div>
+      {pasting && (
+        <div className="proxy-paste">
+          <textarea
+            className="input decklist"
+            rows={6}
+            placeholder={t.print.pastePlaceholder}
+            value={list}
+            onChange={(e) => setList(e.target.value)}
+          />
+          <button className="button primary" onClick={addList} disabled={!list.trim()}>
+            {t.print.addList}
+          </button>
+        </div>
+      )}
+      {notFound.length > 0 && <p className="status warn">{t.print.notFound(notFound.join(', '))}</p>}
+      {listError && <p className="status error">{listError}</p>}
       {visible.length > 0 && (
         <div className="proxy-add-results">
           {visible.map((card) => (
