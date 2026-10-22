@@ -13,6 +13,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Does this run release? A push to master whose __version__ (backend/mtgdm/__init__.py) has no
+  # GitHub Release yet, or a pushed v* tag (which must match __version__). The packages are built
+  # for releases, pull requests and manual runs only: a merge without a new version runs the tests
+  # and skips three package builds the PR already did.
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.check.outputs.release }}
+      tag: ${{ steps.check.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' backend/mtgdm/__init__.py)
+          tag="v$version"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            if [ "$tag" != "$GITHUB_REF_NAME" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match __version__ = $version (backend/mtgdm/__init__.py)"
+              exit 1
+            fi
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_EVENT_NAME" = push ] && ! gh release view "$tag" >/dev/null 2>&1; then
+            echo "::notice::$tag has no release yet: building and releasing it"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
   test:
     name: Tests (${{ matrix.os }})
     # Tests are platform-independent: Linux runners are fast and cheap, Windows catches path and
@@ -49,7 +81,8 @@ jobs:
 
   package:
     name: Package (${{ matrix.name }})
-    needs: test
+    needs: [version, test]
+    if: github.event_name != 'push' || needs.version.outputs.release == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -105,49 +138,25 @@ jobs:
 
   release:
     name: GitHub Release
-    # After every package built and passed its smoke test:
-    # - a push to master whose __version__ (backend/mtgdm/__init__.py) has no release yet: bump the
-    #   version, merge, and the release v<version> is created with its tag;
-    # - or a pushed tag (git tag v0.2.0 && git push origin v0.2.0), which must match __version__.
-    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
-    needs: package
+    # After every package built and passed its smoke test (see the version job for when).
+    needs: [version, package]
+    if: needs.version.outputs.release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Version
-        id: version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          version=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' backend/mtgdm/__init__.py)
-          tag="v$version"
-          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$tag" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match __version__ = $version (backend/mtgdm/__init__.py)"
-            exit 1
-          fi
-          if gh release view "$tag" >/dev/null 2>&1; then
-            echo "::notice::$tag is already released; bump __version__ to release this build"
-            echo "publish=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "publish=true" >> "$GITHUB_OUTPUT"
-          fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-
       - uses: actions/download-artifact@v4
-        if: steps.version.outputs.publish == 'true'
         with:
           path: release
           pattern: mtg-deck-manager-*
           merge-multiple: true
 
       - name: Publish
-        if: steps.version.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.version.outputs.tag }}
+          TAG: ${{ needs.version.outputs.tag }}
         run: |
           ls -l release
           # On master the tag is created at this commit (a tag made with the workflow token does not
