@@ -280,7 +280,12 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             </select>
           </label>
         </div>
-        {duplex !== 'off' && <p className="muted small">{t.print.duplexNote}</p>}
+        {duplex !== 'off' && (
+          <p className="muted small">
+            {t.print.duplexNote}
+            {profile?.back_offset_duplex !== duplex && ` ${t.print.duplexUncalibrated}`}
+          </p>
+        )}
         {!calibrated && <p className="status warn">{t.print.uncalibrated}</p>}
         <p className="muted small">{t.print.personalUse}</p>
 

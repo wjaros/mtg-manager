@@ -237,6 +237,21 @@ MESSAGES: dict[str, dict[Lang, str]] = {
               "5. Optional: the distances from the paper edges.\n"
               "6. Enter them in Settings › Printing.",
     },
+    "print_duplex_title": {"pl": "Test druku dwustronnego", "en": "Two-sided print test"},
+    "print_duplex_long": {"pl": "obracanie wzdłuż dłuższej krawędzi", "en": "flip on long edge"},
+    "print_duplex_short": {"pl": "obracanie wzdłuż krótszej krawędzi", "en": "flip on short edge"},
+    "print_duplex_x": {"pl": "X: + w prawo, − w lewo", "en": "X: + right, − left"},
+    "print_duplex_y": {"pl": "Y: + w dół, − w górę", "en": "Y: + down, − up"},
+    "print_duplex_steps": {
+        "pl": "1. Drukuj dwustronnie w 100%, {mode}, na papierze do proxy.\n"
+              "2. Obejrzyj kartkę od przodu pod światło (okno, lampa).\n"
+              "3. Odczytaj, gdzie linie z tyłu przecinają podziałki (co 0,5 mm): X i Y.\n"
+              "4. Wpisz obie liczby w Ustawienia › Drukowanie; 0 i 0 = tył idealnie pod przodem.",
+        "en": "1. Print two-sided at 100%, {mode}, on your proxy paper.\n"
+              "2. Look at the front of the sheet against the light (window, lamp).\n"
+              "3. Read where the back's lines cross the scales (0.5 mm ticks): X and Y.\n"
+              "4. Enter both in Settings › Printing; 0 and 0 = the back is right behind the front.",
+    },
     "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
     "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
     "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},

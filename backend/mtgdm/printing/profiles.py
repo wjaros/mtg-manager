@@ -37,6 +37,9 @@ class PrinterProfile(BaseModel):
     measured_top_mm: float | None
     card_w_mm: float | None  # card size of the calibration page
     card_h_mm: float | None
+    back_offset_x_mm: float  # two-sided: the back's shift seen from the front (+ right / down)
+    back_offset_y_mm: float
+    back_offset_duplex: Literal["long", "short"] | None  # the flip mode it was measured with
     is_default: bool
     calibrated_at: str | None
     note: str | None
@@ -61,6 +64,17 @@ class Measurements(BaseModel):
     measured_b_mm: float = Field(gt=0)
     measured_left_mm: float | None = Field(default=None, ge=0)
     measured_top_mm: float | None = Field(default=None, ge=0)
+
+
+class BackOffset(BaseModel):
+    """Read on the duplex test page: where the back's line falls on the front's scale."""
+
+    back_offset_x_mm: float = Field(ge=-10, le=10)
+    back_offset_y_mm: float = Field(ge=-10, le=10)
+    duplex: Literal["long", "short"]
+    # Measured on a test page that already had the profile's back offset applied (verification):
+    # what is left adds to it.
+    relative: bool = False
 
 
 class CalibrationResult(BaseModel):
@@ -162,6 +176,32 @@ def calibrate_profile(conn: sqlite3.Connection, profile_id: int, m: Measurements
         difference_y_pct=result.difference_y_pct,
         out_of_range=result.out_of_range,
     )
+
+
+def save_back_offset(conn: sqlite3.Connection, profile_id: int, body: BackOffset) -> PrinterProfile:
+    profile = get_profile(conn, profile_id)
+    x, y = body.back_offset_x_mm, body.back_offset_y_mm
+    if body.relative and profile.back_offset_duplex == body.duplex:
+        x, y = profile.back_offset_x_mm + x, profile.back_offset_y_mm + y
+    with conn:
+        conn.execute(
+            "UPDATE printer_profiles SET back_offset_x_mm = ?, back_offset_y_mm = ?, back_offset_duplex = ? WHERE id = ?",
+            (x, y, body.duplex, profile_id),
+        )
+    return get_profile(conn, profile_id)
+
+
+def back_shift(profile: PrinterProfile | None, duplex: Literal["off", "long", "short"]) -> tuple[float, float]:
+    """How far to move the backs on the back page so they land behind the fronts.
+
+    The offset is measured from the front. Turned over the long edge, the back page's x runs the
+    other way (x_front = W - x_back), so moving the back by +d moves it by -d seen from the front;
+    over the short edge, y runs the other way. Only for the flip mode it was measured with.
+    """
+    if profile is None or duplex == "off" or profile.back_offset_duplex != duplex:
+        return 0.0, 0.0
+    dx, dy = profile.back_offset_x_mm, profile.back_offset_y_mm
+    return (dx, -dy) if duplex == "long" else (-dx, dy)
 
 
 def recompute(profile: PrinterProfile) -> Correction:

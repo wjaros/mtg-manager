@@ -65,7 +65,7 @@ def _fonts() -> tuple[str, str, bool]:
 
 def _plain(text: str) -> str:
     """Text Helvetica can show: Latin letters without diacritics (ł has no decomposition)."""
-    text = text.replace("ł", "l").replace("Ł", "L")
+    text = text.replace("ł", "l").replace("Ł", "L").replace("−", "-").replace("›", ">")
     text = "".join(ch for ch in unicodedata.normalize("NFKD", text) if not unicodedata.combining(ch))
     return text.encode("cp1252", "replace").decode("cp1252")
 
@@ -185,6 +185,7 @@ def render_proxies(
     progress: Callable[[int], None] | None = None,
     backs: list[Slot | None] | None = None,
     duplex: Duplex = "off",
+    back_shift: tuple[float, float] = (0.0, 0.0),
 ) -> int:
     """Write the proxy pages to `out` (3 x 3 cards per page); returns the number of pages.
     `image(slot)` returns a local image file, or None: a frame with the card's name instead.
@@ -195,12 +196,12 @@ def render_proxies(
     pages = sheets * (2 if duplex != "off" else 1)
     frames = layout.frames()
 
-    def draw(page: _Page, slot: Slot, frame: Rect, upside_down: bool = False) -> None:
+    def draw(page: _Page, slot: Slot, frame: Rect, upside_down: bool = False, shift=(0.0, 0.0)) -> None:
         path = image(slot)
         if path is not None:
-            page.image(path, correction.image_rect(frame), upside_down)
+            page.image(path, _shifted(correction.image_rect(frame), shift), upside_down)
         else:
-            box = correction.rect(frame)
+            box = _shifted(correction.rect(frame), shift)
             page.rect(box)
             page.text(slot.name, box.x + box.w / 2, box.y + box.h / 2, size=9, bold=True, max_width=box.w - 6)
 
@@ -231,9 +232,9 @@ def render_proxies(
                 frame = frames[back_position(i, duplex)]
                 back = backs[start + i] if backs else None
                 if back is not None:
-                    draw(page, back, frame, upside_down=duplex == "short")
+                    draw(page, back, frame, upside_down=duplex == "short", shift=back_shift)
                 else:
-                    page.card_back(correction.rect(frame))
+                    page.card_back(_shifted(correction.rect(frame), back_shift))
             canvas.showPage()
     canvas.save()
     return pages
@@ -286,6 +287,57 @@ def render_calibration(out: BinaryIO, layout: PageLayout, correction: Correction
     ], top=False, correction=correction)
     canvas.showPage()
     canvas.save()
+
+
+def render_duplex_test(out: BinaryIO, layout: PageLayout, duplex: Literal["long", "short"],
+                       correction: Correction = NO_CORRECTION, back_shift: tuple[float, float] = (0.0, 0.0),
+                       profile_label: str | None = None) -> None:
+    """Two pages: the front has scales (0.5 mm ticks) around the page centre, the back a line across
+    each scale. Seen against the light from the front, where a back line crosses its scale is how
+    far the printer puts the back off: X (+ right), Y (+ down)."""
+    canvas = _canvas(out, layout, tr("print_duplex_title"))
+    paper_w, paper_h = layout.paper_size
+    cx, cy = paper_w / 2, paper_h / 2
+    reach = 6.0  # scale from -6 to +6 mm
+    x_scale_y, y_scale_x = cy - 12, cx + 12  # where the two scales sit (nominal)
+
+    page = _Page(canvas, layout)
+    for i in range(int(-reach * 2), int(reach * 2) + 1):
+        d = i / 2
+        length = 4.0 if i % 4 == 0 else 2.5 if i % 2 == 0 else 1.5
+        page.line(correction.line(Line(cx + d, x_scale_y - length, cx + d, x_scale_y)))
+        page.line(correction.line(Line(y_scale_x, cy + d, y_scale_x + length, cy + d)))
+        if i % 4 == 0:
+            label = f"{d:.0f}".replace("-", "−")  # the direction is in the scale's title
+            page.text(label, correction.x(cx + d), correction.y(x_scale_y - 5), size=5)
+            page.text(label, correction.x(y_scale_x + 5), correction.y(cy + d) + 0.6, size=5, align="left")
+    page.text(tr("print_duplex_x"), correction.x(cx), correction.y(x_scale_y - 13), size=7, bold=True)
+    page.text(tr("print_duplex_y"), correction.x(y_scale_x + 10), correction.y(cy) + 1, size=7, bold=True, align="left")
+    mode = tr("print_duplex_long") if duplex == "long" else tr("print_duplex_short")
+    lines = [tr("print_duplex_title") + f" – {mode}"] + tr("print_duplex_steps", mode=mode).split("\n")
+    for i, text in enumerate(lines):
+        page.text(text, correction.x(layout.grid.x), correction.y(layout.grid.y + 10) + i * 4, size=7 if i else 10,
+                  bold=i == 0, align="left", max_width=paper_w - 2 * layout.grid.x)
+    page.margin_texts([profile_label or tr("print_uncalibrated"), "", tr("print_actual_size")], top=False,
+                      correction=correction)
+    canvas.showPage()
+
+    # The back: a line across each scale, at the mirrored position.
+    def mirror(x: float, y: float) -> tuple[float, float]:
+        x, y = (paper_w - x, y) if duplex == "long" else (x, paper_h - y)
+        return correction.x(x) + back_shift[0], correction.y(y) + back_shift[1]
+
+    page = _Page(canvas, layout)
+    for (x1, y1), (x2, y2) in (((cx, x_scale_y - 10), (cx, x_scale_y + 6)),
+                               ((y_scale_x - 6, cy), (y_scale_x + 10, cy))):
+        (a, b), (c, d) = mirror(x1, y1), mirror(x2, y2)
+        page.line(Line(a, b, c, d), MARK_COLOR, 0.25)
+    canvas.showPage()
+    canvas.save()
+
+
+def _shifted(r: Rect, shift: tuple[float, float]) -> Rect:
+    return Rect(r.x + shift[0], r.y + shift[1], r.w, r.h)
 
 
 def _dimension(page: _Page, line: Line, horizontal: bool) -> None:

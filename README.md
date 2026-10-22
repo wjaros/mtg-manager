@@ -71,7 +71,8 @@ review the result and choose finish, condition and location before anything reac
 you don't own and the ones sitting in another deck's box. Pick the quantities and printings, add
 any card by hand, tick the tokens the deck makes, and get a PDF of 3 × 3 card-size proxies with crop marks (A4 or Letter; double-faced
 cards print both faces). With a duplex printer the backs print too: a double-faced card's
-other face, or the app's own card back. Printers scale pages slightly, so *Settings → Printing* calibrates each
+other face, or the app's own card back. A two-sided test page shows how far the printer puts the back off
+the front (read against the light on a 0.5 mm scale), and later backs are moved to match. Printers scale pages slightly, so *Settings → Printing* calibrates each
 printer: print a calibration page, measure two lengths with a ruler, and later prints come out at
 real card size. Card images are printed unaltered, for personal playtesting only.
 

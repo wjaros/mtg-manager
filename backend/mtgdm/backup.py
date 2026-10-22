@@ -22,7 +22,7 @@ VERSION = 1
 
 PROFILE_COLUMNS = ("name", "paper", "scale_x", "scale_y", "offset_x_mm", "offset_y_mm", "measured_a_mm",
                    "measured_b_mm", "measured_left_mm", "measured_top_mm", "card_w_mm", "card_h_mm",
-                   "is_default", "calibrated_at", "note")
+                   "back_offset_x_mm", "back_offset_y_mm", "back_offset_duplex", "is_default", "calibrated_at", "note")
 
 
 class BackupError(ValueError):

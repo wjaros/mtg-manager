@@ -250,6 +250,11 @@ export const api = {
     }),
   calibratePrinter: (id: number, body: Measurements) =>
     request<CalibrationResult>(`/api/print/profiles/${id}/calibrate`, jsonBody('POST', body)),
+  saveBackOffset: (id: number, x: number, y: number, duplex: 'long' | 'short') =>
+    request<PrinterProfile>(
+      `/api/print/profiles/${id}/back-offset`,
+      jsonBody('POST', { back_offset_x_mm: x, back_offset_y_mm: y, duplex, relative: true }),
+    ),
   startPrint: (body: ProxyPrint) => request<PrintJobStatus>('/api/print/jobs', jsonBody('POST', body)),
   printJob: (id: string) => request<PrintJobStatus>(`/api/print/jobs/${id}`),
 
@@ -287,6 +292,10 @@ export function collectionExportUrl(
 
 export function calibrationPdfUrl(paper: Paper, profileId?: number): string {
   return `/api/print/calibration.pdf?${toSearchParams({ paper, profile_id: profileId })}`
+}
+
+export function duplexTestPdfUrl(paper: Paper, duplex: 'long' | 'short', profileId: number): string {
+  return `/api/print/duplex-test.pdf?${toSearchParams({ paper, duplex, profile_id: profileId })}`
 }
 
 export function printJobPdfUrl(jobId: string): string {

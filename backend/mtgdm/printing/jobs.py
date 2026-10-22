@@ -48,6 +48,7 @@ class PrintRequest:
     lang: Lang
     backs: list[Slot | None] | None = None  # duplex: the other face of a double-faced card, or None (app back)
     duplex: Duplex = "off"
+    back_shift: tuple[float, float] = (0.0, 0.0)
 
 
 class PrintJobs:
@@ -107,6 +108,7 @@ class PrintJobs:
                     out, request.slots, lambda slot: images.get((slot.card_id, slot.face)), request.layout,
                     request.correction, request.cut_marks, request.title, request.profile_label,
                     progress=lambda step: self._advance(job_id, step), backs=request.backs, duplex=request.duplex,
+                    back_shift=request.back_shift,
                 )
             tmp.replace(target)
             self._update(job_id, stage="done", pages=pages)

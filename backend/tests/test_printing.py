@@ -326,3 +326,40 @@ def test_duplex_pdf(client):
     assert status["pages"] == 4 and len(doc) == 4
     assert image_count(doc[0]) == 9 and image_count(doc[1]) == 0  # the app's back is drawn, not an image
     assert image_count(doc[2]) == 2 and image_count(doc[3]) == 1   # Delver's other face behind it
+
+
+def test_back_offset(client):
+    profile = client.post("/api/print/profiles", json={"name": "Brother duplex"}).json()
+    page = client.get("/api/print/duplex-test.pdf", params={"duplex": "long"})
+    assert page.status_code == 200 and len(pdfium.PdfDocument(page.content)) == 2
+
+    # Read on the test page: the back sits 1.5 mm right and 1 mm up, seen from the front.
+    saved = client.post(f"/api/print/profiles/{profile['id']}/back-offset",
+                        json={"back_offset_x_mm": 1.5, "back_offset_y_mm": -1.0, "duplex": "long"}).json()
+    assert (saved["back_offset_x_mm"], saved["back_offset_y_mm"], saved["back_offset_duplex"]) == (1.5, -1.0, "long")
+    # The verification page shows what is left: it adds up.
+    again = client.post(f"/api/print/profiles/{profile['id']}/back-offset",
+                        json={"back_offset_x_mm": 0.5, "back_offset_y_mm": 0, "duplex": "long", "relative": True}).json()
+    assert (again["back_offset_x_mm"], again["back_offset_y_mm"]) == (2.0, -1.0)
+
+    verification = client.get("/api/print/duplex-test.pdf", params={"duplex": "long", "profile_id": profile["id"]})
+    assert verification.status_code == 200
+    assert client.post("/api/print/profiles/999/back-offset",
+                       json={"back_offset_x_mm": 0, "back_offset_y_mm": 0, "duplex": "long"}).status_code == 404
+
+
+def test_back_shift_direction():
+    from mtgdm.printing.profiles import PrinterProfile, back_shift
+
+    profile = PrinterProfile(
+        id=1, name="p", paper="a4", scale_x=1, scale_y=1, offset_x_mm=0, offset_y_mm=0, measured_a_mm=None,
+        measured_b_mm=None, measured_left_mm=None, measured_top_mm=None, card_w_mm=None, card_h_mm=None,
+        back_offset_x_mm=1.5, back_offset_y_mm=-1.0, back_offset_duplex="long", is_default=True, calibrated_at=None,
+        note=None,
+    )
+    # Turned over the long edge the back page's x runs the other way: moving it +1.5 there moves it
+    # 1.5 left seen from the front, which cancels the printer's 1.5 right. y runs the same way.
+    assert back_shift(profile, "long") == (1.5, 1.0)
+    assert back_shift(profile, "short") == (0.0, 0.0)  # measured for the other flip mode
+    assert back_shift(profile, "off") == (0.0, 0.0)
+    assert back_shift(None, "long") == (0.0, 0.0)

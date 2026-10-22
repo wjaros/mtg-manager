@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   api,
   calibrationPdfUrl,
+  duplexTestPdfUrl,
   type CalibrationResult,
   type Paper,
   type PrinterProfile,
@@ -125,7 +126,10 @@ export function PrintingPanel() {
             </button>
           </div>
           {calibrating === p.id && settings && (
-            <CalibrationWizard profile={p} settings={settings} onCalibrated={reload} />
+            <>
+              <CalibrationWizard profile={p} settings={settings} onCalibrated={reload} />
+              <DuplexWizard profile={p} onSaved={reload} />
+            </>
           )}
         </div>
       ))}
@@ -233,4 +237,71 @@ function CalibrationWizard({
 
 function signed(pct: number): string {
   return `${pct >= 0 ? '+' : ''}${formatNumber(Number(pct.toFixed(2)))}%`
+}
+
+/** Two-sided printing: read how far the back lands off the front on the test page. Each test page
+already includes the saved offset, so a reading is what is left and adds to it. */
+function DuplexWizard({ profile, onSaved }: { profile: PrinterProfile; onSaved: () => void }) {
+  const [duplex, setDuplex] = useState<'long' | 'short'>(profile.back_offset_duplex ?? 'long')
+  const [x, setX] = useState('')
+  const [y, setY] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
+  const num = (value: string) => (value.trim() ? Number(value.replace(',', '.').replace('−', '-')) : 0)
+  const current = profile.back_offset_duplex === duplex
+
+  const save = async () => {
+    setError(null)
+    try {
+      await api.saveBackOffset(profile.id, num(x), num(y), duplex)
+      setX('')
+      setY('')
+      setSaved(true)
+      onSaved()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  return (
+    <div className="calibration">
+      <strong className="small">{t.printing.duplexTitle}</strong>
+      <label className="small">
+        {t.printing.duplexMode}{' '}
+        <select className="select small" value={duplex} onChange={(e) => setDuplex(e.target.value as 'long' | 'short')}>
+          <option value="long">{t.print.duplexLong}</option>
+          <option value="short">{t.print.duplexShort}</option>
+        </select>
+      </label>
+      <p className="small">{t.printing.duplexStep1}</p>
+      <a className="button" href={duplexTestPdfUrl(profile.paper, duplex, profile.id)} download>
+        {t.printing.duplexLink}
+      </a>
+      <p className="small">{t.printing.duplexStep2}</p>
+      <div className="calibration-inputs">
+        <label>
+          X (mm)
+          <input className="input small" inputMode="decimal" placeholder="0" value={x} onChange={(e) => setX(e.target.value)} />
+        </label>
+        <label>
+          Y (mm)
+          <input className="input small" inputMode="decimal" placeholder="0" value={y} onChange={(e) => setY(e.target.value)} />
+        </label>
+        <button className="button primary" onClick={save} disabled={Number.isNaN(num(x)) || Number.isNaN(num(y))}>
+          {t.printing.compute}
+        </button>
+      </div>
+      <p className="muted small">
+        {current
+          ? t.printing.duplexCurrent(signedMm(profile.back_offset_x_mm), signedMm(profile.back_offset_y_mm))
+          : t.printing.duplexNone}
+      </p>
+      {saved && <p className="status ok">{t.printing.duplexSaved}</p>}
+      {error && <p className="status error">{error}</p>}
+    </div>
+  )
+}
+
+function signedMm(mm: number): string {
+  return `${mm > 0 ? '+' : ''}${formatNumber(Number(mm.toFixed(2)))} mm`
 }

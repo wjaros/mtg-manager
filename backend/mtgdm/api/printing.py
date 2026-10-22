@@ -14,6 +14,7 @@ from mtgdm.printing.candidates import ProxyCandidate, card_faces, proxy_candidat
 from mtgdm.printing.jobs import PrintJob, PrintJobs, PrintRequest
 from mtgdm.printing.layout import PageLayout
 from mtgdm.printing.profiles import (
+    BackOffset,
     CalibrationResult,
     Measurements,
     Paper,
@@ -23,7 +24,7 @@ from mtgdm.printing.profiles import (
     ProfileNotFound,
     ProfileUpdate,
 )
-from mtgdm.printing.render import Slot, render_calibration
+from mtgdm.printing.render import Slot, render_calibration, render_duplex_test
 from mtgdm.printing.tokens import DeckToken, deck_tokens
 
 router = APIRouter(tags=["printing"])
@@ -148,6 +149,30 @@ def calibration_pdf(
     return Response(out.getvalue(), media_type="application/pdf", headers={"Content-Disposition": _disposition(name)})
 
 
+@router.post("/print/profiles/{profile_id}/back-offset")
+def save_back_offset(db: Db, profile_id: int, body: BackOffset) -> PrinterProfile:
+    """Two-sided printing: the back's offset read on the duplex test page."""
+    _profile_or_404(db, profile_id)
+    return profiles.save_back_offset(db, profile_id, body)
+
+
+@router.get("/print/duplex-test.pdf", response_class=Response)
+def duplex_test_pdf(
+    db: Db,
+    duplex: Literal["long", "short"] = "long",
+    paper: Paper = "a4",
+    profile_id: Annotated[int | None, Query(description="given: its correction and back offset applied")] = None,
+) -> Response:
+    """Front scales and back lines: shows how far the printer puts the back side off the front."""
+    settings = profiles.get_settings(db)
+    profile = _profile_or_404(db, profile_id) if profile_id is not None else None
+    out = io.BytesIO()
+    render_duplex_test(out, PageLayout(paper, settings.card_w_mm, settings.card_h_mm), duplex,
+                       profiles.correction(profile, paper), profiles.back_shift(profile, duplex), _profile_label(profile))
+    return Response(out.getvalue(), media_type="application/pdf",
+                    headers={"Content-Disposition": _disposition(tr("print_duplex_title"))})
+
+
 @router.post("/print/jobs", status_code=202)
 def start_print(db: Db, request: Request, body: ProxyPrint) -> PrintJobStatus:
     """Start building a proxy PDF; poll the job, then download it from /print/jobs/{id}/pdf."""
@@ -175,7 +200,8 @@ def start_print(db: Db, request: Request, body: ProxyPrint) -> PrintJobStatus:
     title = body.title.strip() or "Proxies"
     jobs: PrintJobs = request.app.state.print_jobs
     job = jobs.start(PrintRequest(slots, layout, correction, body.cut_marks, title, _profile_label(profile),
-                                  f"{title} - proxies", current_lang(), backs or None, body.duplex))
+                                  f"{title} - proxies", current_lang(), backs or None, body.duplex,
+                                  profiles.back_shift(profile, body.duplex)))
     return _status(job, layout.overflow(correction))
 
 
