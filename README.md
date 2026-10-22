@@ -186,13 +186,11 @@ Builds `dist\MTG Deck Manager\MTG Deck Manager.exe` and a zip of that folder.
 `.github/workflows/build.yml` runs the tests on Linux and Windows. It then builds and smoke-tests the
 macOS arm64, macOS x86_64 and Windows x64 packages (`scripts/smoke_test.py`).
 
-To release, bump `__version__` in `backend/mtgdm/__init__.py`, commit, and push a matching tag:
-
-```sh
-git tag v0.2.0 && git push origin v0.2.0
-```
-
-The tag build publishes a GitHub Release with the DMGs and the Windows zip attached.
+To release, bump `__version__` in `backend/mtgdm/__init__.py` (e.g. in the pull request) and merge
+into `master`. When every package has built and passed its smoke test, the build creates the tag
+`v<version>` and a GitHub Release with the DMGs and the Windows zip attached. Pushes to `master`
+without a new version release nothing. Pushing a matching tag by hand (`git tag v0.2.0 && git push
+origin v0.2.0`) works too.
 
 ## Data
 

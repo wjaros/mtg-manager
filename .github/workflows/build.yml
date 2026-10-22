@@ -105,9 +105,11 @@ jobs:
 
   release:
     name: GitHub Release
-    # Tag pushes only (git tag v0.2.0 && git push origin v0.2.0), after every package built and passed
-    # its smoke test.
-    if: startsWith(github.ref, 'refs/tags/v')
+    # After every package built and passed its smoke test:
+    # - a push to master whose __version__ (backend/mtgdm/__init__.py) has no release yet: bump the
+    #   version, merge, and the release v<version> is created with its tag;
+    # - or a pushed tag (git tag v0.2.0 && git push origin v0.2.0), which must match __version__.
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
     needs: package
     runs-on: ubuntu-latest
     permissions:
@@ -115,26 +117,42 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Tag matches the app version
+      - name: Version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           version=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' backend/mtgdm/__init__.py)
-          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+          tag="v$version"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$tag" != "$GITHUB_REF_NAME" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match __version__ = $version (backend/mtgdm/__init__.py)"
             exit 1
           fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "::notice::$tag is already released; bump __version__ to release this build"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - uses: actions/download-artifact@v4
+        if: steps.version.outputs.publish == 'true'
         with:
           path: release
           pattern: mtg-deck-manager-*
           merge-multiple: true
 
       - name: Publish
+        if: steps.version.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
           ls -l release
-          gh release create "$GITHUB_REF_NAME" release/* --title "MTG Deck Manager ${GITHUB_REF_NAME#v}" --generate-notes \
+          # On master the tag is created at this commit (a tag made with the workflow token does not
+          # start another build).
+          gh release create "$TAG" release/* --target "$GITHUB_SHA" --title "MTG Deck Manager ${TAG#v}" --generate-notes \
             --notes "Download the file for your system:
           - **macOS (Apple Silicon: M1/M2/M3/M4)**: \`…-arm64.dmg\`
           - **macOS (Intel)**: \`…-x86_64.dmg\`

@@ -72,6 +72,8 @@ language from the request's Accept-Language (the frontend sends its own; default
 - Frontend checks: `cd frontend && npm run build && npm run lint`
 - Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator; don't add hues without re-validating.
 - Smoke test of a built app: `python scripts/smoke_test.py <path to executable>`; CI: `.github/workflows/build.yml`
+- Release: bump `__version__` in `backend/mtgdm/__init__.py` and merge into master; CI tags and publishes
+  `v<version>` once all packages pass (a version that already has a release is skipped)
 - Scan accuracy on synthetic photos: `cd backend && uv run python ../scripts/scan_benchmark.py --engine rapidocr`
   (pages: `--pages 20 --background white|black`; fixture images: `scripts/make_scan_fixture.py`); the macOS bundle ships Apple Vision only
   (`MTGDM_BUNDLE_RAPIDOCR=1` adds RapidOCR; it needs PyYAML via omegaconf, don't exclude `yaml` then)
