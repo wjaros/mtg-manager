@@ -3,12 +3,13 @@ import { ProxyDialog } from '../components/ProxyDialog'
 import { usePrintQueue } from '../printQueue'
 import { t } from '../i18n'
 
-export type CollectionTab = 'cards' | 'items' | 'locations'
+export type CollectionTab = 'cards' | 'items' | 'locations' | 'proxies'
 
 const TABS: [CollectionTab, string][] = [
   ['cards', t.collection.tabCards],
   ['items', t.collection.tabItems],
   ['locations', t.collection.tabLocations],
+  ['proxies', t.collection.tabProxies],
 ]
 
 /** Collection header with tabs; the active tab's view fills the rest of the page. */

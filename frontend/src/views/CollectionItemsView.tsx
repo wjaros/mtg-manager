@@ -42,6 +42,7 @@ export function CollectionItemsView({ location, onLocationChange }: Props) {
         q: debouncedQuery || undefined,
         location_id: typeof location === 'number' ? location : undefined,
         unassigned: location === 'none' || undefined,
+        kind: 'real', // proxies have their own tab
       })
       .then(
         (list) => !cancelled && setItems(list),
@@ -105,7 +106,8 @@ export function CollectionItemsView({ location, onLocationChange }: Props) {
           <option value="none">{t.items.noLocation}</option>
           {locations.map((l) => (
             <option key={l.id} value={l.id}>
-              {l.name} ({l.card_count})
+              {l.name} ({l.card_count}
+              {l.proxy_count ? ` + ${l.proxy_count} proxy` : ''})
             </option>
           ))}
         </select>

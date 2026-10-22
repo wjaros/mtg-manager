@@ -17,7 +17,7 @@ CSV_HEADER = ["Count", "Name", "Edition", "Edition Name", "Collector Number", "F
 def export_collection(
     conn: sqlite3.Connection, fmt: ExportFormat, location_id: int | None = None, unassigned: bool = False
 ) -> str:
-    where, params = [], []
+    where, params = ["ci.kind = 'real'"], []  # proxies are not part of what you own
     if location_id is not None:
         where.append("ci.location_id = ?")
         params.append(location_id)

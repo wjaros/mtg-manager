@@ -15,6 +15,7 @@ from typing import Literal
 
 from mtgdm.db import connect
 from mtgdm.i18n import Lang, set_lang
+from mtgdm.printing.history import set_page_count
 from mtgdm.printing.layout import Correction, PageLayout
 from mtgdm.printing.render import Duplex, Slot, render_proxies
 from mtgdm.printing.text_cards import card_texts
@@ -35,6 +36,7 @@ class PrintJob:
     missing_images: list[str] = field(default_factory=list)  # names printed as a frame with the name
     error: str | None = None
     created_at: float = field(default_factory=time.time)
+    history_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -51,6 +53,7 @@ class PrintRequest:
     duplex: Duplex = "off"
     back_shift: tuple[float, float] = (0.0, 0.0)
     text: bool = False  # text proxies: rules text instead of images (no downloads, little ink)
+    history_id: int | None = None  # the recorded print (print_jobs row)
 
 
 class PrintJobs:
@@ -65,7 +68,7 @@ class PrintJobs:
         """`run` (tests) runs the work synchronously instead of in a thread."""
         images = len(request.slots) + sum(1 for b in request.backs or [] if b)
         job = PrintJob(id=uuid.uuid4().hex, filename=request.filename, total=images,
-                       stage="render" if request.text else "images")
+                       stage="render" if request.text else "images", history_id=request.history_id)
         with self._lock:
             self._jobs[job.id] = job
             self._forget_old()
@@ -120,6 +123,12 @@ class PrintJobs:
                     texts=(lambda slot: texts.get((slot.card_id, slot.face))) if request.text else None,
                 )
             tmp.replace(target)
+            if request.history_id is not None:
+                conn = connect(self._db_path)
+                try:
+                    set_page_count(conn, request.history_id, pages)
+                finally:
+                    conn.close()
             self._update(job_id, stage="done", pages=pages)
         except Exception as exc:
             log.exception("print job failed")

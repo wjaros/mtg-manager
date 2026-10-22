@@ -8,10 +8,13 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from mtgdm.api.deps import Db
-from mtgdm.decks.service import DeckNotFound
+from mtgdm.collection.models import CollectionItem, CollectionItemCreate
+from mtgdm.collection.service import LocationNotFound, add_item, deck_box
+from mtgdm.decks.service import CardNotFound, DeckNotFound
 from mtgdm.i18n import current_lang, tr
-from mtgdm.printing import profiles
+from mtgdm.printing import history, profiles
 from mtgdm.printing.candidates import ProxyCandidate, card_faces, proxy_candidates
+from mtgdm.printing.history import MarkRequest, MarkResult, PrintHistory
 from mtgdm.printing.jobs import PrintJob, PrintJobs, PrintRequest
 from mtgdm.printing.layout import PageLayout
 from mtgdm.printing.profiles import (
@@ -48,6 +51,7 @@ class ProxyPrint(BaseModel):
     # "text": the card's rules text, mana cost and price in a frame instead of the Scryfall image.
     style: Literal["image", "text"] = "image"
     title: str = Field(default="", max_length=200)  # deck name: in the footer and the file name
+    deck_id: int | None = None  # printed from this deck: its cards can then be marked as proxies in its box
 
 
 class PrintJobStatus(BaseModel):
@@ -59,6 +63,7 @@ class PrintJobStatus(BaseModel):
     missing_images: list[str]
     error: str | None
     overflow: bool = False  # the compensated grid leaves the printable area
+    print_job_id: int | None = None  # the recorded print (history): mark its cards as proxies, print again
 
 
 def _profile_or_404(db, profile_id: int) -> PrinterProfile:
@@ -81,10 +86,10 @@ def _disposition(name: str) -> str:
 
 
 @router.get("/decks/{deck_id}/proxy-candidates")
-def candidates(db: Db, deck_id: int, include_basics: bool = False) -> list[ProxyCandidate]:
+def candidates(db: Db, deck_id: int, include_basics: bool = False, include_proxied: bool = False) -> list[ProxyCandidate]:
     """Cards of the deck you can't put in its box: not owned, or only in other decks' boxes."""
     try:
-        return proxy_candidates(db, deck_id, include_basics)
+        return proxy_candidates(db, deck_id, include_basics, include_proxied)
     except DeckNotFound as exc:
         raise HTTPException(status_code=404, detail="Deck not found") from exc
 
@@ -201,13 +206,66 @@ def start_print(db: Db, request: Request, body: ProxyPrint) -> PrintJobStatus:
     layout = PageLayout(body.paper, settings.card_w_mm, settings.card_h_mm, body.gap_mm)
     correction = profiles.correction(profile, body.paper)
     title = body.title.strip() or "Proxies"
+    if body.deck_id is not None and db.execute("SELECT 1 FROM decks WHERE id = ?", (body.deck_id,)).fetchone() is None:
+        raise HTTPException(status_code=404, detail="Deck not found")
+    history_id = history.record_print(
+        db, deck_id=body.deck_id, profile_id=profile.id if profile else None, title=title, paper=body.paper,
+        style=body.style, duplex=body.duplex, items=[i.model_dump() for i in body.items],
+    )
     jobs: PrintJobs = request.app.state.print_jobs
     job = jobs.start(PrintRequest(slots, layout, correction, body.cut_marks, title, _profile_label(profile),
                                   # Unique per print, so downloads don't overwrite each other.
                                   f"{title} - proxies {datetime.now():%Y-%m-%d %H-%M-%S}", current_lang(),
                                   backs or None, body.duplex,
-                                  profiles.back_shift(profile, body.duplex), body.style == "text"))
+                                  profiles.back_shift(profile, body.duplex), body.style == "text", history_id))
     return _status(job, layout.overflow(correction))
+
+
+@router.get("/print/history")
+def print_history(db: Db) -> list[PrintHistory]:
+    """Printed proxy PDFs, newest first."""
+    return history.list_history(db)
+
+
+@router.get("/print/history/{history_id}")
+def print_history_entry(db: Db, history_id: int) -> PrintHistory:
+    return _history_or_404(lambda: history.get_history(db, history_id))
+
+
+@router.post("/print/history/{history_id}/mark-proxies")
+def mark_proxies(db: Db, history_id: int, body: MarkRequest) -> MarkResult:
+    """Record a print's cards as proxies: printed from a deck, in its box (only what it still lacks);
+    otherwise in the location given. With dry_run, only what would be marked."""
+    return _history_or_404(lambda: history.mark_proxies(db, history_id, body))
+
+
+class DeckProxy(BaseModel):
+    card_id: str
+    quantity: int = Field(default=1, ge=1, le=99)
+
+
+@router.post("/decks/{deck_id}/proxies", status_code=201)
+def add_deck_proxy(db: Db, deck_id: int, body: DeckProxy) -> CollectionItem:
+    """A proxy of a card in the deck's box (created if the deck has none yet)."""
+    try:
+        box = deck_box(db, deck_id)
+        return add_item(db, CollectionItemCreate(card_id=body.card_id, quantity=body.quantity, location_id=box,
+                                                 kind="proxy"))
+    except DeckNotFound as exc:
+        raise HTTPException(status_code=404, detail="Deck not found") from exc
+    except CardNotFound as exc:
+        raise HTTPException(status_code=404, detail=f"Card not found: {exc}") from exc
+
+
+def _history_or_404(fn):
+    try:
+        return fn()
+    except history.HistoryNotFound as exc:
+        raise HTTPException(status_code=404, detail=tr("print_history_not_found")) from exc
+    except LocationNotFound as exc:
+        raise HTTPException(status_code=404, detail="Location not found") from exc
+    except history.NoLocation as exc:
+        raise HTTPException(status_code=422, detail=tr("print_choose_location")) from exc
 
 
 @router.get("/print/jobs/{job_id}")
@@ -230,4 +288,5 @@ def print_pdf(request: Request, job_id: str) -> FileResponse:
 
 def _status(job: PrintJob, overflow: bool = False) -> PrintJobStatus:
     return PrintJobStatus(id=job.id, stage=job.stage, done=job.done, total=job.total, pages=job.pages,
-                          missing_images=job.missing_images, error=job.error, overflow=overflow)
+                          missing_images=job.missing_images, error=job.error, overflow=overflow,
+                          print_job_id=job.history_id)

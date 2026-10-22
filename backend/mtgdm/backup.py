@@ -46,7 +46,8 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
     locations = [dict(r) for r in conn.execute("SELECT id, name, kind FROM locations ORDER BY id")]
     collection = [
         {**card_ref(r), "quantity": r["quantity"], "finish": r["finish"], "language": r["language"],
-         "condition": r["condition"], "location_id": r["location_id"], "source": r["source"], "note": r["note"]}
+         "condition": r["condition"], "location_id": r["location_id"], "source": r["source"], "note": r["note"],
+         "kind": r["kind"], "printed_at": r["printed_at"]}
         for r in conn.execute(
             """
             SELECT ci.*, c.name, c.set_code, c.collector_number
@@ -119,7 +120,7 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
     try:
         with conn:
             if replace:
-                for table in ("deck_versions", "deck_cards", "decks", "collection_items", "locations",
+                for table in ("deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "locations",
                               "printer_profiles"):
                     conn.execute(f"DELETE FROM {table}")
 
@@ -137,12 +138,13 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
                     continue
                 conn.execute(
                     """
-                    INSERT INTO collection_items(card_id, quantity, finish, language, condition, location_id, source, note)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO collection_items(card_id, quantity, finish, language, condition, location_id, source, note,
+                                                 kind, printed_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (card_id, item["quantity"], item.get("finish", "nonfoil"), item.get("language", "en"),
                      item.get("condition", "NM"), location_ids.get(item.get("location_id")),
-                     item.get("source", "import"), item.get("note")),
+                     item.get("source", "import"), item.get("note"), item.get("kind", "real"), item.get("printed_at")),
                 )
                 result.collection_items += 1
 

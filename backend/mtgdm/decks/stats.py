@@ -61,7 +61,7 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
                c.rarity, c.produced_mana, c.games, d.prices,
                (SELECT rarity FROM cards a WHERE a.id = o.arena_card_id) AS arena_rarity,
                (SELECT COALESCE(SUM(ci.quantity), 0) FROM collection_items ci JOIN cards x ON x.id = ci.card_id
-                WHERE x.oracle_id = c.oracle_id) AS owned
+                WHERE x.oracle_id = c.oracle_id AND ci.kind = 'real') AS owned
         FROM deck_cards dc
         JOIN cards c ON c.id = dc.card_id
         LEFT JOIN card_details d ON d.id = c.id

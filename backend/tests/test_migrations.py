@@ -87,3 +87,20 @@ def test_deck_formats_migration_keeps_cards_and_history(tmp_path):
     conn.execute("DELETE FROM decks WHERE id = 1")
     assert conn.execute("SELECT count(*) FROM deck_cards").fetchone()[0] == 0
     assert conn.execute("SELECT count(*) FROM deck_versions").fetchone()[0] == 0
+
+
+def test_proxy_tracking_migration_keeps_items_as_real(tmp_path):
+    """008 adds collection_items.kind: every existing copy becomes a real one, nothing is lost."""
+    conn = connect(tmp_path / "db.sqlite")
+    migrate(conn, until=7)
+    conn.execute("INSERT INTO cards(id, name) VALUES ('c1', 'X')")
+    conn.execute("INSERT INTO locations(id, name) VALUES (7, 'Box')")
+    conn.execute("INSERT INTO collection_items(card_id, quantity, finish, condition, location_id, note)"
+                 " VALUES ('c1', 3, 'foil', 'EX', 7, 'n')")
+    conn.commit()
+    assert migrate(conn) >= 8
+    row = conn.execute("SELECT quantity, finish, condition, location_id, note, kind, printed_at, print_job_id"
+                       " FROM collection_items").fetchone()
+    assert tuple(row) == (3, "foil", "EX", 7, "n", "real", None, None)
+    with pytest.raises(sqlite3.IntegrityError):
+        conn.execute("INSERT INTO collection_items(card_id, kind) VALUES ('c1', 'fake')")

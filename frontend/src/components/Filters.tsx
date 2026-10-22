@@ -113,6 +113,16 @@ export function Filters({ value, onChange, allowFree = false }: Props) {
             </button>
           ))}
         </div>
+        {value.owned && (
+          <label className="checkbox small" title={t.filters.includeProxiesTitle}>
+            <input
+              type="checkbox"
+              checked={value.includeProxies}
+              onChange={(e) => set('includeProxies', e.target.checked)}
+            />
+            {t.filters.includeProxies}
+          </label>
+        )}
         <div className="segmented" role="group" aria-label={t.filters.view}>
           <button className={value.unique === 'cards' ? 'on' : ''} onClick={() => set('unique', 'cards')}>
             {t.filters.cards}

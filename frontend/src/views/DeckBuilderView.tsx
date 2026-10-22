@@ -30,6 +30,7 @@ import { ValidationPanel } from '../components/ValidationPanel'
 import {
   canBeCommander,
   COMMANDER_FORMATS,
+  coverage,
   deckSizeTarget,
   FORMAT_LABEL,
   isBasicLand,
@@ -149,6 +150,8 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
   const [price, setPrice] = useState<DeckStats['price'] | null>(null)
   // Paper decks: which cards you don't own, or own but not in the deck's box.
   const [holdings, setHoldings] = useState<Map<string, Holding> | null>(null)
+  // Bumped when proxies change (they aren't part of the deck itself).
+  const [holdingsVersion, setHoldingsVersion] = useState(0)
   const paper = deck?.platform === 'paper'
   useEffect(() => {
     if (!paper || !usageRevision) return
@@ -163,7 +166,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
       cancelled = true
       clearTimeout(timer)
     }
-  }, [deckId, paper, usageRevision])
+  }, [deckId, paper, usageRevision, holdingsVersion])
   useEffect(() => {
     if (!revision) return
     let cancelled = false
@@ -276,6 +279,16 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
       },
     })
     items.push({ label: t.builder.details, onClick: () => setDetail({ cardId: card.id, entry }) })
+    if (deck?.platform === 'paper' && board !== 'maybe') {
+      items.push({
+        label: t.builder.addProxy,
+        onClick: () =>
+          api.addDeckProxy(deckId, card.id).then(
+            () => setHoldingsVersion((n) => n + 1),
+            (e: Error) => actions.setError(e.message),
+          ),
+      })
+    }
     items.push({ label: t.builder.removeAll, danger: true, onClick: () => actions.remove(card.id, board) })
     setMenu({ x: e.clientX, y: e.clientY, title: card.name, items })
   }
@@ -355,6 +368,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
           {deck.counts.total}
           {target ? ` / ${target}` : ''}
         </span>
+        {paper && holdings && <CoverageTotals holdings={holdings} />}
         {price && (
           <span
             className="deck-price"
@@ -545,7 +559,16 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
       {poolPreview.element}
       {menu && <ContextMenu menu={menu} onClose={closeMenu} />}
       {exporting && <ExportDialog deckId={deck.id} onClose={() => setExporting(false)} />}
-      {printing && <ProxyDialog deckId={deck.id} deckName={deck.name} onClose={() => setPrinting(false)} />}
+      {printing && (
+        <ProxyDialog
+          deckId={deck.id}
+          deckName={deck.name}
+          onClose={() => {
+            setPrinting(false)
+            setHoldingsVersion((n) => n + 1) // proxies may have been marked
+          }}
+        />
+      )}
       {detail && (
         <div className="modal-backdrop" onClick={closeDetail}>
           <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
@@ -565,5 +588,16 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
         </div>
       )}
     </div>
+  )
+}
+
+/** Paper decks: what the deck's copies are (real + proxy + missing = the deck's size). */
+function CoverageTotals({ holdings }: { holdings: Map<string, Holding> }) {
+  const total = coverage(holdings.values())
+  return (
+    <span className="coverage-totals small" title={t.builder.coverageTitle}>
+      {t.builder.coverageReal(total.real)} · <span className="proxy-text">{t.builder.coverageProxy(total.proxy)}</span> ·{' '}
+      <span className={total.uncovered ? 'error-text' : ''}>{t.builder.coverageMissing(total.uncovered)}</span>
+    </span>
   )
 }

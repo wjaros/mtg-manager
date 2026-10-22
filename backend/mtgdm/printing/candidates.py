@@ -22,7 +22,10 @@ class ProxyCandidate(BaseModel):
     image_status: str | None  # Scryfall's: highres_scan, lowres, placeholder, missing
 
 
-def proxy_candidates(conn: sqlite3.Connection, deck_id: int, include_basics: bool = False) -> list[ProxyCandidate]:
+def proxy_candidates(conn: sqlite3.Connection, deck_id: int, include_basics: bool = False,
+                     include_proxied: bool = False) -> list[ProxyCandidate]:
+    """Without include_proxied, copies a proxy in the deck's box already stands in for are left out
+    (with it: to print worn proxies again)."""
     holdings = deck_holdings(conn, deck_id)  # raises DeckNotFound
     # The deck's first printing of each card represents it (as in the missing-cards report).
     cards = {
@@ -45,7 +48,7 @@ def proxy_candidates(conn: sqlite3.Connection, deck_id: int, include_basics: boo
             continue
         # Copies you can put in this deck: loose ones and those already in its box.
         available = h.owned - h.in_other_decks
-        short = max(0, h.needed - available)
+        short = max(0, h.needed - available - (0 if include_proxied else h.proxy))
         missing = min(short, h.missing)
         common = {"oracle_id": h.oracle_id, "card_id": card["id"], "name": card["name"],
                   "printing": f"{(card['set_code'] or '').upper()} #{card['collector_number']}",

@@ -33,12 +33,14 @@ _SUMMARY_COLUMNS = """
     c.id, c.oracle_id, c.name, c.printed_name, c.lang, c.layout, c.mana_cost, c.cmc, c.type_line,
     c.rarity, c.set_code, COALESCE(s.name, c.set_code) AS set_name, c.collector_number,
     c.released_at, c.colors, c.color_identity, c.games, c.artist, c.image_faces,
-    (SELECT COALESCE(SUM(ci.quantity), 0) FROM collection_items ci WHERE ci.card_id = c.id) AS owned_printing,
+    (SELECT COALESCE(SUM(ci.quantity), 0) FROM collection_items ci
+     WHERE ci.card_id = c.id AND ci.kind = 'real') AS owned_printing,
     (SELECT COALESCE(SUM(ci.quantity), 0) FROM collection_items ci JOIN cards x ON x.id = ci.card_id
-     WHERE x.oracle_id = c.oracle_id) AS owned
+     WHERE x.oracle_id = c.oracle_id AND ci.kind = 'real') AS owned
 """
-# Oracle ids with at least one copy in the collection.
-_OWNED_ORACLES = "SELECT x.oracle_id FROM collection_items ci JOIN cards x ON x.id = ci.card_id"
+# Oracle ids / printings with at least one copy in the collection: real copies only, or proxies too.
+def _owned_kinds(include_proxies: bool) -> str:
+    return "ci.kind IN ('real', 'proxy')" if include_proxies else "ci.kind = 'real'"
 _ORDER_SQL = {
     "name": "name COLLATE NOCASE, released_at DESC",
     "mv": "cmc, name COLLATE NOCASE",
@@ -63,6 +65,7 @@ class CardQuery:
     deck: int | None = None          # deck being built: its own box counts as free for owned=free
     not_in_deck: int | None = None   # hide cards already in this deck (except basic lands)
     include_extras: bool = False
+    include_proxies: bool = False    # the owned filter counts proxies as copies too
     unique: Unique = "cards"
     order: Order = "name"
     page: int = 1
@@ -291,23 +294,25 @@ def _filters(q: CardQuery, syntax: ParsedSyntax) -> tuple[list[str], list[Any]]:
         where.append("EXISTS (SELECT 1 FROM json_each(c.games) WHERE value = ?)")
         params.append(q.game)
 
+    kinds = _owned_kinds(q.include_proxies)
+    owned_oracles = f"SELECT x.oracle_id FROM collection_items ci JOIN cards x ON x.id = ci.card_id WHERE {kinds}"
     if q.owned == "free":
         # Copies not sitting in another deck's box (loose, in binders, or in this deck's box).
         free = (
-            " WHERE ci.location_id IS NULL OR ci.location_id NOT IN"
-            " (SELECT location_id FROM decks WHERE location_id IS NOT NULL AND id IS NOT ?)"
+            " AND (ci.location_id IS NULL OR ci.location_id NOT IN"
+            " (SELECT location_id FROM decks WHERE location_id IS NOT NULL AND id IS NOT ?))"
         )
         if q.unique == "prints":
-            where.append(f"c.id IN (SELECT ci.card_id FROM collection_items ci{free})")
+            where.append(f"c.id IN (SELECT ci.card_id FROM collection_items ci WHERE {kinds}{free})")
         else:
-            where.append(f"c.oracle_id IN ({_OWNED_ORACLES}{free})")
+            where.append(f"c.oracle_id IN ({owned_oracles}{free})")
         params.append(q.deck)
     elif q.owned:
         negate = "NOT " if q.owned == "missing" else ""
         if q.unique == "prints":
-            where.append(f"c.id {negate}IN (SELECT card_id FROM collection_items)")
+            where.append(f"c.id {negate}IN (SELECT ci.card_id FROM collection_items ci WHERE {kinds})")
         else:
-            where.append(f"c.oracle_id {negate}IN ({_OWNED_ORACLES})")
+            where.append(f"c.oracle_id {negate}IN ({owned_oracles})")
 
     if q.not_in_deck is not None:
         where.append(

@@ -12,6 +12,7 @@ class UsageLocation(BaseModel):
     deck_id: int | None      # the deck whose box this location is
     deck_name: str | None
     quantity: int
+    kind: str = "real"       # real copies or proxies (listed separately)
 
 
 class UsageDeck(BaseModel):
@@ -24,8 +25,9 @@ class UsageDeck(BaseModel):
 class CardUsage(BaseModel):
     name: str
     in_deck: int             # copies in the deck being built (main + commander + companion)
-    owned: int               # copies in the collection, any printing
+    owned: int               # real copies in the collection, any printing
     free: int                # owned copies not in other decks' boxes
+    proxies: int = 0         # proxies of the card, anywhere
     locations: list[UsageLocation]
     decks: list[UsageDeck]   # other decks whose list contains the card
 
@@ -40,20 +42,21 @@ def card_usage(conn: sqlite3.Connection, card_id: str, deck_id: int | None = Non
         UsageLocation(**dict(r))
         for r in conn.execute(
             """
-            SELECT ci.location_id, l.name, d.id AS deck_id, d.name AS deck_name, SUM(ci.quantity) AS quantity
+            SELECT ci.location_id, l.name, d.id AS deck_id, d.name AS deck_name, SUM(ci.quantity) AS quantity, ci.kind
             FROM collection_items ci
             JOIN cards x ON x.id = ci.card_id
             LEFT JOIN locations l ON l.id = ci.location_id
             LEFT JOIN decks d ON d.location_id = ci.location_id AND ci.location_id IS NOT NULL
             WHERE x.oracle_id = ?
-            GROUP BY ci.location_id
-            ORDER BY d.id IS NOT NULL, l.name COLLATE NOCASE
+            GROUP BY ci.location_id, ci.kind
+            ORDER BY ci.kind = 'proxy', d.id IS NOT NULL, l.name COLLATE NOCASE
             """,
             (oracle,),
         )
     ]
-    owned = sum(loc.quantity for loc in locations)
-    in_other_boxes = sum(loc.quantity for loc in locations if loc.deck_id is not None and loc.deck_id != deck_id)
+    real = [loc for loc in locations if loc.kind == "real"]
+    owned = sum(loc.quantity for loc in real)
+    in_other_boxes = sum(loc.quantity for loc in real if loc.deck_id is not None and loc.deck_id != deck_id)
 
     rows = conn.execute(
         """
@@ -77,6 +80,7 @@ def card_usage(conn: sqlite3.Connection, card_id: str, deck_id: int | None = Non
         in_deck=in_deck,
         owned=owned,
         free=owned - in_other_boxes,
+        proxies=sum(loc.quantity for loc in locations if loc.kind == "proxy"),
         locations=locations,
         decks=[UsageDeck(**dict(r)) for r in rows if r["id"] != deck_id],
     )

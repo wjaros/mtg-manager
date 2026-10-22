@@ -1,6 +1,7 @@
 """What a deck needs that the collection does not have (missing = required by the deck,
-by oracle id, minus owned copies of any printing; optionally not counting copies that sit in
-other decks' boxes)."""
+by oracle id, minus owned real copies of any printing; optionally not counting copies that sit in
+other decks' boxes). Proxies are not owned: a proxied card is still missing (to buy), and the report
+says how many of its copies a proxy in the deck's box stands in for."""
 
 import csv
 import io
@@ -25,6 +26,7 @@ class MissingEntry(BaseModel):
     owned: int         # all copies in the collection
     available: int     # copies that count for this deck
     missing: int
+    proxied: int = 0   # of the missing copies, how many proxies in the deck's box stand in for
     price_eur: float | None  # per copy, of the deck's printing
     price_usd: float | None
 
@@ -69,12 +71,23 @@ def missing_report(conn: sqlite3.Connection, deck_id: int, exclude_other_decks: 
         """
         SELECT x.oracle_id, ci.location_id, SUM(ci.quantity) AS copies
         FROM collection_items ci JOIN cards x ON x.id = ci.card_id
+        WHERE ci.kind = 'real'
         GROUP BY x.oracle_id, ci.location_id
         """
     ):
         total, available = owned_by_oracle.get(r["oracle_id"], (0, 0))
         counts = not (exclude_other_decks and r["location_id"] in other_boxes)
         owned_by_oracle[r["oracle_id"]] = (total + r["copies"], available + (r["copies"] if counts else 0))
+
+    proxies_in_box = {
+        r[0]: r[1] for r in conn.execute(
+            """
+            SELECT x.oracle_id, SUM(ci.quantity) FROM collection_items ci JOIN cards x ON x.id = ci.card_id
+            WHERE ci.kind = 'proxy' AND ci.location_id = ? GROUP BY x.oracle_id
+            """,
+            (deck["location_id"],),
+        )
+    } if deck["location_id"] is not None else {}
 
     short = []
     for r in rows:
@@ -102,6 +115,7 @@ def missing_report(conn: sqlite3.Connection, deck_id: int, exclude_other_decks: 
             owned=owned,
             available=available,
             missing=missing,
+            proxied=min(missing, proxies_in_box.get(r["oracle_id"], 0)),
             price_eur=_price(p, "eur"),
             price_usd=_price(p, "usd"),
         ))
@@ -119,10 +133,14 @@ def missing_report(conn: sqlite3.Connection, deck_id: int, exclude_other_decks: 
     )
 
 
-def render_missing(report: MissingReport, fmt: str) -> str:
+def render_missing(report: MissingReport, fmt: str, include_proxied: bool = True) -> str:
     """text: '1 Name (SET) 123' (importable back into the app or Arena-style tools);
     cardmarket: '1 Name' per line, any printing (Cardmarket wants list "Add decklist" box);
-    csv: one row per card with set, number and prices."""
+    csv: one row per card with set, number and prices.
+    Without include_proxied, copies a proxy stands in for are left out (only what has no copy at all)."""
+    if not include_proxied:
+        entries = [e.model_copy(update={"missing": e.missing - e.proxied, "proxied": 0}) for e in report.entries]
+        report = report.model_copy(update={"entries": [e for e in entries if e.missing > 0]})
     if fmt == "cardmarket":
         return "".join(f"{e.missing} {e.name}\n" for e in report.entries)
     if fmt == "text":
@@ -154,17 +172,25 @@ def _price(prices: dict, currency: str) -> float | None:
 class Holding(BaseModel):
     oracle_id: str
     needed: int         # copies in the deck (commander, companion, main, sideboard)
-    owned: int          # copies in the collection, any printing, anywhere
-    in_box: int | None  # copies in this deck's box; None when the deck has no box
-    in_other_decks: int  # copies in other decks' boxes
+    owned: int          # real copies in the collection, any printing, anywhere
+    in_box: int | None  # real copies in this deck's box; None when the deck has no box
+    in_other_decks: int  # real copies in other decks' boxes
     other_decks: list[str]  # names of those decks
     missing: int        # copies you don't own at all
+    proxies: int = 0    # proxies in this deck's box
+    # What the deck's copies are (real + proxy + uncovered = needed): real copies you can use (in
+    # the box, loose or in a binder), proxies in the box, and the rest (not owned, or only in
+    # other decks' boxes).
+    real: int = 0
+    proxy: int = 0
+    uncovered: int = 0
     # Where the copies this deck lacks (beyond its box) have to come from:
-    #   "missing"     you don't own enough,
+    #   "missing"     you don't own enough (proxies included),
     #   "other_deck"  only from another deck's box (loose / binder copies don't cover it),
+    #   "proxy"       proxies stand in for what's missing,
     #   "elsewhere"   loose or in a binder (the deck has a box and they aren't in it),
     #   None          nothing to do.
-    state: Literal["missing", "other_deck", "elsewhere"] | None
+    state: Literal["missing", "other_deck", "proxy", "elsewhere"] | None
 
 
 def deck_holdings(conn: sqlite3.Connection, deck_id: int) -> list[Holding]:
@@ -186,19 +212,25 @@ def deck_holdings(conn: sqlite3.Connection, deck_id: int) -> list[Holding]:
     owned: dict[str, int] = {}
     in_box: dict[str, int] = {}
     in_other: dict[str, int] = {}
+    proxies: dict[str, int] = {}
     other_names: dict[str, set[str]] = {}
     for r in conn.execute(
         """
-        SELECT x.oracle_id, ci.location_id, d.name AS deck_name, SUM(ci.quantity) AS copies
+        SELECT x.oracle_id, ci.location_id, ci.kind, d.name AS deck_name, SUM(ci.quantity) AS copies
         FROM collection_items ci
         JOIN cards x ON x.id = ci.card_id
         LEFT JOIN decks d ON d.location_id = ci.location_id AND ci.location_id IS NOT NULL
         WHERE x.oracle_id IN (SELECT c.oracle_id FROM deck_cards dc JOIN cards c ON c.id = dc.card_id WHERE dc.deck_id = ?)
-        GROUP BY x.oracle_id, ci.location_id
+        GROUP BY x.oracle_id, ci.location_id, ci.kind
         """,
         (deck_id,),
     ):
         oracle = r["oracle_id"]
+        if r["kind"] == "proxy":
+            # Only proxies in this deck's box stand in for its cards.
+            if box is not None and r["location_id"] == box:
+                proxies[oracle] = proxies.get(oracle, 0) + r["copies"]
+            continue
         owned[oracle] = owned.get(oracle, 0) + r["copies"]
         if box is not None and r["location_id"] == box:
             in_box[oracle] = in_box.get(oracle, 0) + r["copies"]
@@ -211,15 +243,17 @@ def deck_holdings(conn: sqlite3.Connection, deck_id: int) -> list[Holding]:
         oracle, needed = r["oracle_id"], r["needed"]
         have, boxed, other = owned.get(oracle, 0), in_box.get(oracle, 0), in_other.get(oracle, 0)
         loose = have - boxed - other
-        outside = needed - boxed  # copies to bring into the deck (all of them without a box)
-        if have < needed:
-            state = "missing"
-        elif outside <= 0:
-            state = None
-        elif loose < outside:
-            state = "other_deck"
+        real = min(needed, boxed + loose)
+        proxy = min(needed - real, proxies.get(oracle, 0))
+        uncovered = needed - real - proxy
+        if uncovered > 0:
+            state = "missing" if have + proxy < needed else "other_deck"
+        elif proxy > 0:
+            state = "proxy"
+        elif box is not None and boxed < needed:
+            state = "elsewhere"
         else:
-            state = "elsewhere" if box is not None else None
+            state = None
         holdings.append(Holding(
             oracle_id=oracle,
             needed=needed,
@@ -228,6 +262,10 @@ def deck_holdings(conn: sqlite3.Connection, deck_id: int) -> list[Holding]:
             in_other_decks=other,
             other_decks=sorted(other_names.get(oracle, ())),
             missing=max(0, needed - have),
+            proxies=proxies.get(oracle, 0),
+            real=real,
+            proxy=proxy,
+            uncovered=uncovered,
             state=state,
         ))
     return holdings

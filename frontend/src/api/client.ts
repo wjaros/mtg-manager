@@ -53,6 +53,10 @@ export type ScanCommitResult = Schemas['CommitResult']
 export type OcrEngines = Schemas['OcrEngines']
 export type ProxyCandidate = Schemas['ProxyCandidate']
 export type DeckToken = Schemas['DeckToken']
+export type PrintHistory = Schemas['PrintHistory']
+export type MarkResult = Schemas['MarkResult']
+export type ReplaceWithReal = Schemas['ReplaceWithReal']
+export type ItemKind = CollectionItem['kind']
 export type PrinterProfile = Schemas['PrinterProfile']
 export type PrintSettings = Schemas['PrintSettings']
 export type ProxyPrint = Schemas['ProxyPrint']
@@ -85,6 +89,7 @@ export interface CardQuery {
   unique?: 'cards' | 'prints'
   order?: Order
   include_extras?: boolean
+  include_proxies?: boolean // the owned filter counts proxies too
 }
 
 export class ApiError extends Error {
@@ -181,7 +186,14 @@ export const api = {
   commitImport: (body: ImportCommitRequest) => request<DeckDetail>('/api/import/commit', jsonBody('POST', body)),
   seeds: () => request<SeedInfo[]>('/api/import/seeds'),
 
-  collection: (filter: { card_id?: string; oracle_id?: string; location_id?: number; unassigned?: boolean; q?: string }) =>
+  collection: (filter: {
+    card_id?: string
+    oracle_id?: string
+    location_id?: number
+    unassigned?: boolean
+    q?: string
+    kind?: 'real' | 'proxy' | 'all'
+  }) =>
     request<CollectionItem[]>(`/api/collection?${toSearchParams(filter)}`),
   collectionStats: () => request<CollectionStats>('/api/collection/stats'),
   addToCollection: (body: CollectionItemCreate) =>
@@ -204,8 +216,8 @@ export const api = {
   deckHoldings: (deckId: number) => request<Holding[]>(`/api/decks/${deckId}/holdings`),
   deckMissing: (deckId: number, excludeOtherDecks: boolean) =>
     request<MissingReport>(`/api/decks/${deckId}/missing?exclude_other_decks=${excludeOtherDecks}`),
-  missingExport: (deckId: number, format: MissingFormat, excludeOtherDecks: boolean) =>
-    fetch(missingExportUrl(deckId, format, excludeOtherDecks)).then((r) => {
+  missingExport: (deckId: number, format: MissingFormat, excludeOtherDecks: boolean, includeProxied = true) =>
+    fetch(missingExportUrl(deckId, format, excludeOtherDecks, includeProxied)).then((r) => {
       if (!r.ok) throw new ApiError(r.status, r.statusText)
       return r.text()
     }),
@@ -234,8 +246,17 @@ export const api = {
       if (!r.ok) throw new ApiError(r.status, r.statusText)
     }),
 
-  proxyCandidates: (deckId: number, includeBasics: boolean) =>
-    request<ProxyCandidate[]>(`/api/decks/${deckId}/proxy-candidates?include_basics=${includeBasics}`),
+  proxyCandidates: (deckId: number, includeBasics: boolean, includeProxied: boolean) =>
+    request<ProxyCandidate[]>(
+      `/api/decks/${deckId}/proxy-candidates?include_basics=${includeBasics}&include_proxied=${includeProxied}`,
+    ),
+  addDeckProxy: (deckId: number, cardId: string, quantity = 1) =>
+    request<CollectionItem>(`/api/decks/${deckId}/proxies`, jsonBody('POST', { card_id: cardId, quantity })),
+  replaceWithReal: (itemId: number, body: ReplaceWithReal) =>
+    request<CollectionItem>(`/api/collection/${itemId}/replace-with-real`, jsonBody('POST', body)),
+  printHistory: () => request<PrintHistory[]>('/api/print/history'),
+  markProxies: (historyId: number, body: { location_id?: number | null; dry_run?: boolean }) =>
+    request<MarkResult>(`/api/print/history/${historyId}/mark-proxies`, jsonBody('POST', body)),
   deckTokens: (deckId: number) => request<DeckToken[]>(`/api/decks/${deckId}/tokens`),
   printSettings: () => request<PrintSettings>('/api/print/settings'),
   savePrintSettings: (body: PrintSettings) => request<PrintSettings>('/api/print/settings', jsonBody('PUT', body)),
@@ -278,8 +299,13 @@ export function imageUrl(cardId: string, size: ImageSize = 'normal', face = 0): 
   return `/api/images/${cardId}/${size}${face ? `?face=${face}` : ''}`
 }
 
-export function missingExportUrl(deckId: number, format: MissingFormat, excludeOtherDecks: boolean): string {
-  return `/api/decks/${deckId}/missing/export?format=${format}&exclude_other_decks=${excludeOtherDecks}`
+export function missingExportUrl(
+  deckId: number,
+  format: MissingFormat,
+  excludeOtherDecks: boolean,
+  includeProxied = true,
+): string {
+  return `/api/decks/${deckId}/missing/export?format=${format}&exclude_other_decks=${excludeOtherDecks}&include_proxied=${includeProxied}`
 }
 
 export function collectionExportUrl(

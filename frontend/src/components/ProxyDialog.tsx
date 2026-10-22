@@ -3,6 +3,7 @@ import {
   api,
   printJobPdfUrl,
   type CardSummary,
+  type MarkResult,
   type Paper,
   type PrinterProfile,
   type PrintJobStatus,
@@ -67,6 +68,10 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
     )
   }, [deckId, rows])
   const [includeBasics, setIncludeBasics] = useState(false)
+  const [includeProxied, setIncludeProxied] = useState(false)
+  // After a print from the deck: what marking its cards as proxies would add, then what it did.
+  const [markPreview, setMarkPreview] = useState<MarkResult | null>(null)
+  const [marked, setMarked] = useState<MarkResult | null>(null)
   const [frontOnly, setFrontOnly] = useState(false)
   const [profiles, setProfiles] = useState<PrinterProfile[]>([])
   const [profileId, setProfileId] = useState<number | null>(null)
@@ -82,7 +87,7 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
   useEffect(() => {
     if (deckId === null) return
     let cancelled = false
-    api.proxyCandidates(deckId, includeBasics).then(
+    api.proxyCandidates(deckId, includeBasics, includeProxied).then(
       (list) =>
         !cancelled &&
         setRows((prev) => [
@@ -105,7 +110,7 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
     return () => {
       cancelled = true
     }
-  }, [deckId, includeBasics])
+  }, [deckId, includeBasics, includeProxied])
 
   // Tokens the deck makes: listed unchecked, you pick the ones you want.
   useEffect(() => {
@@ -162,6 +167,22 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
     return () => clearTimeout(timer)
   }, [running, job])
 
+  // Printed from the deck: offer to record the cards it still lacks as proxies in its box.
+  const historyId = job?.stage === 'done' && deckId !== null ? job.print_job_id : null
+  useEffect(() => {
+    if (historyId == null) return
+    api.markProxies(historyId, { dry_run: true }).then(setMarkPreview, () => setMarkPreview(null))
+  }, [historyId])
+  const mark = async () => {
+    if (historyId == null) return
+    try {
+      setMarked(await api.markProxies(historyId, {}))
+      setMarkPreview(null)
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
   const update = (key: string, change: Partial<Row>) =>
     setRows((prev) => prev && prev.map((r) => (r.key === key ? { ...r, ...change } : r)))
 
@@ -198,6 +219,8 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
   const print = async () => {
     setError(null)
     setJob(null)
+    setMarkPreview(null)
+    setMarked(null)
     try {
       const started = await api.startPrint({
         items: selected.map((r) => ({ card_id: r.card_id, qty: r.qty, faces: frontOnly ? 'front' : 'both' })),
@@ -208,6 +231,7 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
         duplex,
         style,
         title: deckName || t.print.title,
+        deck_id: deckId,
       })
       setOverflow(started.overflow ?? false)
       setJob(started)
@@ -285,6 +309,12 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
             <label className="checkbox">
               <input type="checkbox" checked={includeBasics} onChange={(e) => setIncludeBasics(e.target.checked)} />
               {t.print.includeBasics}
+            </label>
+          )}
+          {deckId !== null && (
+            <label className="checkbox" title={t.print.includeProxiedTitle}>
+              <input type="checkbox" checked={includeProxied} onChange={(e) => setIncludeProxied(e.target.checked)} />
+              {t.print.includeProxied}
             </label>
           )}
           {duplex === 'off' && (
@@ -383,6 +413,18 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
         {job?.stage === 'done' && (
           <p className="small">{t.print.ready}</p>
         )}
+        {markPreview && markPreview.count > 0 && (
+          <div className="mark-proxies">
+            <span>{t.print.markQuestion(markPreview.count, deckName)}</span>
+            <button className="button primary" onClick={mark}>
+              {t.print.markYes}
+            </button>
+            <button className="button" onClick={() => setMarkPreview(null)}>
+              {t.print.markNo}
+            </button>
+          </div>
+        )}
+        {marked && <p className="status ok">{t.print.markedDone(marked.count, marked.location?.name ?? deckName)}</p>}
         {job && job.missing_images.length > 0 && (
           <p className="status warn">{t.print.missingImages(job.missing_images.join(', '))}</p>
         )}

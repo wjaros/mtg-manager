@@ -49,6 +49,7 @@ def cards(
     deck: Annotated[int | None, Query(description="Deck being built (its own box counts as free)")] = None,
     not_in_deck: Annotated[int | None, Query(description="Hide cards already in this deck, except basic lands")] = None,
     include_extras: Annotated[bool, Query(description="Include tokens, emblems, art cards, ...")] = False,
+    include_proxies: Annotated[bool, Query(description="The owned filter counts proxies as copies")] = False,
     unique: Unique = "cards",
     order: Order = "name",
     page: Annotated[int, Query(ge=1)] = 1,
@@ -56,7 +57,8 @@ def cards(
 ) -> CardPage:
     query = CardQuery(
         q=q, text=text, colors=colors, color_mode=color_mode, identity=identity, mv=mv, types=type, rarity=rarity,
-        sets=set, format=format, game=game, owned=owned, deck=deck, not_in_deck=not_in_deck, include_extras=include_extras, unique=unique,
+        sets=set, format=format, game=game, owned=owned, deck=deck, not_in_deck=not_in_deck, include_extras=include_extras,
+        include_proxies=include_proxies, unique=unique,
         order=order, page=page, page_size=page_size,
     )
     try:

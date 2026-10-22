@@ -12,6 +12,7 @@ export interface FilterState {
   format: string
   game: '' | 'paper' | 'arena'
   owned: '' | 'owned' | 'missing' | 'free'
+  includeProxies: boolean // the owned filter counts proxies as copies
   unique: 'cards' | 'prints'
   order: Order
 }
@@ -28,6 +29,7 @@ export const EMPTY_FILTERS: FilterState = {
   format: '',
   game: '',
   owned: '',
+  includeProxies: false,
   unique: 'cards',
   order: 'name',
 }
@@ -45,6 +47,7 @@ export function toQuery(f: FilterState): CardQuery {
     format: f.format || undefined,
     game: f.game || undefined,
     owned: f.owned || undefined,
+    include_proxies: (f.owned && f.includeProxies) || undefined,
     unique: f.unique,
     order: f.order,
   }

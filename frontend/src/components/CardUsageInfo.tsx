@@ -47,7 +47,7 @@ export function CardUsageInfo({ cardId, deckId, revision, paper }: Props) {
       </div>
       {paper && (
         <div>
-          {usage.owned === 0 ? (
+          {usage.owned === 0 && !usage.proxies ? (
             <span className="muted">{t.panels.notOwned}</span>
           ) : (
             <>
@@ -55,8 +55,12 @@ export function CardUsageInfo({ cardId, deckId, revision, paper }: Props) {
               {usage.free !== usage.owned && <span className="muted">{t.panels.free(usage.free)}</span>}
               <ul>
                 {usage.locations.map((l) => (
-                  <li key={l.location_id ?? 'none'} className={l.deck_id !== null && l.deck_id !== deckId ? 'usage-taken' : ''}>
-                    {l.quantity}× {l.deck_id !== null ? t.panels.deckBox(l.deck_name) : (l.name ?? t.common.noLocation)}
+                  <li
+                    key={`${l.location_id ?? 'none'}-${l.kind}`}
+                    className={l.deck_id !== null && l.deck_id !== deckId && l.kind === 'real' ? 'usage-taken' : ''}
+                  >
+                    {l.quantity}× {l.kind === 'proxy' && <span className="proxy-chip">PROXY</span>}{' '}
+                    {l.deck_id !== null ? t.panels.deckBox(l.deck_name) : (l.name ?? t.common.noLocation)}
                   </li>
                 ))}
               </ul>

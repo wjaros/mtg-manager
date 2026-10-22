@@ -33,6 +33,7 @@ language from the request's Accept-Language (the frontend sends its own; default
     calibration math; images are scaled uniformly, frames/marks per axis), `render.py` (reportlab; a system font with
     Polish letters, else Helvetica without diacritics), `profiles.py` (printer profiles, card size in meta),
     `text_cards.py` (text proxies: rules text per face, split/adventure halves on one card),
+    `history.py` (print_jobs: recorded prints; marking their cards as proxies in a deck's box),
     `tokens.py` (tokens a deck makes, from all_parts; the test fixture has no all_parts, tests add them),
     `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
@@ -58,6 +59,8 @@ language from the request's Accept-Language (the frontend sends its own; default
 - Prices in bulk data are up to a day old: show them as estimates with their date. Never paywall or republish raw data.
 
 ## Data notes
+- `collection_items.kind`: 'real' copies are owned; 'proxy' copies stand in for a card in a deck's box and must never
+  count as owned (search owned filters, stats, missing, exports, validation): filter `kind = 'real'` in new queries.
 - `cards` is kept narrow (searched by full scans); bulky JSON lives in `card_details` (1:1).
 - `oracle_cards` = one row per card with `default_card_id` / `arena_card_id` (both prefer regular booster printings in a plain frame), rebuilt after each sync.
 - Scryfall bulk is gzipped JSONL now (`jsonl_download_uri`); there are no `A-` (Alchemy rebalanced) cards in it.

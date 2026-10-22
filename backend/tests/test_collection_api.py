@@ -38,7 +38,7 @@ def test_add_merges_identical_entries(client):
 
     foil = add(client, serra["id"], finish="foil")
     assert foil["id"] != first["id"]
-    assert client.get("/api/collection/stats").json() == {"copies": 4, "printings": 1, "cards": 1}
+    assert client.get("/api/collection/stats").json() == {"copies": 4, "printings": 1, "cards": 1, "proxies": 0}
 
 
 def test_update_and_remove(client):
