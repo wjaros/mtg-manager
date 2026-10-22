@@ -363,3 +363,31 @@ def test_back_shift_direction():
     assert back_shift(profile, "short") == (0.0, 0.0)  # measured for the other flip mode
     assert back_shift(profile, "off") == (0.0, 0.0)
     assert back_shift(None, "long") == (0.0, 0.0)
+
+
+def test_text_proxies(client):
+    FETCHED.clear()
+    serra, delver = card(client, "Serra Angel"), card(client, "Delver of Secrets")
+    body = {"items": [{"card_id": serra["id"], "qty": 1}, {"card_id": delver["id"], "qty": 1}],
+            "style": "text", "duplex": "long"}
+    status = wait(client, client.post("/api/print/jobs", json=body).json()["id"])
+    assert status["stage"] == "done", status
+    assert FETCHED == []  # no images downloaded
+    doc = pdfium.PdfDocument(client.get(f"/api/print/jobs/{status['id']}/pdf").content)
+    assert len(doc) == 2 and image_count(doc[0]) == 0 and image_count(doc[1]) == 0
+    front = doc[0].get_textpage().get_text_range()
+    assert "Serra Angel" in front and "Flying" in front and "4/4" in front
+    assert "Delver of Secrets" in front
+    back = doc[1].get_textpage().get_text_range()
+    assert "Insectile Aberration" in back  # Delver's other face behind it
+    assert "MTG Deck Manager" in back      # Serra Angel gets the app's back
+
+
+def test_split_card_text():
+    from mtgdm.printing.render import _symbols as symbols
+    from mtgdm.printing.text_cards import _stats
+
+    assert symbols("{2}{W/U}{G}") == ["2", "W/U", "G"]
+    assert symbols("{1}{R} // {1}{U}") == ["1", "R", "1", "U"]
+    assert _stats({"power": "*", "toughness": "1+*"}) == "*/1+*"
+    assert _stats({"loyalty": "4"}) == "4" and _stats({}) == ""

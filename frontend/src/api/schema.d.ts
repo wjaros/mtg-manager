@@ -2412,6 +2412,12 @@ export interface components {
              */
             duplex?: "off" | "long" | "short";
             /**
+             * Style
+             * @default image
+             * @enum {string}
+             */
+            style?: "image" | "text";
+            /**
              * Title
              * @default
              */

@@ -10,12 +10,14 @@ from pathlib import Path
 from typing import BinaryIO, Literal
 
 from reportlab.lib.colors import Color
+from reportlab.lib.utils import simpleSplit
 from reportlab.pdfbase.pdfmetrics import registerFont, stringWidth
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 
 from mtgdm.i18n import tr
 from mtgdm.printing.layout import COLUMNS, NO_CORRECTION, PER_PAGE, ROWS, Correction, Line, PageLayout, Rect
+from mtgdm.printing.text_cards import CardText
 
 PT_PER_MM = 72 / 25.4
 # The PDF standard fonts have no Polish letters (ł, ś, ...): a system font with them, embedded
@@ -98,6 +100,113 @@ class _Page:
             c.rotate(180)
         w, h = r.w * PT_PER_MM, r.h * PT_PER_MM
         c.drawImage(str(path), -w / 2, -h / 2, w, h, mask="auto", preserveAspectRatio=True, anchor="c")
+        c.restoreState()
+
+    def _font(self, bold: bool) -> str:
+        return _fonts()[1 if bold else 0]
+
+    def _str(self, text: str) -> str:
+        return text if _fonts()[2] else _plain(text)
+
+    def text_card(self, r: Rect, card: CardText, upside_down: bool = False) -> None:
+        """A low-ink proxy: outlines and text only. Laid out for a 63 x 88 mm card, scaled to the frame."""
+        c = self.c
+        c.saveState()
+        if upside_down:
+            cx, cy = (r.x + r.w / 2) * PT_PER_MM, (self.height - r.y - r.h / 2) * PT_PER_MM
+            c.translate(cx, cy)
+            c.rotate(180)
+            c.translate(-cx, -cy)
+        # Card coordinates: millimetres from the card's top-left corner, y down.
+        sx, sy = r.w / 63 * PT_PER_MM, r.h / 88 * PT_PER_MM
+        c.translate(r.x * PT_PER_MM, (self.height - r.y) * PT_PER_MM)
+        c.scale(sx, -sy)
+        c.setStrokeColor(MARK_COLOR)
+        c.setLineWidth(0.3)
+        c.roundRect(0, 0, 63, 88, CORNER_RADIUS_MM, stroke=1, fill=0)
+        c.setLineWidth(0.15)
+        c.setStrokeColor(FRAME_COLOR)
+        for y in (9.5, 37.5, 43.5, 79.5):
+            c.line(3, y, 60, y)
+        c.rect(3, 10.5, 57, 26, stroke=1, fill=0)  # where the art would be
+        _logo_outline(c, 31.5, 23.5, 0.55)
+
+        def write(text: str, x: float, y: float, size: float, bold: bool = False, align: str = "left",
+                  width: float | None = None) -> None:
+            text = self._str(text)
+            font = self._font(bold)
+            c.saveState()
+            c.translate(x, y)
+            c.scale(1, -1)  # text upright in the flipped card coordinates
+            c.setFillColor(MARK_COLOR)
+            size_mm = size / PT_PER_MM
+            c.setFont(font, size_mm)
+            if width is not None and stringWidth(text, font, size_mm) > width:
+                while text and stringWidth(text + "…", font, size_mm) > width:
+                    text = text[:-1]
+                text += "…"
+            {"left": c.drawString, "right": c.drawRightString, "center": c.drawCentredString}[align](0, 0, text)
+            c.restoreState()
+
+        # Title bar: mana symbols right, the name in the rest.
+        symbols = _symbols(card.mana_cost)
+        cost_width = len(symbols) * 3.9
+        for i, symbol in enumerate(reversed(symbols)):
+            cx = 58.2 - i * 3.9
+            c.setStrokeColor(MARK_COLOR)
+            c.setLineWidth(0.2)
+            c.circle(cx, 6.1, 1.75, stroke=1, fill=0)
+            write(symbol, cx, 6.1 + 0.85, 5.5 if len(symbol) < 2 else 4, bold=True, align="center")
+        write(card.name, 3.5, 7.4, 8.5, bold=True, width=55.5 - cost_width)
+        write(card.type_line, 3.5, 41.6, 7, bold=True, width=56)
+
+        # Rules text: the largest size that fits the box.
+        box_w, box_top, box_bottom = 56.0, 45.0, 78.5
+        font = self._font(False)
+        for size in (8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.5, 4):
+            size_mm = size / PT_PER_MM
+            lines = []
+            for paragraph in self._str(card.oracle_text).split("\n"):
+                lines += simpleSplit(paragraph, font, size_mm, box_w) or [""]
+            leading = size_mm * 1.2
+            if len(lines) * leading <= box_bottom - box_top:
+                break
+        y = box_top + size_mm
+        c.setFont(font, size_mm)
+        for line in lines:
+            c.saveState()
+            c.translate(3.5, y)
+            c.scale(1, -1)
+            c.setFillColor(MARK_COLOR)
+            c.drawString(0, 0, line)
+            c.restoreState()
+            y += leading
+
+        # Bottom: price and printing left, power/toughness or loyalty right.
+        write(" · ".join(p for p in (card.price, card.printing) if p), 3.5, 84.5, 5.5)
+        write(tr("print_proxy_mark"), 3.5, 86.8, 4.5)
+        if card.stats:
+            c.setLineWidth(0.2)
+            c.setStrokeColor(MARK_COLOR)
+            c.roundRect(49, 81, 11, 5, 1, stroke=1, fill=0)
+            write(card.stats, 54.5, 84.6, 8, bold=True, align="center")
+        c.restoreState()
+
+    def card_back_outline(self, r: Rect) -> None:
+        """The app's card back as outlines only (text proxies: no ink-heavy fill)."""
+        c = self.c
+        c.saveState()
+        c.translate(r.x * PT_PER_MM, (self.height - r.y) * PT_PER_MM)
+        c.scale(r.w / 63 * PT_PER_MM, -r.h / 88 * PT_PER_MM)
+        c.setStrokeColor(MARK_COLOR)
+        c.setLineWidth(0.3)
+        c.roundRect(0, 0, 63, 88, CORNER_RADIUS_MM, stroke=1, fill=0)
+        _logo_outline(c, 31.5, 40, 1.0)
+        c.translate(31.5, 72)
+        c.scale(1, -1)
+        c.setFillColor(GOLD_DARK)
+        c.setFont(self._font(True), 4.2)
+        c.drawCentredString(0, 0, "MTG Deck Manager")
         c.restoreState()
 
     def card_back(self, r: Rect) -> None:
@@ -186,18 +295,24 @@ def render_proxies(
     backs: list[Slot | None] | None = None,
     duplex: Duplex = "off",
     back_shift: tuple[float, float] = (0.0, 0.0),
+    texts: Callable[[Slot], CardText | None] | None = None,
 ) -> int:
     """Write the proxy pages to `out` (3 x 3 cards per page); returns the number of pages.
     `image(slot)` returns a local image file, or None: a frame with the card's name instead.
     With duplex, every page of fronts is followed by a page of backs: `backs[i]` (a double-faced
-    card's other face) or the app's card back."""
+    card's other face) or the app's card back.
+    With `texts`, text proxies (rules text, outlines only) instead of images."""
     canvas = _canvas(out, layout, title)
     sheets = max(1, -(-len(slots) // PER_PAGE))
     pages = sheets * (2 if duplex != "off" else 1)
     frames = layout.frames()
 
     def draw(page: _Page, slot: Slot, frame: Rect, upside_down: bool = False, shift=(0.0, 0.0)) -> None:
-        path = image(slot)
+        text = texts(slot) if texts else None
+        if text is not None:
+            page.text_card(_shifted(correction.rect(frame), shift), text, upside_down)
+            return
+        path = image(slot) if not texts else None
         if path is not None:
             page.image(path, _shifted(correction.image_rect(frame), shift), upside_down)
         else:
@@ -233,6 +348,8 @@ def render_proxies(
                 back = backs[start + i] if backs else None
                 if back is not None:
                     draw(page, back, frame, upside_down=duplex == "short", shift=back_shift)
+                elif texts:
+                    page.card_back_outline(_shifted(correction.rect(frame), back_shift))
                 else:
                     page.card_back(_shifted(correction.rect(frame), back_shift))
             canvas.showPage()
@@ -334,6 +451,30 @@ def render_duplex_test(out: BinaryIO, layout: PageLayout, duplex: Literal["long"
         page.line(Line(a, b, c, d), MARK_COLOR, 0.25)
     canvas.showPage()
     canvas.save()
+
+
+def _symbols(mana_cost: str) -> list[str]:
+    """{2}{W/U}{G} -> ["2", "W/U", "G"]; the halves of a split cost (" // ") are not on the title bar."""
+    return [s for s in mana_cost.replace("{", " ").replace("}", " ").split() if s != "//"]
+
+
+def _logo_outline(c: Canvas, cx: float, cy: float, scale: float) -> None:
+    """The icon's motif as outlines, centred at (cx, cy) in y-down millimetres."""
+    c.saveState()
+    c.translate(cx, cy)
+    c.scale(scale, scale)
+    c.setLineWidth(0.6)
+    c.saveState()
+    c.translate(-4, -1)
+    c.rotate(-10)
+    c.setStrokeColor(BACK_GREY)
+    c.roundRect(-11, -15.5, 22, 31, 2.2, stroke=1, fill=0)
+    c.restoreState()
+    c.setStrokeColor(GOLD_DARK)
+    c.setLineWidth(0.9)
+    c.roundRect(-9, -13, 23, 32, 2.4, stroke=1, fill=0)
+    c.circle(2.5, 3, 5.8, stroke=1, fill=0)
+    c.restoreState()
 
 
 def _shifted(r: Rect, shift: tuple[float, float]) -> Rect:

@@ -48,6 +48,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
   const [gap, setGap] = useState(0)
   const [cutMarks, setCutMarks] = useState(true)
   const [duplex, setDuplex] = useState<Duplex>('off')
+  const [style, setStyle] = useState<'image' | 'text'>('image')
   const [job, setJob] = useState<PrintJobStatus | null>(null)
   const [overflow, setOverflow] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -168,6 +169,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
         gap_mm: gap,
         cut_marks: cutMarks,
         duplex,
+        style,
         title: deckName,
       })
       setOverflow(started.overflow ?? false)
@@ -259,6 +261,13 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             <select className="select small" value={paper} onChange={(e) => setPaper(e.target.value as Paper)}>
               <option value="a4">A4</option>
               <option value="letter">Letter</option>
+            </select>
+          </label>
+          <label>
+            {t.print.style}{' '}
+            <select className="select small" value={style} onChange={(e) => setStyle(e.target.value as 'image' | 'text')}>
+              <option value="image">{t.print.styleImage}</option>
+              <option value="text">{t.print.styleText}</option>
             </select>
           </label>
           <label>

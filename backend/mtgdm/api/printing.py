@@ -44,6 +44,8 @@ class ProxyPrint(BaseModel):
     cut_marks: bool = True
     # Two-sided: fronts, then backs mirrored for a sheet turned over its long or short edge.
     duplex: Literal["off", "long", "short"] = "off"
+    # "text": the card's rules text, mana cost and price in a frame instead of the Scryfall image.
+    style: Literal["image", "text"] = "image"
     title: str = Field(default="", max_length=200)  # deck name: in the footer and the file name
 
 
@@ -201,7 +203,7 @@ def start_print(db: Db, request: Request, body: ProxyPrint) -> PrintJobStatus:
     jobs: PrintJobs = request.app.state.print_jobs
     job = jobs.start(PrintRequest(slots, layout, correction, body.cut_marks, title, _profile_label(profile),
                                   f"{title} - proxies", current_lang(), backs or None, body.duplex,
-                                  profiles.back_shift(profile, body.duplex)))
+                                  profiles.back_shift(profile, body.duplex), body.style == "text"))
     return _status(job, layout.overflow(correction))
 
 

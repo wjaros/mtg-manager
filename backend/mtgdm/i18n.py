@@ -252,6 +252,7 @@ MESSAGES: dict[str, dict[Lang, str]] = {
               "3. Read where the back's lines cross the scales (0.5 mm ticks): X and Y.\n"
               "4. Enter both in Settings › Printing; 0 and 0 = the back is right behind the front.",
     },
+    "print_proxy_mark": {"pl": "Proxy – nie do sprzedaży", "en": "Proxy – not for sale"},
     "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
     "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
     "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},

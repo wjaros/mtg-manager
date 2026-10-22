@@ -17,6 +17,7 @@ from mtgdm.db import connect
 from mtgdm.i18n import Lang, set_lang
 from mtgdm.printing.layout import Correction, PageLayout
 from mtgdm.printing.render import Duplex, Slot, render_proxies
+from mtgdm.printing.text_cards import card_texts
 from mtgdm.scryfall.images import ImageCache
 
 log = logging.getLogger(__name__)
@@ -49,6 +50,7 @@ class PrintRequest:
     backs: list[Slot | None] | None = None  # duplex: the other face of a double-faced card, or None (app back)
     duplex: Duplex = "off"
     back_shift: tuple[float, float] = (0.0, 0.0)
+    text: bool = False  # text proxies: rules text instead of images (no downloads, little ink)
 
 
 class PrintJobs:
@@ -62,7 +64,8 @@ class PrintJobs:
     def start(self, request: PrintRequest, run: Callable[[Callable[[], None]], None] | None = None) -> PrintJob:
         """`run` (tests) runs the work synchronously instead of in a thread."""
         images = len(request.slots) + sum(1 for b in request.backs or [] if b)
-        job = PrintJob(id=uuid.uuid4().hex, filename=request.filename, total=images)
+        job = PrintJob(id=uuid.uuid4().hex, filename=request.filename, total=images,
+                       stage="render" if request.text else "images")
         with self._lock:
             self._jobs[job.id] = job
             self._forget_old()
@@ -96,7 +99,12 @@ class PrintJobs:
         try:
             conn = connect(self._db_path)
             try:
-                images = self._fetch_images(conn, job_id, request.slots + [b for b in request.backs or [] if b])
+                every = request.slots + [b for b in request.backs or [] if b]
+                if request.text:
+                    texts = card_texts(conn, {(s.card_id, s.face) for s in every})
+                    images = {}
+                else:
+                    images = self._fetch_images(conn, job_id, every)
             finally:
                 conn.close()
             self._update(job_id, stage="render", done=0, total=len(request.slots))
@@ -109,6 +117,7 @@ class PrintJobs:
                     request.correction, request.cut_marks, request.title, request.profile_label,
                     progress=lambda step: self._advance(job_id, step), backs=request.backs, duplex=request.duplex,
                     back_shift=request.back_shift,
+                    texts=(lambda slot: texts.get((slot.card_id, slot.face))) if request.text else None,
                 )
             tmp.replace(target)
             self._update(job_id, stage="done", pages=pages)
