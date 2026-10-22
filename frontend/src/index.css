@@ -2691,3 +2691,237 @@ label.button.disabled {
   filter: grayscale(0.6);
   opacity: 0.8;
 }
+
+/* ---------- Proxy printing ---------- */
+
+.proxy-dialog {
+  width: min(760px, 100%);
+}
+
+.proxy-group h3 {
+  margin: 0.25rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.proxy-row {
+  display: grid;
+  grid-template-columns: auto 3.5rem minmax(0, 1fr) minmax(0, 14rem);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.15rem 0;
+  font-size: 0.9rem;
+}
+
+.proxy-row.off .proxy-name {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.proxy-row .input.qty {
+  width: 100%;
+  padding: 0.2rem 0.35rem;
+}
+
+.proxy-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.proxy-printing {
+  min-width: 0;
+}
+
+.proxy-add-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.proxy-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+.printing-size,
+.printing-add,
+.printer-profile-row,
+.calibration-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.printing-size .input.small {
+  width: 5.5rem;
+}
+
+.printing-add {
+  margin-top: 0.75rem;
+}
+
+.printing-add .input {
+  flex: 1 1 240px;
+}
+
+.printer-profile {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.printer-profile-row .spacer {
+  flex: 1;
+}
+
+.calibration {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--bg-input);
+}
+
+.calibration p {
+  margin: 0;
+}
+
+.calibration-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.calibration-inputs .input.small {
+  width: 7rem;
+}
+
+.calibration-inputs .button {
+  align-self: flex-end;
+}
+
+@media (max-width: 640px) {
+  .proxy-row {
+    grid-template-columns: auto 3.5rem minmax(0, 1fr);
+  }
+
+  .proxy-printing {
+    grid-column: 2 / -1;
+  }
+}
+
+.proxy-add-bar {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.proxy-add-bar .input {
+  flex: 1;
+}
+
+.proxy-paste {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.proxy-paste textarea {
+  width: 100%;
+}
+
+.collection-print {
+  margin-left: auto;
+}
+
+.card-button.marked {
+  box-shadow: 0 0 0 3px var(--ok), 0 10px 24px rgb(0 0 0 / 0.5);
+}
+
+.card-button.marked::after {
+  content: '🖨';
+  position: absolute;
+  bottom: 6%;
+  left: 6%;
+  padding: 0.05em 0.35em;
+  border-radius: 6px;
+  background: rgb(15 18 24 / 0.9);
+  color: var(--text);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.pick-toggle {
+  margin-left: 1rem;
+}
+
+.collection-header .pick-toggle + .zoom-control {
+  margin-left: 0;
+}
+
+.proxy-row:has(.link-button) {
+  grid-template-columns: auto 3.5rem minmax(0, 1fr) minmax(0, 14rem) auto;
+}
+
+.proxy-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.proxy-group h3 .muted {
+  font-weight: normal;
+}
+
+/* Printing picker in the proxy dialog: fixed to the window, above the dialog. */
+.proxy-printing {
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.printing-list {
+  position: fixed;
+  z-index: 60;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.55);
+}
+
+.printing-list button {
+  display: block;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--text);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.printing-list button:hover,
+.printing-list button.current {
+  background: var(--bg-input);
+}
+
+.printing-list button.current {
+  box-shadow: inset 2px 0 0 var(--accent);
+}

@@ -1,4 +1,4 @@
-"""Backup of the user's own data: collection, locations and decks as JSON, without the
+"""Backup of the user's own data: collection, locations, decks and printer profiles as JSON, without the
 Scryfall card data. Cards are stored by Scryfall id plus name / set / number, so a backup can be
 restored after Scryfall data changed or on another machine."""
 
@@ -13,9 +13,16 @@ from mtgdm import __version__
 from mtgdm.decks.service import _after_change
 from mtgdm.decks.versions import current_entries
 from mtgdm.i18n import tr
+from mtgdm.printing.profiles import CARD_H_KEY, CARD_W_KEY
+from mtgdm.scryfall.bulk import get_meta, set_meta
 
 FORMAT = "mtgdm-backup"
 VERSION = 1
+
+
+PROFILE_COLUMNS = ("name", "paper", "scale_x", "scale_y", "offset_x_mm", "offset_y_mm", "measured_a_mm",
+                   "measured_b_mm", "measured_left_mm", "measured_top_mm", "card_w_mm", "card_h_mm",
+                   "back_offset_x_mm", "back_offset_y_mm", "back_offset_duplex", "is_default", "calibrated_at", "note")
 
 
 class BackupError(ValueError):
@@ -27,6 +34,7 @@ class ImportResult(BaseModel):
     collection_items: int
     decks: int
     deck_cards: int
+    printer_profiles: int = 0
     missing_cards: list[str]  # cards that could not be found in the local card data
 
 
@@ -89,6 +97,12 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
         "locations": locations,
         "collection": collection,
         "decks": decks,
+        # Calibration of the user's printers (raw measurements included) and the card size.
+        "printer_profiles": [
+            {k: r[k] for k in r.keys() if k != "id"}
+            for r in conn.execute("SELECT * FROM printer_profiles ORDER BY id")
+        ],
+        "print_settings": {k: get_meta(conn, k) for k in (CARD_W_KEY, CARD_H_KEY) if get_meta(conn, k)},
     }
 
 
@@ -105,7 +119,8 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
     try:
         with conn:
             if replace:
-                for table in ("deck_versions", "deck_cards", "decks", "collection_items", "locations"):
+                for table in ("deck_versions", "deck_cards", "decks", "collection_items", "locations",
+                              "printer_profiles"):
                     conn.execute(f"DELETE FROM {table}")
 
             location_ids: dict[Any, int] = {}
@@ -157,7 +172,21 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
                 _after_change(conn, deck_id)
                 _restore_versions(conn, deck_id, deck.get("versions") or [], resolver)
                 result.decks += 1
-    except (KeyError, TypeError, sqlite3.IntegrityError) as exc:
+
+            has_default = conn.execute("SELECT 1 FROM printer_profiles WHERE is_default = 1").fetchone()
+            for profile in data.get("printer_profiles", []):
+                columns = [c for c in PROFILE_COLUMNS if c in profile]
+                values = [profile[c] for c in columns]
+                if has_default and "is_default" in columns:  # keep this machine's default when adding
+                    values[columns.index("is_default")] = 0
+                conn.execute(
+                    f"INSERT INTO printer_profiles({', '.join(columns)}) VALUES ({', '.join('?' * len(columns))})", values
+                )
+                result.printer_profiles += 1
+            for key, value in (data.get("print_settings") or {}).items():
+                if key in (CARD_W_KEY, CARD_H_KEY):
+                    set_meta(conn, key, str(float(value)))
+    except (KeyError, TypeError, ValueError, sqlite3.IntegrityError) as exc:
         raise BackupError(tr("backup_broken", error=exc)) from exc
     result.missing_cards = sorted(set(result.missing_cards))
     return result

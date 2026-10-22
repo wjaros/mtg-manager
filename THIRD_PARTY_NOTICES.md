@@ -27,6 +27,7 @@ ship inside the app in the `licenses` folder (collected at build time by
 | NumPy | BSD-3-Clause (and bundled BSD/MIT/zlib parts) |
 | Pillow | MIT-CMU (HPND) |
 | pypdfium2, PDFium | Apache-2.0 / BSD-3-Clause |
+| ReportLab (proxy printing), charset-normalizer | BSD-3-Clause, MIT |
 | FastAPI | MIT |
 | Starlette | BSD-3-Clause |
 | Uvicorn | BSD-3-Clause |

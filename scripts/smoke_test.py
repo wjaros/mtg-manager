@@ -127,6 +127,11 @@ def main() -> int:
             assert status == 200 and pdf.startswith(b"%PDF"), pdf[:100]
             print("pdf: deck export works")
 
+            # Proxy printing: reportlab and its fonts are in the bundle (the calibration page has no images).
+            status, pdf = get(f"{base}/api/print/calibration.pdf?paper=a4")
+            assert status == 200 and pdf.startswith(b"%PDF"), pdf[:100]
+            print("pdf: printer calibration page works")
+
             assert (Path(data_dir) / "db.sqlite").is_file(), "database not created"
             print("OK")
             return 0

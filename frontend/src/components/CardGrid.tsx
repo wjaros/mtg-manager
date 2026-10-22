@@ -20,6 +20,7 @@ interface Props {
   badge?: (card: CardSummary) => number | undefined
   /** Greyed out, e.g. a singleton card already in the deck. */
   dimmed?: (card: CardSummary) => boolean
+  marked?: (card: CardSummary) => boolean // e.g. picked for proxy printing
   minCardWidth?: number
   /** Cards can be dragged out (deckbuilder pool). */
   draggable?: boolean
@@ -36,6 +37,7 @@ export function CardGrid({
   onHover,
   badge,
   dimmed,
+  marked,
   minCardWidth = MIN_CARD_WIDTH,
   draggable = false,
 }: Props) {
@@ -94,7 +96,7 @@ export function CardGrid({
                 <div key={col} className="card-cell" style={{ width: cardWidth }}>
                   {card ? (
                     <button
-                      className={`card-button ${card.id === selectedId ? 'selected' : ''} ${dimmed?.(card) ? 'dimmed' : ''}`}
+                      className={`card-button ${card.id === selectedId ? 'selected' : ''} ${dimmed?.(card) ? 'dimmed' : ''} ${marked?.(card) ? 'marked' : ''}`}
                       onClick={() => onSelect(card)}
                       onContextMenu={
                         onContextMenu &&

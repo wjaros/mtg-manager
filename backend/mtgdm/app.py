@@ -13,6 +13,7 @@ from mtgdm.api import api_router
 from mtgdm.config import Settings, load_settings
 from mtgdm.db import connect, migrate
 from mtgdm.i18n import LanguageMiddleware
+from mtgdm.printing.jobs import PrintJobs, clear_print_dir
 from mtgdm.scan.service import Recognizer
 from mtgdm.scryfall.client import ScryfallClient
 from mtgdm.scryfall.images import ImageCache
@@ -25,6 +26,7 @@ def create_app(settings: Settings | None = None, scryfall: ScryfallClient | None
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         settings.ensure_dirs()
+        clear_print_dir(settings.print_dir)
         conn = connect(settings.db_path)
         try:
             migrate(conn)
@@ -42,6 +44,7 @@ def create_app(settings: Settings | None = None, scryfall: ScryfallClient | None
     app.state.scryfall = scryfall or ScryfallClient()
     app.state.image_cache = ImageCache(settings.images_dir, app.state.scryfall)
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)
+    app.state.print_jobs = PrintJobs(settings.db_path, settings.print_dir, app.state.image_cache)
     app.state.recognizer = Recognizer(settings.db_path, lambda conn: _image_loader(app.state.image_cache, conn))
     app.include_router(api_router)
     app.add_middleware(LanguageMiddleware)

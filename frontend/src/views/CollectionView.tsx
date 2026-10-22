@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, type CardSummary, type CollectionStats } from '../api/client'
 import { CardDetailPanel } from '../components/CardDetailPanel'
 import { CardGrid, MIN_CARD_WIDTH } from '../components/CardGrid'
+import { ContextMenu, type MenuState } from '../components/ContextMenu'
+import { printQueue, usePrintQueue } from '../printQueue'
 import { ZoomControl } from '../components/ZoomControl'
 import { useZoom } from '../hooks/useZoom'
 import { Filters } from '../components/Filters'
@@ -25,6 +27,11 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
   const [stats, setStats] = useState<CollectionStats | null>(null)
   const closeDetail = useCallback(() => setSelected(null), [])
+  // Picking cards for proxy printing: a click toggles the card instead of opening it.
+  const [picking, setPicking] = useState(false)
+  const [menu, setMenu] = useState<MenuState | null>(null)
+  const queue = usePrintQueue()
+  const marked = useCallback((card: CardSummary) => queue.some((q) => q.card_id === card.id), [queue])
 
   useEffect(() => {
     if (hasData) api.collectionStats().then(setStats, () => setStats(null))
@@ -63,6 +70,10 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
               {t.collection.stats(formatNumber(stats.cards), formatNumber(stats.copies))}
             </span>
           )}
+          <label className="checkbox small pick-toggle" title={t.print.pickTitle}>
+            <input type="checkbox" checked={picking} onChange={(e) => setPicking(e.target.checked)} />
+            {t.print.pick}
+          </label>
           <ZoomControl zoom={zoom} onChange={setZoom} />
         </div>
         <Filters value={filters} onChange={setFilters} />
@@ -73,11 +84,26 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
           cardAt={cardAt}
           ensureRange={ensureRange}
           selectedId={selected}
-          onSelect={(card: CardSummary) => setSelected(card.id)}
+          onSelect={(card: CardSummary) => (picking ? printQueue.toggle(card) : setSelected(card.id))}
+          onContextMenu={(card, e) =>
+            setMenu({
+              x: e.clientX,
+              y: e.clientY,
+              title: card.name,
+              items: [
+                printQueue.has(card.id)
+                  ? { label: t.print.unqueue, onClick: () => printQueue.remove(card.id) }
+                  : { label: t.print.queue, onClick: () => printQueue.add(card) },
+                { label: t.builder.details, onClick: () => setSelected(card.id) },
+              ],
+            })
+          }
           badge={badge}
+          marked={marked}
           minCardWidth={MIN_CARD_WIDTH * zoom}
         />
       </div>
+      {menu && <ContextMenu menu={menu} onClose={() => setMenu(null)} />}
       {selected && (
         <CardDetailPanel
           key={selected}

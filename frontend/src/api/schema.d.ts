@@ -687,6 +687,231 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/decks/{deck_id}/proxy-candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Candidates
+         * @description Cards of the deck you can't put in its box: not owned, or only in other decks' boxes.
+         */
+        get: operations["candidates_api_decks__deck_id__proxy_candidates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tokens
+         * @description Tokens and emblems the deck's cards make (Scryfall's related parts).
+         */
+        get: operations["tokens_api_decks__deck_id__tokens_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Print Settings */
+        get: operations["get_print_settings_api_print_settings_get"];
+        /** Put Print Settings */
+        put: operations["put_print_settings_api_print_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Profiles */
+        get: operations["list_profiles_api_print_profiles_get"];
+        put?: never;
+        /** Create Profile */
+        post: operations["create_profile_api_print_profiles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/profiles/{profile_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Profile */
+        delete: operations["delete_profile_api_print_profiles__profile_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Profile */
+        patch: operations["update_profile_api_print_profiles__profile_id__patch"];
+        trace?: never;
+    };
+    "/api/print/profiles/{profile_id}/calibrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Calibrate */
+        post: operations["calibrate_api_print_profiles__profile_id__calibrate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/calibration.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Calibration Pdf
+         * @description The calibration page (scale 1.0), or with a profile the verification page (its correction applied).
+         */
+        get: operations["calibration_pdf_api_print_calibration_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/profiles/{profile_id}/back-offset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Save Back Offset
+         * @description Two-sided printing: the back's offset read on the duplex test page.
+         */
+        post: operations["save_back_offset_api_print_profiles__profile_id__back_offset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/duplex-test.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Duplex Test Pdf
+         * @description Front scales and back lines: shows how far the printer puts the back side off the front.
+         */
+        get: operations["duplex_test_pdf_api_print_duplex_test_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Print
+         * @description Start building a proxy PDF; poll the job, then download it from /print/jobs/{id}/pdf.
+         */
+        post: operations["start_print_api_print_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Print Status */
+        get: operations["print_status_api_print_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/jobs/{job_id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Print Pdf */
+        get: operations["print_pdf_api_print_jobs__job_id__pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scan-engines": {
         parameters: {
             query?: never;
@@ -919,6 +1144,26 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * BackOffset
+         * @description Read on the duplex test page: where the back's line falls on the front's scale.
+         */
+        BackOffset: {
+            /** Back Offset X Mm */
+            back_offset_x_mm: number;
+            /** Back Offset Y Mm */
+            back_offset_y_mm: number;
+            /**
+             * Duplex
+             * @enum {string}
+             */
+            duplex: "long" | "short";
+            /**
+             * Relative
+             * @default false
+             */
+            relative?: boolean;
+        };
         /** Body_upload_api_scans_post */
         Body_upload_api_scans_post: {
             /**
@@ -934,6 +1179,20 @@ export interface components {
             kind?: "auto" | "single" | "page";
             /** Engine */
             engine?: string | null;
+        };
+        /** CalibrationResult */
+        CalibrationResult: {
+            profile: components["schemas"]["PrinterProfile"];
+            /** Nominal A Mm */
+            nominal_a_mm: number;
+            /** Nominal B Mm */
+            nominal_b_mm: number;
+            /** Difference X Pct */
+            difference_x_pct: number;
+            /** Difference Y Pct */
+            difference_y_pct: number;
+            /** Out Of Range */
+            out_of_range: boolean;
         };
         /** CardDetail */
         CardDetail: {
@@ -1582,6 +1841,25 @@ export interface components {
             /** Added */
             added: number;
         };
+        /** DeckToken */
+        DeckToken: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Card Id */
+            card_id: string;
+            /** Printing */
+            printing: string;
+            /** Name */
+            name: string;
+            /** Type Line */
+            type_line: string | null;
+            /** Oracle Text */
+            oracle_text: string | null;
+            /** Faces */
+            faces: number;
+            /** Sources */
+            sources: string[];
+        };
         /** DeckUpdate */
         DeckUpdate: {
             /** Name */
@@ -1838,6 +2116,11 @@ export interface components {
             decks: number;
             /** Deck Cards */
             deck_cards: number;
+            /**
+             * Printer Profiles
+             * @default 0
+             */
+            printer_profiles?: number;
             /** Missing Cards */
             missing_cards: string[];
         };
@@ -1889,6 +2172,17 @@ export interface components {
             name?: string | null;
             /** Kind */
             kind?: ("deck" | "binder" | "box" | "other") | null;
+        };
+        /** Measurements */
+        Measurements: {
+            /** Measured A Mm */
+            measured_a_mm: number;
+            /** Measured B Mm */
+            measured_b_mm: number;
+            /** Measured Left Mm */
+            measured_left_mm?: number | null;
+            /** Measured Top Mm */
+            measured_top_mm?: number | null;
         };
         /** MissingEntry */
         MissingEntry: {
@@ -1950,6 +2244,188 @@ export interface components {
             unpriced: number;
             /** As Of */
             as_of: string | null;
+        };
+        /** PrintJobStatus */
+        PrintJobStatus: {
+            /** Id */
+            id: string;
+            /**
+             * Stage
+             * @enum {string}
+             */
+            stage: "images" | "render" | "done" | "error";
+            /** Done */
+            done: number;
+            /** Total */
+            total: number;
+            /** Pages */
+            pages: number;
+            /** Missing Images */
+            missing_images: string[];
+            /** Error */
+            error: string | null;
+            /**
+             * Overflow
+             * @default false
+             */
+            overflow?: boolean;
+        };
+        /** PrintSettings */
+        PrintSettings: {
+            /** Card W Mm */
+            card_w_mm: number;
+            /** Card H Mm */
+            card_h_mm: number;
+        };
+        /** PrinterProfile */
+        PrinterProfile: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Paper
+             * @enum {string}
+             */
+            paper: "a4" | "letter";
+            /** Scale X */
+            scale_x: number;
+            /** Scale Y */
+            scale_y: number;
+            /** Offset X Mm */
+            offset_x_mm: number;
+            /** Offset Y Mm */
+            offset_y_mm: number;
+            /** Measured A Mm */
+            measured_a_mm: number | null;
+            /** Measured B Mm */
+            measured_b_mm: number | null;
+            /** Measured Left Mm */
+            measured_left_mm: number | null;
+            /** Measured Top Mm */
+            measured_top_mm: number | null;
+            /** Card W Mm */
+            card_w_mm: number | null;
+            /** Card H Mm */
+            card_h_mm: number | null;
+            /** Back Offset X Mm */
+            back_offset_x_mm: number;
+            /** Back Offset Y Mm */
+            back_offset_y_mm: number;
+            /** Back Offset Duplex */
+            back_offset_duplex: ("long" | "short") | null;
+            /** Is Default */
+            is_default: boolean;
+            /** Calibrated At */
+            calibrated_at: string | null;
+            /** Note */
+            note: string | null;
+        };
+        /** ProfileCreate */
+        ProfileCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Paper
+             * @default a4
+             * @enum {string}
+             */
+            paper?: "a4" | "letter";
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default?: boolean;
+            /** Note */
+            note?: string | null;
+        };
+        /** ProfileUpdate */
+        ProfileUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Paper */
+            paper?: ("a4" | "letter") | null;
+            /** Is Default */
+            is_default?: boolean | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** ProxyCandidate */
+        ProxyCandidate: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Card Id */
+            card_id: string;
+            /** Printing */
+            printing: string;
+            /** Name */
+            name: string;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "missing" | "in_other_deck";
+            /** Qty */
+            qty: number;
+            /** Other Decks */
+            other_decks: string[];
+            /** Faces */
+            faces: number;
+            /** Image Status */
+            image_status: string | null;
+        };
+        /** ProxyItem */
+        ProxyItem: {
+            /** Card Id */
+            card_id: string;
+            /** Qty */
+            qty: number;
+            /**
+             * Faces
+             * @default both
+             * @enum {string}
+             */
+            faces?: "both" | "front";
+        };
+        /** ProxyPrint */
+        ProxyPrint: {
+            /** Items */
+            items: components["schemas"]["ProxyItem"][];
+            /** Profile Id */
+            profile_id?: number | null;
+            /**
+             * Paper
+             * @default a4
+             * @enum {string}
+             */
+            paper?: "a4" | "letter";
+            /**
+             * Gap Mm
+             * @default 0
+             */
+            gap_mm?: number;
+            /**
+             * Cut Marks
+             * @default true
+             */
+            cut_marks?: boolean;
+            /**
+             * Duplex
+             * @default off
+             * @enum {string}
+             */
+            duplex?: "off" | "long" | "short";
+            /**
+             * Style
+             * @default image
+             * @enum {string}
+             */
+            style?: "image" | "text";
+            /**
+             * Title
+             * @default
+             */
+            title?: string;
         };
         /** Scan */
         Scan: {
@@ -3525,7 +4001,7 @@ export interface operations {
             header?: never;
             path: {
                 card_id: string;
-                size: "small" | "normal" | "large" | "art_crop";
+                size: "small" | "normal" | "large" | "art_crop" | "png";
             };
             cookie?: never;
         };
@@ -3631,6 +4107,466 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SeedInfo"][];
+                };
+            };
+        };
+    };
+    candidates_api_decks__deck_id__proxy_candidates_get: {
+        parameters: {
+            query?: {
+                include_basics?: boolean;
+            };
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProxyCandidate"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tokens_api_decks__deck_id__tokens_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckToken"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_print_settings_api_print_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrintSettings"];
+                };
+            };
+        };
+    };
+    put_print_settings_api_print_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrintSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrintSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_profiles_api_print_profiles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrinterProfile"][];
+                };
+            };
+        };
+    };
+    create_profile_api_print_profiles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrinterProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_profile_api_print_profiles__profile_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_profile_api_print_profiles__profile_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrinterProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    calibrate_api_print_profiles__profile_id__calibrate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Measurements"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalibrationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    calibration_pdf_api_print_calibration_pdf_get: {
+        parameters: {
+            query?: {
+                paper?: "a4" | "letter";
+                /** @description given: the verification page of that profile */
+                profile_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_back_offset_api_print_profiles__profile_id__back_offset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profile_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BackOffset"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrinterProfile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    duplex_test_pdf_api_print_duplex_test_pdf_get: {
+        parameters: {
+            query?: {
+                duplex?: "long" | "short";
+                paper?: "a4" | "letter";
+                /** @description given: its correction and back offset applied */
+                profile_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_print_api_print_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProxyPrint"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrintJobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    print_status_api_print_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrintJobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    print_pdf_api_print_jobs__job_id__pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -3,9 +3,10 @@
 # MTG Deck Manager
 
 A local desktop app for Magic: The Gathering players with a paper collection and an Arena account:
-keep track of your cards (by scanning them), build and validate decks, see what a deck still needs, and
-export decks to MTG Arena, Moxfield or a phone-friendly PDF. Everything runs on your computer; card
-data comes from [Scryfall](https://scryfall.com) and works offline once downloaded.
+keep track of your cards (by scanning them), build and validate decks, see what a deck still needs,
+print proxies of the cards you're missing, and export decks to MTG Arena, Moxfield or a
+phone-friendly PDF. Everything runs on your computer; card data comes from
+[Scryfall](https://scryfall.com) and works offline once downloaded.
 
 ![Deckbuilder](docs/screenshots/deckbuilder.webp)
 
@@ -66,6 +67,32 @@ review the result and choose finish, condition and location before anything reac
   - a full JSON backup.
 
 ![Import](docs/screenshots/import.webp)
+
+**Proxy printing.** From a paper deck, *Proxies* lists the cards you can't put in its box: the ones
+you don't own and the ones sitting in another deck's box (with that deck's name), plus the tokens
+the deck makes. Pick quantities and printings, add any card by hand, and get a print-ready PDF:
+- 3 × 3 card-size proxies per A4 or Letter page, with crop marks;
+- card images from Scryfall, unaltered, or *text proxies* to save ink: name, mana cost, type,
+  rules text, stats and price in a thin frame, with the app's logo where the art would be;
+- two-sided for duplex printers: a double-faced card's other face on the back, other cards get
+  the app's own card back.
+
+Any other cards or tokens print from *Collection → Print proxies*: pick them in the card grid
+(*Pick for printing*, or right click), search for them or paste a list.
+
+![Proxy printing](docs/screenshots/proxies.webp)
+
+![Proxy pages: card images and text proxies](docs/screenshots/proxy-pages.webp)
+
+Printers scale and shift pages slightly. *Settings → Printing* calibrates each printer:
+- print a calibration page and measure two lengths with a ruler: later prints come out at real
+  card size, so cut proxies fit sleeves;
+- for two-sided prints, a test page shows how far the printer puts the back off the front (read
+  against the light on a 0.5 mm scale), and backs are moved to match.
+
+Proxies are for personal playtesting only, not for sale.
+
+![Printer calibration](docs/screenshots/printing.webp)
 
 The interface is in Polish and English (Settings → Language).
 
@@ -156,16 +183,15 @@ Builds `dist\MTG Deck Manager\MTG Deck Manager.exe` and a zip of that folder.
 
 ### CI and releases
 
-`.github/workflows/build.yml` runs the tests on Linux and Windows. It then builds and smoke-tests the
-macOS arm64, macOS x86_64 and Windows x64 packages (`scripts/smoke_test.py`).
+`.github/workflows/build.yml` runs the tests on Linux and Windows. For pull requests and releases it
+also builds and smoke-tests the macOS arm64, macOS x86_64 and Windows x64 packages
+(`scripts/smoke_test.py`); a merge without a new version only runs the tests.
 
-To release, bump `__version__` in `backend/mtgdm/__init__.py`, commit, and push a matching tag:
-
-```sh
-git tag v0.2.0 && git push origin v0.2.0
-```
-
-The tag build publishes a GitHub Release with the DMGs and the Windows zip attached.
+To release, bump `__version__` in `backend/mtgdm/__init__.py` (e.g. in the pull request) and merge
+into `master`. When every package has built and passed its smoke test, the build creates the tag
+`v<version>` and a GitHub Release with the DMGs and the Windows zip attached. Pushes to `master`
+without a new version release nothing. Pushing a matching tag by hand (`git tag v0.2.0 && git push
+origin v0.2.0`) works too.
 
 ## Data
 

@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { ProxyDialog } from '../components/ProxyDialog'
+import { usePrintQueue } from '../printQueue'
 import { t } from '../i18n'
 
 export type CollectionTab = 'cards' | 'items' | 'locations'
@@ -19,6 +21,8 @@ export function CollectionPage({
   onTab: (tab: CollectionTab) => void
   children: ReactNode
 }) {
+  const [printing, setPrinting] = useState(false)
+  const queued = usePrintQueue().reduce((n, q) => n + q.qty, 0)
   return (
     <div className="collection-page">
       <header className="collection-page-header">
@@ -30,7 +34,12 @@ export function CollectionPage({
             </button>
           ))}
         </div>
+        <button className="button collection-print" onClick={() => setPrinting(true)}>
+          {t.print.collectionButton}
+          {queued > 0 && ` (${queued})`}
+        </button>
       </header>
+      {printing && <ProxyDialog deckId={null} onClose={() => setPrinting(false)} />}
       <div className="collection-page-body">{children}</div>
     </div>
   )

@@ -1,6 +1,7 @@
 """Local cache of card images (Scryfall's rules: cached, never hotlinked or altered).
 
-Files: <images>/cards/<size>/<id[:2]>/<id>-<face>.jpg, downloaded on first request.
+Files: <images>/cards/<size>/<id[:2]>/<id>-<face>.jpg (.png for "png": 745 x 1040, transparent corners,
+used for printing), downloaded on first request.
 """
 
 import json
@@ -11,7 +12,7 @@ from typing import Literal
 
 from mtgdm.scryfall.client import ScryfallClient
 
-ImageSize = Literal["small", "normal", "large", "art_crop"]
+ImageSize = Literal["small", "normal", "large", "art_crop", "png"]
 
 
 class ImageNotAvailable(LookupError):
@@ -26,7 +27,7 @@ class ImageCache:
         self._locks_guard = threading.Lock()
 
     def path_for(self, card_id: str, size: ImageSize, face: int) -> Path:
-        return self._root / size / card_id[:2] / f"{card_id}-{face}.jpg"
+        return self._root / size / card_id[:2] / f"{card_id}-{face}.{'png' if size == 'png' else 'jpg'}"
 
     def get(self, conn: sqlite3.Connection, card_id: str, size: ImageSize, face: int = 0) -> Path:
         """Return the cached file, downloading it first if needed."""

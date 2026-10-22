@@ -49,6 +49,11 @@ class Settings:
     def logs_dir(self) -> Path:
         return self.data_dir / "logs"
 
+    @property
+    def print_dir(self) -> Path:
+        """Proxy PDFs being built or waiting for download (temporary)."""
+        return self.data_dir / "print"
+
     def ensure_dirs(self) -> None:
         for path in (self.data_dir, self.images_dir, self.scans_dir, self.bulk_dir):
             path.mkdir(parents=True, exist_ok=True)

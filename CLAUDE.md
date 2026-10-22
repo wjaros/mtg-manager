@@ -29,6 +29,12 @@ language from the request's Accept-Language (the frontend sends its own; default
     `usage.py` – where a card is (copies per location / deck box, decks listing it) for the deckbuilder hover
     `moxfield.py` – Moxfield collection CSV export / import (condition scale mapping Cardmarket <-> US)
     `export.py` – collection export: Arena-style list (`4 Name (SET) 123`, Scryfall set codes) and CSV
+  - `mtgdm/printing/` – proxy printing: `candidates.py` (cards a deck's box lacks), `layout.py` (pure mm geometry,
+    calibration math; images are scaled uniformly, frames/marks per axis), `render.py` (reportlab; a system font with
+    Polish letters, else Helvetica without diacritics), `profiles.py` (printer profiles, card size in meta),
+    `text_cards.py` (text proxies: rules text per face, split/adventure halves on one card),
+    `tokens.py` (tokens a deck makes, from all_parts; the test fixture has no all_parts, tests add them),
+    `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
 - `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);
@@ -66,6 +72,9 @@ language from the request's Accept-Language (the frontend sends its own; default
 - Frontend checks: `cd frontend && npm run build && npm run lint`
 - Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator; don't add hues without re-validating.
 - Smoke test of a built app: `python scripts/smoke_test.py <path to executable>`; CI: `.github/workflows/build.yml`
+- Release: bump `__version__` in `backend/mtgdm/__init__.py` and merge into master; CI tags and publishes
+  `v<version>` once all packages pass. Packages are built for PRs, releases and manual runs only (not for
+  master pushes that don't release)
 - Scan accuracy on synthetic photos: `cd backend && uv run python ../scripts/scan_benchmark.py --engine rapidocr`
   (pages: `--pages 20 --background white|black`; fixture images: `scripts/make_scan_fixture.py`); the macOS bundle ships Apple Vision only
   (`MTGDM_BUNDLE_RAPIDOCR=1` adds RapidOCR; it needs PyYAML via omegaconf, don't exclude `yaml` then)

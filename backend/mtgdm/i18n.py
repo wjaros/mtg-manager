@@ -200,6 +200,62 @@ MESSAGES: dict[str, dict[Lang, str]] = {
     },
     "backup_broken": {"pl": "Uszkodzony plik kopii: {error}", "en": "Damaged backup file: {error}"},
     "no_changes": {"pl": "Brak zmian od ostatniej wersji", "en": "No changes since the last version"},
+    # proxy printing (PDF texts)
+    "print_footer_page": {"pl": "{title} · strona {page}/{pages}", "en": "{title} · page {page}/{pages}"},
+    "print_uncalibrated": {"pl": "Drukarka nieskalibrowana (skala 1,0)", "en": "Uncalibrated printer (scale 1.0)"},
+    "print_profile": {"pl": "{name} · skala x {x:.4f}, y {y:.4f}", "en": "{name} · scale x {x:.4f}, y {y:.4f}"},
+    "print_actual_size": {
+        "pl": "Drukuj w 100% / rozmiar rzeczywisty, bez „Dopasuj do strony”",
+        "en": "Print at 100% / Actual size – do not “Fit to page”",
+    },
+    "print_calibration_title": {"pl": "Kalibracja drukarki", "en": "Printer calibration"},
+    "print_verification": {"pl": "Strona weryfikacyjna", "en": "Verification page"},
+    "print_card_size": {"pl": "{w:.1f} × {h:.1f} mm", "en": "{w:.1f} × {h:.1f} mm"},
+    "print_measure_a": {"pl": "A = {mm:.1f} mm (szerokość siatki)", "en": "A = {mm:.1f} mm (grid width)"},
+    "print_measure_b": {"pl": "B = {mm:.1f} mm (wysokość)", "en": "B = {mm:.1f} mm (grid height)"},
+    "print_measure_left": {
+        "pl": "Od lewej krawędzi papieru do siatki: {mm:.1f} mm",
+        "en": "Left paper edge to grid: {mm:.1f} mm",
+    },
+    "print_measure_top": {
+        "pl": "Od górnej krawędzi papieru do siatki: {mm:.1f} mm",
+        "en": "Top paper edge to grid: {mm:.1f} mm",
+    },
+    "print_calibration_steps": {
+        "pl": "1. Drukuj w 100% / rozmiar rzeczywisty.\n"
+              "2. Wyłącz „Dopasuj do strony” i „Zmniejsz za duże strony”.\n"
+              "3. Ten sam papier i podajnik co do proxy.\n"
+              "4. Zmierz A i B linijką lub suwmiarką (do 0,5 mm),\n"
+              "    po zewnętrznych krawędziach ramek.\n"
+              "5. Opcjonalnie: odległości od krawędzi papieru.\n"
+              "6. Wpisz wyniki w Ustawienia › Drukowanie.",
+        "en": "1. Print at 100% / Actual size.\n"
+              "2. Turn off “Fit to page” and “Shrink oversized pages”.\n"
+              "3. Use the paper and tray you'll print proxies on.\n"
+              "4. Measure A and B with a ruler or calipers (to 0.5 mm),\n"
+              "    along the outer edges of the frames.\n"
+              "5. Optional: the distances from the paper edges.\n"
+              "6. Enter them in Settings › Printing.",
+    },
+    "print_duplex_title": {"pl": "Test druku dwustronnego", "en": "Two-sided print test"},
+    "print_duplex_long": {"pl": "obracanie wzdłuż dłuższej krawędzi", "en": "flip on long edge"},
+    "print_duplex_short": {"pl": "obracanie wzdłuż krótszej krawędzi", "en": "flip on short edge"},
+    "print_duplex_x": {"pl": "X: + w prawo, − w lewo", "en": "X: + right, − left"},
+    "print_duplex_y": {"pl": "Y: + w dół, − w górę", "en": "Y: + down, − up"},
+    "print_duplex_steps": {
+        "pl": "1. Drukuj dwustronnie w 100%, {mode}, na papierze do proxy.\n"
+              "2. Obejrzyj kartkę od przodu pod światło (okno, lampa).\n"
+              "3. Odczytaj, gdzie linie z tyłu przecinają podziałki (co 0,5 mm): X i Y.\n"
+              "4. Wpisz obie liczby w Ustawienia › Drukowanie; 0 i 0 = tył idealnie pod przodem.",
+        "en": "1. Print two-sided at 100%, {mode}, on your proxy paper.\n"
+              "2. Look at the front of the sheet against the light (window, lamp).\n"
+              "3. Read where the back's lines cross the scales (0.5 mm ticks): X and Y.\n"
+              "4. Enter both in Settings › Printing; 0 and 0 = the back is right behind the front.",
+    },
+    "print_proxy_mark": {"pl": "Proxy – nie do sprzedaży", "en": "Proxy – not for sale"},
+    "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
+    "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
+    "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},
 }
 
 
