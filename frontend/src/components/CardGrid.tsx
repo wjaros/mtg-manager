@@ -1,10 +1,10 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
-import type { CardSummary } from '../api/client'
+import { imageSizeFor, type CardSummary } from '../api/client'
 import { setCardDrag } from '../dnd'
 import { CardImage } from './CardImage'
 
-const MIN_CARD_WIDTH = 170
+export const MIN_CARD_WIDTH = 170
 const GAP = 12
 const CARD_RATIO = 680 / 488 // Scryfall "normal" image height / width
 
@@ -53,6 +53,7 @@ export function CardGrid({
   const columns = Math.max(1, Math.floor((width + GAP) / (minCardWidth + GAP)))
   const cardWidth = width ? (width - GAP * (columns - 1)) / columns : minCardWidth
   const rowHeight = Math.round(cardWidth * CARD_RATIO) + GAP
+  const imageSize = imageSizeFor(cardWidth) === 'large' ? 'large' : 'normal'
   const rows = Math.ceil(total / columns)
 
   // The warning is about the React Compiler (not used here): TanStack Virtual's API can't be memoized by it.
@@ -108,7 +109,7 @@ export function CardGrid({
                       onMouseLeave={onHover && (() => onHover(null))}
                       title={onHover ? undefined : `${card.name} · ${card.set_name} #${card.collector_number}`}
                     >
-                      <CardImage cardId={card.id} name={card.name} hasImage={card.image_faces > 0} />
+                      <CardImage cardId={card.id} name={card.name} size={imageSize} hasImage={card.image_faces > 0} />
                       {count ? <span className="card-count-badge">{count}</span> : null}
                     </button>
                   ) : (

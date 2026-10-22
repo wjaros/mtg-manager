@@ -1,5 +1,5 @@
-import type { MouseEvent } from 'react'
-import type { DeckCard, DeckChange, Holding } from '../api/client'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
+import { imageSizeFor, type DeckCard, type DeckChange, type Holding } from '../api/client'
 import { changeKey, changeKind, changeLabel, changesByKey, holdState, holdTitle, isLand } from '../decks'
 import { setCardDrag } from '../dnd'
 import { CardImage } from './CardImage'
@@ -16,6 +16,7 @@ function columnOf(entry: DeckCard): string {
 
 interface Props {
   cards: DeckCard[]
+  zoom?: number // column width: 1 = the nine columns fill the width, at most 160px each
   changes?: DeckChange[]
   holdings?: Map<string, Holding> | null
   onRemove: (entry: DeckCard) => void
@@ -24,14 +25,26 @@ interface Props {
 }
 
 /** Main deck laid out like Arena's deckbuilder: one column per mana value, overlapping cards. */
-export function ManaColumns({ cards, changes = [], holdings, onRemove, onMenu, onHover }: Props) {
+export function ManaColumns({ cards, zoom = 1, changes = [], holdings, onRemove, onMenu, onHover }: Props) {
   const byKey = changesByKey(changes)
   const main = cards.filter((c) => c.board === 'main')
   const columns = new Map<string, DeckCard[]>(COLUMNS.map((c) => [c, []]))
   for (const entry of main) columns.get(columnOf(entry))!.push(entry)
 
+  // Image size follows the column width (zoom, window size), so large columns stay sharp.
+  const ref = useRef<HTMLDivElement>(null)
+  const [columnWidth, setColumnWidth] = useState(0)
+  useLayoutEffect(() => {
+    const el = ref.current?.firstElementChild
+    if (!el) return
+    const observer = new ResizeObserver(([entry]) => setColumnWidth(entry.contentRect.width))
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  const imageSize = imageSizeFor(columnWidth)
+
   return (
-    <div className="mana-columns">
+    <div className="mana-columns" ref={ref} style={{ '--zoom': zoom } as CSSProperties}>
       {COLUMNS.map((label) => {
         const entries = columns.get(label)!.sort((a, b) => a.card.name.localeCompare(b.card.name))
         const count = entries.reduce((n, c) => n + c.quantity, 0)
@@ -61,7 +74,7 @@ export function ManaColumns({ cards, changes = [], holdings, onRemove, onMenu, o
                   onMouseLeave={() => onHover(null)}
                   aria-label={t.panels.stackCard(entry.quantity, entry.card.name)}
                 >
-                  <CardImage cardId={entry.card.id} name={entry.card.name} size="small" hasImage={entry.card.image_faces > 0} />
+                  <CardImage cardId={entry.card.id} name={entry.card.name} size={imageSize} hasImage={entry.card.image_faces > 0} />
                   {entry.quantity > 1 && <span className="card-count-badge">×{entry.quantity}</span>}
                   {change && <span className="stack-change-badge">{changeLabel(change)}</span>}
                 </button>

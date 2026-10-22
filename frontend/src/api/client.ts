@@ -234,6 +234,13 @@ function jsonBody(method: string, body: unknown): RequestInit {
   return { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
 }
 
+// Scryfall image widths: small 146 px, normal 488 px, large 672 px.
+/** The smallest image that stays sharp at this width (CSS px) on this screen (retina: 2 device px each). */
+export function imageSizeFor(cssWidth: number): ImageSize {
+  const pixels = cssWidth * (window.devicePixelRatio || 1)
+  return pixels <= 160 ? 'small' : pixels <= 540 ? 'normal' : 'large'
+}
+
 export function imageUrl(cardId: string, size: ImageSize = 'normal', face = 0): string {
   return `/api/images/${cardId}/${size}${face ? `?face=${face}` : ''}`
 }

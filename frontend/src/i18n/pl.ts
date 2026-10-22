@@ -14,6 +14,10 @@ export const pl = {
   common: {
     cards,
     loading: 'Ładowanie…',
+    zoom: 'Rozmiar kart',
+    zoomIn: 'Większe karty',
+    zoomOut: 'Mniejsze karty',
+    zoomReset: 'Domyślny rozmiar',
     save: 'Zapisz',
     cancel: 'Anuluj',
     delete: 'Usuń',

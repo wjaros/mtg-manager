@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, type CardSummary, type CollectionStats } from '../api/client'
 import { CardDetailPanel } from '../components/CardDetailPanel'
-import { CardGrid } from '../components/CardGrid'
+import { CardGrid, MIN_CARD_WIDTH } from '../components/CardGrid'
+import { ZoomControl } from '../components/ZoomControl'
+import { useZoom } from '../hooks/useZoom'
 import { Filters } from '../components/Filters'
 import { EMPTY_FILTERS, toQuery, type FilterState } from '../filters'
 import { useCardPages } from '../hooks/useCardPages'
@@ -15,6 +17,7 @@ interface Props {
 
 export function CollectionView({ hasData, onOpenSettings }: Props) {
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
+  const [zoom, setZoom] = useZoom('collection')
   const debounced = useDebounced(filters, 250)
   const query = useMemo(() => toQuery(debounced), [debounced])
   const [version, setVersion] = useState(0)
@@ -60,6 +63,7 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
               {t.collection.stats(formatNumber(stats.cards), formatNumber(stats.copies))}
             </span>
           )}
+          <ZoomControl zoom={zoom} onChange={setZoom} />
         </div>
         <Filters value={filters} onChange={setFilters} />
         {error && <p className="status error">{t.collection.searchError(error)}</p>}
@@ -71,6 +75,7 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
           selectedId={selected}
           onSelect={(card: CardSummary) => setSelected(card.id)}
           badge={badge}
+          minCardWidth={MIN_CARD_WIDTH * zoom}
         />
       </div>
       {selected && (

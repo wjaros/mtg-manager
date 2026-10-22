@@ -514,6 +514,7 @@ nav {
 }
 
 .card-button {
+  position: relative; /* the count badge sits on the card */
   display: block;
   width: 100%;
   height: 100%;
@@ -1095,8 +1096,40 @@ nav {
   cursor: pointer;
 }
 
-.columns-toggle button + button {
+.columns-toggle > * + * {
   border-left: 1px solid var(--border);
+}
+
+.zoom-control {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.zoom-control button {
+  min-width: 1.6rem;
+  padding: 0.15rem 0.4rem;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.zoom-control button:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.zoom-control button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.collection-header .zoom-control,
+.pool-bar .zoom-control {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
 
 .columns-toggle button:hover:not(:disabled) {
@@ -1140,11 +1173,13 @@ nav {
 
 .mana-columns {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  /* --zoom 1: the nine columns fill the width, but no wider than 160px each (big screens);
+     larger scrolls sideways, smaller leaves room. */
+  grid-template-columns: repeat(9, calc(min((100% - 8 * 8px) / 9, 160px) * var(--zoom, 1)));
   gap: 8px;
   height: 300px;
   padding: 0.5rem 1rem;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 .mana-column-header {

@@ -14,6 +14,8 @@ import { CardDetailPanel } from '../components/CardDetailPanel'
 import { CardUsageInfo } from '../components/CardUsageInfo'
 import { CardGrid } from '../components/CardGrid'
 import { ContextMenu, type MenuItem, type MenuState } from '../components/ContextMenu'
+import { ZoomControl } from '../components/ZoomControl'
+import { useZoom } from '../hooks/useZoom'
 import { DeckHistoryPanel } from '../components/DeckHistoryPanel'
 import { DeckList } from '../components/DeckList'
 import { DeckStatsPanel } from '../components/DeckStatsPanel'
@@ -45,6 +47,8 @@ export type DeckTab = 'pool' | 'stats' | 'missing' | 'history'
 const LAYOUTS = ['pool', 'split', 'deck'] as const
 type Layout = (typeof LAYOUTS)[number]
 const LAYOUT_KEY = 'mtgdm.deckbuilderLayout'
+// At the largest zoom cards are big enough to read: hovering shows no enlarged copy.
+const LARGE_ZOOM = 2
 
 function savedLayout(): Layout {
   try {
@@ -71,6 +75,8 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [detail, setDetail] = useState<{ cardId: string; entry?: DeckCard } | null>(null)
   const [layout, setLayout] = useState<Layout>(savedLayout)
+  const [poolZoom, setPoolZoom] = useZoom('pool')
+  const [columnsZoom, setColumnsZoom] = useZoom('columns')
   const moveLayout = (step: 1 | -1) => {
     const next = LAYOUTS[Math.min(LAYOUTS.length - 1, Math.max(0, LAYOUTS.indexOf(layout) + step))]
     setLayout(next)
@@ -94,6 +100,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
       deck && (
         <CardUsageInfo cardId={cardId} deckId={deck.id} revision={usageRevision} paper={deck.platform === 'paper'} />
       ),
+    poolZoom < LARGE_ZOOM,
   )
   const closeMenu = useCallback(() => setMenu(null), [])
   const closeDetail = useCallback(() => setDetail(null), [])
@@ -462,6 +469,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
               <span className="muted small">
                 {pool.total === null ? t.collection.searching : t.builder.poolCount(formatNumber(pool.total))}
               </span>
+              <ZoomControl zoom={poolZoom} onChange={setPoolZoom} />
             </div>
             <CardGrid
               total={pool.total ?? 0}
@@ -472,7 +480,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
               onHover={poolPreview.show}
               badge={badge}
               dimmed={dimmed}
-              minCardWidth={140}
+              minCardWidth={140 * poolZoom}
               draggable
             />
           </>
@@ -505,6 +513,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
 
       <section className={`deckbuilder-columns ${dropZone === 'deck' ? 'drop-target' : ''}`} {...deckDrop}>
         <div className="columns-toggle">
+          {layout !== 'pool' && <ZoomControl zoom={columnsZoom} onChange={setColumnsZoom} />}
           <button onClick={() => moveLayout(1)} disabled={layout === 'deck'} title={t.builder.expandDeckTitle}>
             {t.builder.expandDeck}
           </button>
@@ -514,12 +523,13 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
         </div>
         {layout !== 'pool' && (
           <ManaColumns
+            zoom={columnsZoom}
             cards={deck.cards}
             changes={deck.changes.cards}
             holdings={paper ? holdings : null}
             onRemove={(entry) => actions.remove(entry.card.id, entry.board, 1)}
             onMenu={entryMenu}
-            onHover={(entry, e) => deckPreview.show(entry?.card ?? null, e)}
+            onHover={(entry, e) => deckPreview.show(columnsZoom < LARGE_ZOOM ? (entry?.card ?? null) : null, e)}
           />
         )}
       </section>

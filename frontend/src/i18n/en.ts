@@ -10,6 +10,10 @@ export const en: Messages = {
   common: {
     cards,
     loading: 'Loading…',
+    zoom: 'Card size',
+    zoomIn: 'Larger cards',
+    zoomOut: 'Smaller cards',
+    zoomReset: 'Default size',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
