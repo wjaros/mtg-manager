@@ -77,6 +77,7 @@ export function ManaColumns({ cards, zoom = 1, changes = [], holdings, onRemove,
                   <CardImage cardId={entry.card.id} name={entry.card.name} size={imageSize} hasImage={entry.card.image_faces > 0} />
                   {entry.quantity > 1 && <span className="card-count-badge">×{entry.quantity}</span>}
                   {change && <span className="stack-change-badge">{changeLabel(change)}</span>}
+                  {hold?.kind === 'proxy' && <span className="proxy-chip on-card">PROXY</span>}
                 </button>
                 )
               })}

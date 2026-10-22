@@ -9,6 +9,7 @@ import { LocationsView } from './views/LocationsView'
 import { DeckBuilderView, type DeckTab } from './views/DeckBuilderView'
 import { DecksView } from './views/DecksView'
 import { ImportView } from './views/ImportView'
+import { ProxiesView } from './views/ProxiesView'
 import { ScanView } from './views/ScanView'
 import { SettingsView } from './views/SettingsView'
 
@@ -16,6 +17,7 @@ type Route =
   | { view: 'collection' }
   | { view: 'items'; location: LocationFilter }
   | { view: 'locations' }
+  | { view: 'proxies' }
   | { view: 'settings' }
   | { view: 'decks' }
   | { view: 'import' }
@@ -38,6 +40,7 @@ function routeFromHash(): Route {
   const items = hash.match(/^#\/collection\/items(?:\/(none|\d+))?$/)
   if (items) return { view: 'items', location: items[1] ? (items[1] === 'none' ? 'none' : Number(items[1])) : 'all' }
   if (hash === '#/collection/locations') return { view: 'locations' }
+  if (hash === '#/collection/proxies') return { view: 'proxies' }
   if (hash === '#/settings') return { view: 'settings' }
   if (hash === '#/import') return { view: 'import' }
   if (hash === '#/scan') return { view: 'scan' }
@@ -71,7 +74,9 @@ export default function App() {
     window.location.assign(`#/${path}`)
   }
   const activeNav =
-    route.view === 'deck' ? 'decks' : route.view === 'items' || route.view === 'locations' ? 'collection' : route.view
+    route.view === 'deck' ? 'decks' : route.view === 'items' || route.view === 'locations' || route.view === 'proxies'
+        ? 'collection'
+        : route.view
 
   return (
     <div className="shell">
@@ -138,7 +143,7 @@ export default function App() {
           />
         ) : (
           <CollectionPage
-            tab={route.view === 'items' ? 'items' : route.view === 'locations' ? 'locations' : 'cards'}
+            tab={route.view === 'items' || route.view === 'locations' || route.view === 'proxies' ? route.view : 'cards'}
             onTab={(tab) => go(tab === 'cards' ? 'collection' : `collection/${tab}`)}
           >
             {route.view === 'items' ? (
@@ -148,6 +153,8 @@ export default function App() {
               />
             ) : route.view === 'locations' ? (
               <LocationsView onOpen={(id) => go(`collection/items/${id}`)} />
+            ) : route.view === 'proxies' ? (
+              <ProxiesView />
             ) : (
               <CollectionView hasData={status.card_count > 0} onOpenSettings={() => go('settings')} />
             )}

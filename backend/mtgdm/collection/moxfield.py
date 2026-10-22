@@ -49,7 +49,7 @@ MOXFIELD_LANGUAGES = {code for code, _, _ in LANGUAGES}
 
 def export_moxfield(conn: sqlite3.Connection, location_id: int | None = None, unassigned: bool = False) -> str:
     """One row per collection entry. Languages Moxfield doesn't know (e.g. Polish) export as English."""
-    where, params = [], []
+    where, params = ["ci.kind = 'real'"], []  # proxies are not part of what you own
     if location_id is not None:
         where.append("ci.location_id = ?")
         params.append(location_id)

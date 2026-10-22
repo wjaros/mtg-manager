@@ -17,6 +17,7 @@ from mtgdm.collection.models import (
     Location,
     LocationCreate,
     LocationUpdate,
+    ReplaceWithReal,
 )
 from mtgdm.collection.moxfield import (
     CollectionImportCommit,
@@ -27,8 +28,9 @@ from mtgdm.collection.moxfield import (
     export_moxfield,
     parse_moxfield,
 )
-from mtgdm.collection.service import ItemNotFound, LocationNotEmpty, LocationNotFound
+from mtgdm.collection.service import ItemNotFound, LocationNotEmpty, LocationNotFound, NotAProxy
 from mtgdm.decks.service import CardNotFound, DeckNotFound
+from mtgdm.i18n import tr
 
 router = APIRouter(tags=["collection"])
 
@@ -48,6 +50,8 @@ def _handle(fn: Callable[[], T]) -> T:
         raise HTTPException(status_code=404, detail="Deck not found") from exc
     except LocationNotEmpty as exc:
         raise HTTPException(status_code=409, detail="This deck's cards are already in the collection") from exc
+    except NotAProxy as exc:
+        raise HTTPException(status_code=422, detail=tr("not_a_proxy")) from exc
 
 
 @router.get("/collection")
@@ -58,9 +62,10 @@ def list_items(
     location_id: int | None = None,
     unassigned: Annotated[bool, Query(description="Only copies without a location")] = False,
     q: Annotated[str | None, Query(description="Card name contains")] = None,
+    kind: Annotated[Literal["real", "proxy", "all"], Query(description="Real copies, proxies or both")] = "all",
 ) -> list[CollectionItem]:
     return service.list_items(
-        db, card_id=card_id, oracle_id=oracle_id, location_id=location_id, unassigned=unassigned, q=q
+        db, card_id=card_id, oracle_id=oracle_id, location_id=location_id, unassigned=unassigned, q=q, kind=kind
     )
 
 
@@ -112,6 +117,13 @@ def add_item(db: Db, body: CollectionItemCreate) -> CollectionItem:
 @router.patch("/collection/{item_id}")
 def update_item(db: Db, item_id: int, body: CollectionItemUpdate) -> CollectionItem:
     return _handle(lambda: service.update_item(db, item_id, body))
+
+
+@router.post("/collection/{item_id}/replace-with-real")
+def replace_with_real(db: Db, item_id: int, body: ReplaceWithReal) -> CollectionItem:
+    """One copy of a proxy becomes a real card in the same place (a new copy, or a loose one moved
+    there). Returns the real entry."""
+    return _handle(lambda: service.replace_with_real(db, item_id, body))
 
 
 @router.delete("/collection/{item_id}")
@@ -169,9 +181,10 @@ def deck_missing_export(
     deck_id: int,
     format: Literal["text", "cardmarket", "csv"] = "cardmarket",
     exclude_other_decks: bool = False,
+    include_proxied: Annotated[bool, Query(description="Include cards a proxy stands in for (a shopping list)")] = True,
 ) -> PlainTextResponse:
     report = _handle(lambda: missing_report(db, deck_id, exclude_other_decks))
-    body = render_missing(report, format)
+    body = render_missing(report, format, include_proxied)
     if format == "csv":
         return PlainTextResponse(
             body,

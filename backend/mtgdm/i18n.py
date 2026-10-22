@@ -253,6 +253,19 @@ MESSAGES: dict[str, dict[Lang, str]] = {
               "4. Enter both in Settings › Printing; 0 and 0 = the back is right behind the front.",
     },
     "print_proxy_mark": {"pl": "Proxy – nie do sprzedaży", "en": "Proxy – not for sale"},
+    "not_a_proxy": {
+        "pl": "To nie jest proxy (albo ten egzemplarz nie leży luzem, więc nie można go przenieść).",
+        "en": "That's not a proxy (or that copy isn't loose, so it can't be moved).",
+    },
+    "deck_proxies": {
+        "pl": "{n} kart(y) w tej talii to proxy.",
+        "en": "{n} cards in this deck are proxies.",
+    },
+    "print_history_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print."},
+    "print_choose_location": {
+        "pl": "Ten wydruk nie jest z talii: wybierz, gdzie oznaczyć proxy.",
+        "en": "This print isn't from a deck: choose where to put the proxies.",
+    },
     "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
     "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
     "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},

@@ -88,6 +88,8 @@ def validate_deck(conn: sqlite3.Connection, deck_id: int) -> ValidationResult:
         issues += _constructed_rules(entries, fmt)
     issues += _platform_rules(entries, platform)
     issues += _general_warnings(entries, fmt, platform)
+    if platform == "paper":
+        issues += _proxy_info(conn, deck_id)
 
     order = {"error": 0, "warning": 1, "info": 2}
     issues.sort(key=lambda i: order[i.severity])
@@ -101,7 +103,7 @@ def load_entries(conn: sqlite3.Connection, deck_id: int) -> list[Entry]:
                c.color_identity, c.legalities, c.games, c.digital, c.keywords,
                o.arena_card_id IS NOT NULL AS has_arena_printing,
                (SELECT COALESCE(SUM(ci.quantity), 0) FROM collection_items ci JOIN cards x ON x.id = ci.card_id
-                WHERE x.oracle_id = c.oracle_id) AS owned
+                WHERE x.oracle_id = c.oracle_id AND ci.kind = 'real') AS owned
         FROM deck_cards dc
         JOIN cards c ON c.id = dc.card_id
         LEFT JOIN oracle_cards o ON o.oracle_id = c.oracle_id
@@ -383,6 +385,16 @@ def _general_warnings(entries: list[Entry], fmt: str, platform: str) -> list[Iss
                 card_ids=[e.card_id for e in missing],
             ))
     return issues
+
+
+def _proxy_info(conn: sqlite3.Connection, deck_id: int) -> list[Issue]:
+    """Proxies don't change whether the deck is valid (they are its cards); just say how many."""
+    from mtgdm.collection.missing import deck_holdings  # collection imports the decks package
+
+    holdings = [h for h in deck_holdings(conn, deck_id) if h.proxy]
+    if not holdings:
+        return []
+    return [Issue(severity="info", code="proxies", message=tr("deck_proxies", n=sum(h.proxy for h in holdings)))]
 
 
 def _unique(entries: list[Entry]) -> list[Entry]:

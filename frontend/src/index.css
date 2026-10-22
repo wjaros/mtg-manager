@@ -2925,3 +2925,124 @@ label.button.disabled {
 .printing-list button.current {
   box-shadow: inset 2px 0 0 var(--accent);
 }
+
+/* ---------- Proxies ---------- */
+
+:root {
+  --proxy: #8fa8ff;
+}
+
+.held.proxy {
+  color: var(--proxy);
+}
+
+.proxy-chip {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--proxy);
+  border-radius: 4px;
+  color: var(--proxy);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+
+.proxy-chip.on-card {
+  position: absolute;
+  top: 2%;
+  left: 6%;
+  margin: 0;
+  background: rgb(15 18 24 / 0.9);
+  pointer-events: none;
+}
+
+.mark-proxies {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--proxy);
+  border-radius: 8px;
+}
+
+.coverage-totals {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.proxy-text {
+  color: var(--proxy);
+}
+
+.error-text {
+  color: var(--error);
+}
+
+.proxy-chip.first {
+  margin: 0 0.35rem 0 0;
+}
+
+.add-proxy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.add-proxy .input.small {
+  width: 4rem;
+}
+
+.missing-section {
+  margin: 1rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.proxies-view {
+  padding-top: 1rem;
+}
+
+.proxies-filters,
+.proxies-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.proxies-bulk {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--proxy);
+  border-radius: 8px;
+}
+
+.proxies-table tr.selected td {
+  background: var(--bg-hover);
+}
+
+.row-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.row-actions > * + * {
+  margin-left: 0.5rem;
+}
+
+.ok-text {
+  color: var(--ok);
+}
+
+.danger-text {
+  color: var(--error);
+}
+
+.proxies-history-title {
+  margin-top: 2rem;
+}

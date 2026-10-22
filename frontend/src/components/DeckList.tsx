@@ -107,6 +107,9 @@ export function DeckList({ cards, violations, changes = [], holdings, onAdd, onR
                     <Quantity quantity={entry.quantity} holding={entry.card.oracle_id ? holdings?.get(entry.card.oracle_id) : undefined} />
                     <span className="deck-name" title={`${entry.card.set_name} #${entry.card.collector_number}`}>
                       {entry.card.name}
+                      {entry.card.oracle_id && holdings?.get(entry.card.oracle_id)?.state === 'proxy' && (
+                        <span className="proxy-chip">PROXY</span>
+                      )}
                       {entry.category && <span className="category-tag">{entry.category}</span>}
                     </span>
                     {change ? <span className="change-badge">{changeLabel(change)}</span> : <ManaCost cost={entry.card.mana_cost} />}
@@ -151,12 +154,15 @@ function Quantity({ quantity, holding }: { quantity: number; holding: Holding | 
 
 /** What the coloured quantities mean, with how many cards are in each state. */
 function HoldLegend({ holdings }: { holdings: Map<string, Holding> }) {
-  const counts = { missing: 0, other_deck: 0, elsewhere: 0 }
-  for (const h of holdings.values()) if (h.state) counts[h.state] += h.state === 'missing' ? h.missing : 1
-  if (!counts.missing && !counts.other_deck && !counts.elsewhere) return null
+  const counts = { missing: 0, other_deck: 0, proxy: 0, elsewhere: 0 }
+  for (const h of holdings.values()) {
+    if (h.state) counts[h.state] += h.state === 'missing' ? h.missing : h.state === 'proxy' ? (h.proxy ?? 0) : 1
+  }
+  if (!counts.missing && !counts.other_deck && !counts.proxy && !counts.elsewhere) return null
   const items: [keyof typeof counts, string][] = [
     ['missing', t.panels.legendMissing(counts.missing)],
     ['other_deck', t.panels.legendOtherDeck(counts.other_deck)],
+    ['proxy', t.panels.legendProxy(counts.proxy)],
     ['elsewhere', t.panels.legendElsewhere(counts.elsewhere)],
   ]
   return (

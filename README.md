@@ -90,6 +90,15 @@ Printers scale and shift pages slightly. *Settings → Printing* calibrates each
 - for two-sided prints, a test page shows how far the printer puts the back off the front (read
   against the light on a 0.5 mm scale), and backs are moved to match.
 
+After printing from a deck, the app offers to record the cards as proxies in the deck's box. A
+proxy is part of the deck but never counts as a card you own:
+- the deckbuilder marks proxied cards with a PROXY chip, and the header shows
+  `Real · Proxy · Missing` (adding up to the deck's size);
+- the *Missing* tab lists proxied cards apart, as "covered by proxy – to buy";
+- *Collection → Proxies* lists every proxy with its deck and whether you own the real card by now:
+  replace it with the real card after buying one (or move in a loose copy you have), move, remove
+  or print it again; past prints can be marked or printed again too.
+
 Proxies are for personal playtesting only, not for sale.
 
 ![Printer calibration](docs/screenshots/printing.webp)

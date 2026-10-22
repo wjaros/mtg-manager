@@ -93,19 +93,33 @@ export type HoldState =
   | { kind: 'missing'; missing: number; needed: number }
   | { kind: 'other_deck'; decks: string[] }
   | { kind: 'elsewhere' }
+  | { kind: 'proxy'; proxy: number; needed: number }
   | null
 
 export function holdState(holding: Holding | undefined): HoldState {
   if (!holding?.state) return null
   if (holding.state === 'missing') return { kind: 'missing', missing: holding.missing, needed: holding.needed }
   if (holding.state === 'other_deck') return { kind: 'other_deck', decks: holding.other_decks }
+  if (holding.state === 'proxy') return { kind: 'proxy', proxy: holding.proxy ?? 0, needed: holding.needed }
   return { kind: 'elsewhere' }
 }
 
 export function holdTitle(state: NonNullable<HoldState>): string {
   if (state.kind === 'missing') return t.panels.holdMissingTitle(state.missing, state.needed)
   if (state.kind === 'other_deck') return t.panels.holdOtherDeckTitle(state.decks.join(', '))
+  if (state.kind === 'proxy') return t.panels.holdProxyTitle(state.proxy, state.needed)
   return t.panels.holdElsewhereTitle
+}
+
+/** Real + proxy + uncovered copies of a paper deck (sum = the deck's size, sideboard included). */
+export function coverage(holdings: Iterable<Holding>): { real: number; proxy: number; uncovered: number } {
+  const total = { real: 0, proxy: 0, uncovered: 0 }
+  for (const h of holdings) {
+    total.real += h.real ?? 0
+    total.proxy += h.proxy ?? 0
+    total.uncovered += h.uncovered ?? 0
+  }
+  return total
 }
 
 export function groupByType(cards: DeckCard[]): CardGroup[] {

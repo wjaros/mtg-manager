@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { api, type CardDetail, type CollectionItem } from '../api/client'
+import { api, type CardDetail, type CollectionItem, type Location } from '../api/client'
 import { t } from '../i18n'
 
 const FINISH_LABEL: Record<string, string> = { nonfoil: '', foil: 'foil', etched: 'etched' }
@@ -38,24 +38,45 @@ export function OwnedCopies({ card, onChange }: Props) {
     }
   }
 
-  const total = items?.reduce((n, i) => n + i.quantity, 0) ?? 0
+  const total = items?.reduce((n, i) => n + (i.kind === 'real' ? i.quantity : 0), 0) ?? 0
+  const proxies = items?.reduce((n, i) => n + (i.kind === 'proxy' ? i.quantity : 0), 0) ?? 0
+  // "Add proxy": where it goes (usually a deck's box) and how many.
+  const [addingProxy, setAddingProxy] = useState(false)
+  const [locations, setLocations] = useState<Location[]>([])
+  const [proxyLocation, setProxyLocation] = useState<number | null>(null)
+  const [proxyQty, setProxyQty] = useState(1)
+  const openProxy = () => {
+    setAddingProxy(!addingProxy)
+    if (!locations.length) {
+      api.locations().then((list) => {
+        setLocations(list)
+        setProxyLocation(list.find((l) => l.kind === 'deck')?.id ?? list[0]?.id ?? null)
+      }, () => setLocations([]))
+    }
+  }
   const canFoil = card.finishes.includes('foil')
 
   return (
     <div className="owned-copies">
       <h3 className="printings-title">
         {t.card.inCollection} <span className="muted">{items === null ? '…' : total}</span>
+        {proxies > 0 && <span className="proxy-text"> · {t.card.proxies(proxies)}</span>}
       </h3>
       {items?.map((item) => (
         <div key={item.id} className="owned-row">
           <span className="deck-qty">{item.quantity}×</span>
           <span className="owned-label">
+            {item.kind === 'proxy' && <span className="proxy-chip first">PROXY</span>}
             {item.card.set_code.toUpperCase()} #{item.card.collector_number}
-            {FINISH_LABEL[item.finish] && <span className="foil-tag"> {FINISH_LABEL[item.finish]}</span>}
+            {item.kind === 'real' && FINISH_LABEL[item.finish] && <span className="foil-tag"> {FINISH_LABEL[item.finish]}</span>}
             <span className="muted">
-              {' '}
-              · {item.condition}
-              {item.language !== 'en' && ` · ${item.language}`}
+              {item.kind === 'real' && (
+                <>
+                  {' '}
+                  · {item.condition}
+                  {item.language !== 'en' && ` · ${item.language}`}
+                </>
+              )}
               {item.location && ` · ${item.location.name}`}
             </span>
           </span>
@@ -72,6 +93,7 @@ export function OwnedCopies({ card, onChange }: Props) {
                     language: item.language,
                     condition: item.condition,
                     location_id: item.location?.id ?? null,
+                    kind: item.kind,
                   }),
                 )
               }
@@ -95,6 +117,45 @@ export function OwnedCopies({ card, onChange }: Props) {
           </button>
         )}
       </div>
+      <button className="link-button small" onClick={openProxy}>
+        {t.card.addProxy}
+      </button>
+      {addingProxy && (
+        <div className="add-proxy">
+          <select
+            className="select small"
+            value={proxyLocation ?? ''}
+            onChange={(e) => setProxyLocation(e.target.value ? Number(e.target.value) : null)}
+            aria-label={t.card.proxyLocation}
+          >
+            {locations.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+          <input
+            className="input small"
+            type="number"
+            min={1}
+            max={99}
+            value={proxyQty}
+            onChange={(e) => setProxyQty(Math.max(1, Math.min(99, Number(e.target.value) || 1)))}
+            aria-label={t.card.proxyQty}
+          />
+          <button
+            className="button"
+            disabled={proxyLocation === null}
+            onClick={() =>
+              run(() =>
+                api.addToCollection({ card_id: card.id, kind: 'proxy', location_id: proxyLocation, quantity: proxyQty }),
+              ).then(() => setAddingProxy(false))
+            }
+          >
+            {t.card.addProxyConfirm}
+          </button>
+        </div>
+      )}
       {error && <p className="status error small">{error}</p>}
     </div>
   )

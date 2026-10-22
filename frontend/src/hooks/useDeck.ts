@@ -40,6 +40,7 @@ export function useDeck(deckId: number) {
     error,
     busy,
     clearError: () => setError(null),
+    setError,
     reload: () => setVersion((v) => v + 1),
     update: (body: DeckUpdate) => run(() => api.updateDeck(deckId, body)),
     add: (cardId: string, board: Board = 'main', quantity = 1) =>

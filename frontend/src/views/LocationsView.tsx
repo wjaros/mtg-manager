@@ -91,7 +91,10 @@ export function LocationsView({ onOpen }: Props) {
                   </button>
                 </td>
                 <td className="muted">{KIND_LABEL[loc.kind]}</td>
-                <td className="num">{loc.card_count}</td>
+                <td className="num">
+                  {loc.card_count}
+                  {loc.proxy_count ? <span className="proxy-text small"> + {loc.proxy_count} proxy</span> : null}
+                </td>
                 <td className="nowrap">
                   <button
                     className="link-button"

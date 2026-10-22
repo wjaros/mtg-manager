@@ -283,6 +283,27 @@ export interface paths {
         patch: operations["update_item_api_collection__item_id__patch"];
         trace?: never;
     };
+    "/api/collection/{item_id}/replace-with-real": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Replace With Real
+         * @description One copy of a proxy becomes a real card in the same place (a new copy, or a loose one moved
+         *     there). Returns the real entry.
+         */
+        post: operations["replace_with_real_api_collection__item_id__replace_with_real_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/locations": {
         parameters: {
             query?: never;
@@ -878,6 +899,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/print/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Print History
+         * @description Printed proxy PDFs, newest first.
+         */
+        get: operations["print_history_api_print_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/history/{history_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Print History Entry */
+        get: operations["print_history_entry_api_print_history__history_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/print/history/{history_id}/mark-proxies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Proxies
+         * @description Record a print's cards as proxies: printed from a deck, in its box (only what it still lacks);
+         *     otherwise in the location given. With dry_run, only what would be marked.
+         */
+        post: operations["mark_proxies_api_print_history__history_id__mark_proxies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/proxies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Deck Proxy
+         * @description A proxy of a card in the deck's box (created if the deck has none yet).
+         */
+        post: operations["add_deck_proxy_api_decks__deck_id__proxies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/print/jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -1365,6 +1464,11 @@ export interface components {
             owned: number;
             /** Free */
             free: number;
+            /**
+             * Proxies
+             * @default 0
+             */
+            proxies?: number;
             /** Locations */
             locations: components["schemas"]["UsageLocation"][];
             /** Decks */
@@ -1502,6 +1606,16 @@ export interface components {
             source: "manual" | "scan" | "import";
             /** Note */
             note: string | null;
+            /**
+             * Kind
+             * @default real
+             * @enum {string}
+             */
+            kind?: "real" | "proxy";
+            /** Printed At */
+            printed_at?: string | null;
+            /** Print Job Id */
+            print_job_id?: number | null;
         };
         /** CollectionItemCreate */
         CollectionItemCreate: {
@@ -1526,6 +1640,12 @@ export interface components {
             location_id?: number | null;
             /** Note */
             note?: string | null;
+            /**
+             * Kind
+             * @default real
+             * @enum {string}
+             */
+            kind?: "real" | "proxy";
         };
         /** CollectionItemUpdate */
         CollectionItemUpdate: {
@@ -1550,6 +1670,11 @@ export interface components {
             printings: number;
             /** Cards */
             cards: number;
+            /**
+             * Proxies
+             * @default 0
+             */
+            proxies?: number;
         };
         /** ColorBalance */
         ColorBalance: {
@@ -1758,6 +1883,16 @@ export interface components {
             /** Cards */
             cards: components["schemas"]["DeckCard"][];
             changes: components["schemas"]["DeckChanges"];
+        };
+        /** DeckProxy */
+        DeckProxy: {
+            /** Card Id */
+            card_id: string;
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity?: number;
         };
         /** DeckStats */
         DeckStats: {
@@ -1992,8 +2127,28 @@ export interface components {
             other_decks: string[];
             /** Missing */
             missing: number;
+            /**
+             * Proxies
+             * @default 0
+             */
+            proxies?: number;
+            /**
+             * Real
+             * @default 0
+             */
+            real?: number;
+            /**
+             * Proxy
+             * @default 0
+             */
+            proxy?: number;
+            /**
+             * Uncovered
+             * @default 0
+             */
+            uncovered?: number;
             /** State */
-            state: ("missing" | "other_deck" | "elsewhere") | null;
+            state: ("missing" | "other_deck" | "proxy" | "elsewhere") | null;
         };
         /** ImportCommitRequest */
         ImportCommitRequest: {
@@ -2154,6 +2309,11 @@ export interface components {
             kind: "deck" | "binder" | "box" | "other";
             /** Card Count */
             card_count: number;
+            /**
+             * Proxy Count
+             * @default 0
+             */
+            proxy_count?: number;
         };
         /** LocationCreate */
         LocationCreate: {
@@ -2172,6 +2332,24 @@ export interface components {
             name?: string | null;
             /** Kind */
             kind?: ("deck" | "binder" | "box" | "other") | null;
+        };
+        /** MarkRequest */
+        MarkRequest: {
+            /** Location Id */
+            location_id?: number | null;
+            /**
+             * Dry Run
+             * @default false
+             */
+            dry_run?: boolean;
+        };
+        /** MarkResult */
+        MarkResult: {
+            location: components["schemas"]["Location"] | null;
+            /** Cards */
+            cards: components["schemas"]["PrintedCard"][];
+            /** Count */
+            count: number;
         };
         /** Measurements */
         Measurements: {
@@ -2199,6 +2377,11 @@ export interface components {
             available: number;
             /** Missing */
             missing: number;
+            /**
+             * Proxied
+             * @default 0
+             */
+            proxied?: number;
             /** Price Eur */
             price_eur: number | null;
             /** Price Usd */
@@ -2245,6 +2428,35 @@ export interface components {
             /** As Of */
             as_of: string | null;
         };
+        /** PrintHistory */
+        PrintHistory: {
+            /** Id */
+            id: number;
+            /** Deck Id */
+            deck_id: number | null;
+            /** Deck Name */
+            deck_name: string | null;
+            /** Title */
+            title: string;
+            /** Paper */
+            paper: string;
+            /** Style */
+            style: string;
+            /** Duplex */
+            duplex: string;
+            /** Card Count */
+            card_count: number;
+            /** Page Count */
+            page_count: number | null;
+            /** Created At */
+            created_at: string;
+            /** Marked At */
+            marked_at: string | null;
+            /** Proxies */
+            proxies: number;
+            /** Items */
+            items: components["schemas"]["PrintedCard"][];
+        };
         /** PrintJobStatus */
         PrintJobStatus: {
             /** Id */
@@ -2269,6 +2481,8 @@ export interface components {
              * @default false
              */
             overflow?: boolean;
+            /** Print Job Id */
+            print_job_id?: number | null;
         };
         /** PrintSettings */
         PrintSettings: {
@@ -2276,6 +2490,19 @@ export interface components {
             card_w_mm: number;
             /** Card H Mm */
             card_h_mm: number;
+        };
+        /** PrintedCard */
+        PrintedCard: {
+            /** Card Id */
+            card_id: string;
+            /** Name */
+            name: string;
+            /** Printing */
+            printing: string;
+            /** Qty */
+            qty: number;
+            /** Faces */
+            faces: string;
         };
         /** PrinterProfile */
         PrinterProfile: {
@@ -2426,6 +2653,29 @@ export interface components {
              * @default
              */
             title?: string;
+            /** Deck Id */
+            deck_id?: number | null;
+        };
+        /**
+         * ReplaceWithReal
+         * @description A proxy you now have the real card for. Either a new copy (printing, finish, condition,
+         *     language) goes into the proxy's place, or an existing real copy without a location is moved there.
+         */
+        ReplaceWithReal: {
+            /** Card Id */
+            card_id?: string | null;
+            /** Finish */
+            finish?: ("nonfoil" | "foil" | "etched") | null;
+            /**
+             * Condition
+             * @default NM
+             * @enum {string}
+             */
+            condition?: "M" | "NM" | "EX" | "GD" | "LP" | "PL" | "PO";
+            /** Language */
+            language?: string | null;
+            /** Use Existing Item Id */
+            use_existing_item_id?: number | null;
         };
         /** Scan */
         Scan: {
@@ -2624,6 +2874,11 @@ export interface components {
             deck_name: string | null;
             /** Quantity */
             quantity: number;
+            /**
+             * Kind
+             * @default real
+             */
+            kind?: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -2763,6 +3018,8 @@ export interface operations {
                 not_in_deck?: number | null;
                 /** @description Include tokens, emblems, art cards, ... */
                 include_extras?: boolean;
+                /** @description The owned filter counts proxies as copies */
+                include_proxies?: boolean;
                 unique?: "cards" | "prints";
                 order?: "name" | "mv" | "released";
                 page?: number;
@@ -2949,6 +3206,8 @@ export interface operations {
                 unassigned?: boolean;
                 /** @description Card name contains */
                 q?: string | null;
+                /** @description Real copies, proxies or both */
+                kind?: "real" | "proxy" | "all";
             };
             header?: never;
             path?: never;
@@ -3199,6 +3458,41 @@ export interface operations {
             };
         };
     };
+    replace_with_real_api_collection__item_id__replace_with_real_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplaceWithReal"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_locations_api_locations_get: {
         parameters: {
             query?: never;
@@ -3418,6 +3712,8 @@ export interface operations {
             query?: {
                 format?: "text" | "cardmarket" | "csv";
                 exclude_other_decks?: boolean;
+                /** @description Include cards a proxy stands in for (a shopping list) */
+                include_proxied?: boolean;
             };
             header?: never;
             path: {
@@ -4115,6 +4411,7 @@ export interface operations {
         parameters: {
             query?: {
                 include_basics?: boolean;
+                include_proxied?: boolean;
             };
             header?: never;
             path: {
@@ -4498,6 +4795,127 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PrintJobStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    print_history_api_print_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrintHistory"][];
+                };
+            };
+        };
+    };
+    print_history_entry_api_print_history__history_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                history_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrintHistory"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_proxies_api_print_history__history_id__mark_proxies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                history_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_deck_proxy_api_decks__deck_id__proxies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeckProxy"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionItem"];
                 };
             };
             /** @description Validation Error */
