@@ -263,6 +263,7 @@ export const pl = {
     exportTitle: 'Eksport talii',
     exportText: 'Tekst (pełny)',
     unavailableOnArena: (names: string) => `Niedostępne na Arenie, pominięte w eksporcie: ${names}`,
+    exportWarnings: (n: number) => `Zmienione wydania: ${n} (tych nie ma na Arenie – kliknij, żeby zobaczyć)`,
     arenaHint: 'W Arenie: Talie → Importuj (lista ze schowka).',
     copiedList: (label: string) => `Skopiowano listę (${label}).`,
     checkingCollection: 'Sprawdzam kolekcję…',

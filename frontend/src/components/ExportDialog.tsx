@@ -69,12 +69,16 @@ export function ExportDialog({ deckId, onClose }: Props) {
             {t.panels.unavailableOnArena(result.unavailable.join(', '))}
           </p>
         ) : null}
+        {/* Swapped printings can be dozens of lines: one line, details on demand. */}
         {result?.warnings.length ? (
-          <ul className="report-warnings">
-            {result.warnings.map((w) => (
-              <li key={w}>{w}</li>
-            ))}
-          </ul>
+          <details className="export-warnings">
+            <summary>{t.panels.exportWarnings(result.warnings.length)}</summary>
+            <ul className="report-warnings">
+              {result.warnings.map((w) => (
+                <li key={w}>{w}</li>
+              ))}
+            </ul>
+          </details>
         ) : null}
 
         <textarea className="input decklist" readOnly value={result?.text ?? t.common.loading} spellCheck={false} />

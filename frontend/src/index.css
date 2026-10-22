@@ -3073,3 +3073,20 @@ label.button.disabled {
 .cloud-banner {
   background: rgb(143 168 255 / 0.12);
 }
+
+/* Export dialog: the list keeps its height however many warnings there are. */
+.dialog .input.decklist {
+  flex: none;
+}
+
+.export-warnings summary {
+  color: var(--warn);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.export-warnings .report-warnings {
+  max-height: 12rem;
+  margin-top: 0.4rem;
+  overflow-y: auto;
+}

@@ -259,6 +259,7 @@ export const en: Messages = {
     exportTitle: 'Export deck',
     exportText: 'Text (full)',
     unavailableOnArena: (names: string) => `Not available on Arena, left out of the export: ${names}`,
+    exportWarnings: (n: number) => `Printings swapped: ${n} (not on Arena – click to see them)`,
     arenaHint: 'In Arena: Decks → Import (list from the clipboard).',
     copiedList: (label: string) => `List copied (${label}).`,
     checkingCollection: 'Checking the collection…',
