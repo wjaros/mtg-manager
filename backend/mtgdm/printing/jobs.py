@@ -16,7 +16,7 @@ from typing import Literal
 from mtgdm.db import connect
 from mtgdm.i18n import Lang, set_lang
 from mtgdm.printing.layout import Correction, PageLayout
-from mtgdm.printing.render import Slot, render_proxies
+from mtgdm.printing.render import Duplex, Slot, render_proxies
 from mtgdm.scryfall.images import ImageCache
 
 log = logging.getLogger(__name__)
@@ -46,6 +46,8 @@ class PrintRequest:
     profile_label: str | None
     filename: str
     lang: Lang
+    backs: list[Slot | None] | None = None  # duplex: the other face of a double-faced card, or None (app back)
+    duplex: Duplex = "off"
 
 
 class PrintJobs:
@@ -58,7 +60,8 @@ class PrintJobs:
 
     def start(self, request: PrintRequest, run: Callable[[Callable[[], None]], None] | None = None) -> PrintJob:
         """`run` (tests) runs the work synchronously instead of in a thread."""
-        job = PrintJob(id=uuid.uuid4().hex, filename=request.filename, total=len(request.slots))
+        images = len(request.slots) + sum(1 for b in request.backs or [] if b)
+        job = PrintJob(id=uuid.uuid4().hex, filename=request.filename, total=images)
         with self._lock:
             self._jobs[job.id] = job
             self._forget_old()
@@ -92,10 +95,10 @@ class PrintJobs:
         try:
             conn = connect(self._db_path)
             try:
-                images = self._fetch_images(conn, job_id, request.slots)
+                images = self._fetch_images(conn, job_id, request.slots + [b for b in request.backs or [] if b])
             finally:
                 conn.close()
-            self._update(job_id, stage="render", done=0)
+            self._update(job_id, stage="render", done=0, total=len(request.slots))
             self._dir.mkdir(parents=True, exist_ok=True)
             target = self.pdf_path(job_id)
             tmp = target.with_suffix(".part")
@@ -103,7 +106,7 @@ class PrintJobs:
                 pages = render_proxies(
                     out, request.slots, lambda slot: images.get((slot.card_id, slot.face)), request.layout,
                     request.correction, request.cut_marks, request.title, request.profile_label,
-                    progress=lambda step: self._advance(job_id, step),
+                    progress=lambda step: self._advance(job_id, step), backs=request.backs, duplex=request.duplex,
                 )
             tmp.replace(target)
             self._update(job_id, stage="done", pages=pages)

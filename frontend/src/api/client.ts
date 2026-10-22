@@ -52,6 +52,7 @@ export type ScanItemUpdate = Schemas['ScanItemUpdate']
 export type ScanCommitResult = Schemas['CommitResult']
 export type OcrEngines = Schemas['OcrEngines']
 export type ProxyCandidate = Schemas['ProxyCandidate']
+export type DeckToken = Schemas['DeckToken']
 export type PrinterProfile = Schemas['PrinterProfile']
 export type PrintSettings = Schemas['PrintSettings']
 export type ProxyPrint = Schemas['ProxyPrint']
@@ -235,6 +236,7 @@ export const api = {
 
   proxyCandidates: (deckId: number, includeBasics: boolean) =>
     request<ProxyCandidate[]>(`/api/decks/${deckId}/proxy-candidates?include_basics=${includeBasics}`),
+  deckTokens: (deckId: number) => request<DeckToken[]>(`/api/decks/${deckId}/tokens`),
   printSettings: () => request<PrintSettings>('/api/print/settings'),
   savePrintSettings: (body: PrintSettings) => request<PrintSettings>('/api/print/settings', jsonBody('PUT', body)),
   printerProfiles: () => request<PrinterProfile[]>('/api/print/profiles'),

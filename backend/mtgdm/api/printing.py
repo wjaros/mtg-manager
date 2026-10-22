@@ -24,6 +24,7 @@ from mtgdm.printing.profiles import (
     ProfileUpdate,
 )
 from mtgdm.printing.render import Slot, render_calibration
+from mtgdm.printing.tokens import DeckToken, deck_tokens
 
 router = APIRouter(tags=["printing"])
 
@@ -40,6 +41,8 @@ class ProxyPrint(BaseModel):
     paper: Paper = "a4"
     gap_mm: float = Field(default=0.0, ge=0, le=3)
     cut_marks: bool = True
+    # Two-sided: fronts, then backs mirrored for a sheet turned over its long or short edge.
+    duplex: Literal["off", "long", "short"] = "off"
     title: str = Field(default="", max_length=200)  # deck name: in the footer and the file name
 
 
@@ -80,6 +83,14 @@ def candidates(db: Db, deck_id: int, include_basics: bool = False) -> list[Proxy
         return proxy_candidates(db, deck_id, include_basics)
     except DeckNotFound as exc:
         raise HTTPException(status_code=404, detail="Deck not found") from exc
+
+
+@router.get("/decks/{deck_id}/tokens")
+def tokens(db: Db, deck_id: int) -> list[DeckToken]:
+    """Tokens and emblems the deck's cards make (Scryfall's related parts)."""
+    if db.execute("SELECT 1 FROM decks WHERE id = ?", (deck_id,)).fetchone() is None:
+        raise HTTPException(status_code=404, detail="Deck not found")
+    return deck_tokens(db, deck_id)
 
 
 @router.get("/print/settings")
@@ -144,12 +155,17 @@ def start_print(db: Db, request: Request, body: ProxyPrint) -> PrintJobStatus:
     unknown = [i.card_id for i in body.items if i.card_id not in faces]
     if unknown:
         raise HTTPException(status_code=404, detail=f"Card not found: {unknown[0]}")
-    slots = [
-        Slot(item.card_id, face, faces[item.card_id][0])
-        for item in body.items
-        for _ in range(item.qty)
-        for face in range(faces[item.card_id][1] if item.faces == "both" else 1)
-    ]
+    slots: list[Slot] = []
+    backs: list[Slot | None] = []
+    for item in body.items:
+        name, count = faces[item.card_id]
+        for _ in range(item.qty):
+            if body.duplex != "off":
+                # Two-sided: a double-faced card's back face on the back, else the app's card back.
+                slots.append(Slot(item.card_id, 0, name))
+                backs.append(Slot(item.card_id, 1, name) if count > 1 and item.faces == "both" else None)
+            else:
+                slots += [Slot(item.card_id, face, name) for face in range(count if item.faces == "both" else 1)]
     if not slots:
         raise HTTPException(status_code=422, detail=tr("print_nothing"))
     profile = _profile_or_404(db, body.profile_id) if body.profile_id is not None else None
@@ -159,7 +175,7 @@ def start_print(db: Db, request: Request, body: ProxyPrint) -> PrintJobStatus:
     title = body.title.strip() or "Proxies"
     jobs: PrintJobs = request.app.state.print_jobs
     job = jobs.start(PrintRequest(slots, layout, correction, body.cut_marks, title, _profile_label(profile),
-                                  f"{title} - proxies", current_lang()))
+                                  f"{title} - proxies", current_lang(), backs or None, body.duplex))
     return _status(job, layout.overflow(correction))
 
 

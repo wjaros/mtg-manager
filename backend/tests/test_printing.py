@@ -1,3 +1,4 @@
+import json
 import time
 
 import cv2
@@ -266,3 +267,62 @@ def test_backup_keeps_profiles(client):
     restored = client.get("/api/print/profiles").json()[0]
     assert restored["scale_x"] == pytest.approx(189 / 187) and restored["is_default"] is True
     assert client.get("/api/print/settings").json() == {"card_w_mm": 63.5, "card_h_mm": 88.9}
+
+
+CLUE = "008f776f-c7ce-47ed-bc04-2ab9f9bcd8ae"
+GOBLIN = "01e437a1-6d74-4006-8598-06284444c837"
+PRIDEMATE_TOKEN = "7801c326-d740-4cec-9268-05348ace8302"
+
+
+def link_tokens(client, card_id: str, *token_ids: str) -> None:
+    """The fixture leaves out all_parts: add the links the way Scryfall has them."""
+    conn = connect(client.settings.db_path)
+    names = dict(conn.execute(f"SELECT id, name FROM cards WHERE id IN ({', '.join('?' * len(token_ids))})", token_ids))
+    parts = [{"component": "token", "id": t, "name": names[t]} for t in token_ids]
+    conn.execute("UPDATE card_details SET raw = json_set(raw, '$.all_parts', json(?)) WHERE id = ?",
+                 (json.dumps(parts), card_id))
+    conn.commit()
+    conn.close()
+
+
+def test_deck_tokens(client):
+    serra, bishop, pridemate = card(client, "Serra Angel"), card(client, "Bygone Bishop"), card(client, "Ajani's Pridemate")
+    link_tokens(client, serra["id"], CLUE)
+    link_tokens(client, bishop["id"], CLUE, GOBLIN)
+    link_tokens(client, pridemate["id"], PRIDEMATE_TOKEN)  # a token copy of the card itself: left out
+    deck = client.post("/api/decks", json={"name": "Tokens", "format": "freeform", "platform": "paper"}).json()
+    for c in (serra, bishop, pridemate):
+        client.post(f"/api/decks/{deck['id']}/cards", json={"card_id": c["id"]})
+
+    tokens = client.get(f"/api/decks/{deck['id']}/tokens").json()
+    assert [(t["name"], t["sources"]) for t in tokens] == [
+        ("Clue", ["Serra Angel", "Bygone Bishop"]),
+        ("Phyrexian Goblin", ["Bygone Bishop"]),
+    ]
+    assert tokens[0]["card_id"] == CLUE and tokens[0]["type_line"] == "Token Artifact — Clue"
+
+    # Tokens print like any card.
+    status = wait(client, client.post("/api/print/jobs", json={"items": [{"card_id": CLUE, "qty": 3}]}).json()["id"])
+    assert status["stage"] == "done" and status["pages"] == 1
+
+    assert client.get("/api/decks/999/tokens").status_code == 404
+
+
+def test_back_positions_mirror_the_sheet():
+    from mtgdm.printing.render import back_position
+
+    # Long edge: columns swap; short edge: rows swap.
+    assert [back_position(i, "long") for i in range(9)] == [2, 1, 0, 5, 4, 3, 8, 7, 6]
+    assert [back_position(i, "short") for i in range(9)] == [6, 7, 8, 3, 4, 5, 0, 1, 2]
+
+
+def test_duplex_pdf(client):
+    delver, serra = card(client, "Delver of Secrets"), card(client, "Serra Angel")
+    body = {"items": [{"card_id": serra["id"], "qty": 10}, {"card_id": delver["id"], "qty": 1}], "duplex": "long"}
+    status = wait(client, client.post("/api/print/jobs", json=body).json()["id"])
+    assert status["stage"] == "done", status
+    doc = pdfium.PdfDocument(client.get(f"/api/print/jobs/{status['id']}/pdf").content)
+    # 11 cards: two sheets, each a page of fronts and a page of backs.
+    assert status["pages"] == 4 and len(doc) == 4
+    assert image_count(doc[0]) == 9 and image_count(doc[1]) == 0  # the app's back is drawn, not an image
+    assert image_count(doc[2]) == 2 and image_count(doc[3]) == 1   # Delver's other face behind it

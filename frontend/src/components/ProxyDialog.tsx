@@ -10,7 +10,7 @@ import {
 } from '../api/client'
 import { t } from '../i18n'
 
-type Reason = ProxyCandidate['reason'] | 'extra'
+type Reason = ProxyCandidate['reason'] | 'token' | 'extra'
 
 interface Row {
   key: string
@@ -21,11 +21,13 @@ interface Row {
   checked: boolean
   faces: number
   other_decks: string[]
+  sources?: string[] // tokens: the deck's cards that make them
   image_status: string | null
 }
 
 const GAPS = [0, 0.5, 1, 2]
-const REASONS: Reason[] = ['missing', 'in_other_deck', 'extra']
+type Duplex = 'off' | 'long' | 'short'
+const REASONS: Reason[] = ['missing', 'in_other_deck', 'token', 'extra']
 // Scryfall's image_status values worth a warning: the printed proxy would be blurry or a stand-in.
 const POOR_IMAGES = ['lowres', 'placeholder', 'missing']
 
@@ -45,6 +47,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
   const [paper, setPaper] = useState<Paper>('a4')
   const [gap, setGap] = useState(0)
   const [cutMarks, setCutMarks] = useState(true)
+  const [duplex, setDuplex] = useState<Duplex>('off')
   const [job, setJob] = useState<PrintJobStatus | null>(null)
   const [overflow, setOverflow] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -66,7 +69,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             other_decks: c.other_decks,
             image_status: c.image_status ?? null,
           })),
-          ...(prev ?? []).filter((r) => r.reason === 'extra'),
+          ...(prev ?? []).filter((r) => r.reason === 'token' || r.reason === 'extra'),
         ]),
       (e: Error) => !cancelled && setError(e.message),
     )
@@ -74,6 +77,34 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
       cancelled = true
     }
   }, [deckId, includeBasics])
+
+  // Tokens the deck makes: listed unchecked, you pick the ones you want.
+  useEffect(() => {
+    let cancelled = false
+    api.deckTokens(deckId).then(
+      (list) =>
+        !cancelled &&
+        setRows((prev) => [
+          ...(prev ?? []).filter((r) => r.reason !== 'token'),
+          ...list.map((tok) => ({
+            key: `token-${tok.oracle_id}`,
+            card_id: tok.card_id,
+            name: tok.name,
+            reason: 'token' as Reason,
+            qty: 1,
+            checked: false,
+            faces: tok.faces,
+            other_decks: [],
+            sources: tok.sources,
+            image_status: null,
+          })),
+        ]),
+      () => {},
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [deckId])
 
   useEffect(() => {
     api.printerProfiles().then((list) => {
@@ -120,8 +151,9 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
     ])
 
   const selected = (rows ?? []).filter((r) => r.checked && r.qty > 0)
-  const slots = selected.reduce((n, r) => n + r.qty * (frontOnly ? 1 : r.faces), 0)
-  const pages = Math.ceil(slots / 9)
+  // Two-sided: one position per copy (a double-faced card's other face goes on the back).
+  const slots = selected.reduce((n, r) => n + r.qty * (frontOnly || duplex !== 'off' ? 1 : r.faces), 0)
+  const pages = Math.ceil(slots / 9) * (duplex !== 'off' ? 2 : 1)
   const profile = profiles.find((p) => p.id === profileId) ?? null
   const calibrated = profile?.calibrated_at != null
 
@@ -135,6 +167,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
         paper,
         gap_mm: gap,
         cut_marks: cutMarks,
+        duplex,
         title: deckName,
       })
       setOverflow(started.overflow ?? false)
@@ -164,7 +197,11 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             return (
               <section key={reason} className="proxy-group">
                 <h3>
-                  {t.print.reason[reason]} <span className="muted">({group.reduce((n, r) => n + r.qty, 0)})</span>
+                  {t.print.reason[reason]}{' '}
+                  <span className="muted">
+                    ({reason === 'token' ? group.length : group.reduce((n, r) => n + r.qty, 0)})
+                  </span>
+                  {reason === 'token' && <span className="muted small"> · {t.print.tokensHint}</span>}
                 </h3>
                 {group.map((row) => (
                   <ProxyRow key={row.key} row={row} onChange={(change) => update(row.key, change)} />
@@ -173,7 +210,9 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             )
           })
         )}
-        {rows !== null && rows.length === 0 && <p className="muted">{t.print.nothingMissing}</p>}
+        {rows !== null && !rows.some((r) => r.reason === 'missing' || r.reason === 'in_other_deck') && (
+          <p className="muted">{t.print.nothingMissing}</p>
+        )}
 
         <AddCard onAdd={addExtra} />
 
@@ -182,10 +221,12 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             <input type="checkbox" checked={includeBasics} onChange={(e) => setIncludeBasics(e.target.checked)} />
             {t.print.includeBasics}
           </label>
-          <label className="checkbox">
-            <input type="checkbox" checked={frontOnly} onChange={(e) => setFrontOnly(e.target.checked)} />
-            {t.print.frontOnly}
-          </label>
+          {duplex === 'off' && (
+            <label className="checkbox">
+              <input type="checkbox" checked={frontOnly} onChange={(e) => setFrontOnly(e.target.checked)} />
+              {t.print.frontOnly}
+            </label>
+          )}
           <label className="checkbox">
             <input type="checkbox" checked={cutMarks} onChange={(e) => setCutMarks(e.target.checked)} />
             {t.print.cutMarks}
@@ -221,6 +262,14 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             </select>
           </label>
           <label>
+            {t.print.duplex}{' '}
+            <select className="select small" value={duplex} onChange={(e) => setDuplex(e.target.value as Duplex)}>
+              <option value="off">{t.print.duplexOff}</option>
+              <option value="long">{t.print.duplexLong}</option>
+              <option value="short">{t.print.duplexShort}</option>
+            </select>
+          </label>
+          <label>
             {t.print.gap}{' '}
             <select className="select small" value={gap} onChange={(e) => setGap(Number(e.target.value))}>
               {GAPS.map((g) => (
@@ -231,6 +280,7 @@ export function ProxyDialog({ deckId, deckName, onClose }: Props) {
             </select>
           </label>
         </div>
+        {duplex !== 'off' && <p className="muted small">{t.print.duplexNote}</p>}
         {!calibrated && <p className="status warn">{t.print.uncalibrated}</p>}
         <p className="muted small">{t.print.personalUse}</p>
 
@@ -286,6 +336,7 @@ function ProxyRow({ row, onChange }: { row: Row; onChange: (change: Partial<Row>
         {row.name}
         {row.faces > 1 && <span className="muted small"> · {t.print.doubleFaced}</span>}
         {row.other_decks.length > 0 && <span className="muted small"> · {row.other_decks.join(', ')}</span>}
+        {row.sources && <span className="muted small"> · {t.print.tokenFrom(row.sources.join(', '))}</span>}
         {row.image_status && POOR_IMAGES.includes(row.image_status) && (
           <span className="warn-text small" title={t.print.poorImageTitle}>
             {' '}

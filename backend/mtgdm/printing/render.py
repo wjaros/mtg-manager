@@ -7,7 +7,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, Literal
 
 from reportlab.lib.colors import Color
 from reportlab.pdfbase.pdfmetrics import registerFont, stringWidth
@@ -15,7 +15,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 
 from mtgdm.i18n import tr
-from mtgdm.printing.layout import COLUMNS, NO_CORRECTION, PER_PAGE, Correction, Line, PageLayout, Rect
+from mtgdm.printing.layout import COLUMNS, NO_CORRECTION, PER_PAGE, ROWS, Correction, Line, PageLayout, Rect
 
 PT_PER_MM = 72 / 25.4
 # The PDF standard fonts have no Polish letters (ł, ś, ...): a system font with them, embedded
@@ -31,6 +31,13 @@ MARK_COLOR = Color(0, 0, 0)
 FRAME_COLOR = Color(0.55, 0.55, 0.55)
 TEXT_COLOR = Color(0.25, 0.25, 0.25)
 LINE_WIDTH_MM = 0.1
+# The app's card back (packaging/icon.svg colours): a dark card with two cards and a gold circle.
+BACK_TOP, BACK_BOTTOM = Color(0x26 / 255, 0x2C / 255, 0x38 / 255), Color(0x0F / 255, 0x12 / 255, 0x18 / 255)
+BACK_CARD = Color(0x1F / 255, 0x24 / 255, 0x30 / 255)
+BACK_GREY = Color(0x8B / 255, 0x93 / 255, 0xA6 / 255)
+GOLD_LIGHT, GOLD_DARK = Color(0xF0 / 255, 0xC9 / 255, 0x68 / 255), Color(0xB8 / 255, 0x86 / 255, 0x2C / 255)
+CORNER_RADIUS_MM = 3.0  # Magic cards have ~3 mm round corners
+Duplex = Literal["off", "long", "short"]
 
 
 @dataclass(frozen=True)
@@ -82,10 +89,48 @@ class _Page:
         self.c.setLineWidth(width * PT_PER_MM)
         self.c.rect(r.x * PT_PER_MM, (self.height - r.bottom) * PT_PER_MM, r.w * PT_PER_MM, r.h * PT_PER_MM)
 
-    def image(self, path: Path, r: Rect) -> None:
+    def image(self, path: Path, r: Rect, upside_down: bool = False) -> None:
         # Transparent corners stay transparent (white paper); the aspect ratio is never changed.
-        self.c.drawImage(str(path), r.x * PT_PER_MM, (self.height - r.bottom) * PT_PER_MM, r.w * PT_PER_MM,
-                         r.h * PT_PER_MM, mask="auto", preserveAspectRatio=True, anchor="c")
+        c = self.c
+        c.saveState()
+        c.translate((r.x + r.w / 2) * PT_PER_MM, (self.height - r.y - r.h / 2) * PT_PER_MM)
+        if upside_down:
+            c.rotate(180)
+        w, h = r.w * PT_PER_MM, r.h * PT_PER_MM
+        c.drawImage(str(path), -w / 2, -h / 2, w, h, mask="auto", preserveAspectRatio=True, anchor="c")
+        c.restoreState()
+
+    def card_back(self, r: Rect) -> None:
+        """The app's own card back, drawn as vectors (no Scryfall image, no Wizards card back)."""
+        c = self.c
+        x, y, w, h = r.x * PT_PER_MM, (self.height - r.bottom) * PT_PER_MM, r.w * PT_PER_MM, r.h * PT_PER_MM
+        radius = CORNER_RADIUS_MM * PT_PER_MM
+        c.saveState()
+        path = c.beginPath()
+        path.roundRect(x, y, w, h, radius)
+        c.clipPath(path, stroke=0, fill=0)
+        c.linearGradient(x, y + h, x, y, (BACK_TOP, BACK_BOTTOM), extend=True)
+        # The icon's motif, scaled to the card: a tilted grey card behind a gold-edged one and a gold circle.
+        unit = w / 63  # points per mm of the nominal card width
+        cx, cy = x + w / 2, y + h / 2 + 4 * unit
+        c.setLineWidth(0.9 * unit)
+        c.saveState()
+        c.translate(cx - 4 * unit, cy + 1 * unit)
+        c.rotate(10)
+        c.setFillColor(BACK_CARD)
+        c.setStrokeColor(BACK_GREY)
+        c.roundRect(-11 * unit, -15.5 * unit, 22 * unit, 31 * unit, 2.2 * unit, stroke=1, fill=1)
+        c.restoreState()
+        c.setFillColor(BACK_CARD)
+        c.setStrokeColor(GOLD_DARK)
+        c.setLineWidth(1.3 * unit)
+        c.roundRect(cx - 9 * unit, cy - 19 * unit, 23 * unit, 32 * unit, 2.4 * unit, stroke=1, fill=1)
+        c.setFillColor(GOLD_LIGHT)
+        c.circle(cx + 2.5 * unit, cy - 3 * unit, 5.8 * unit, stroke=0, fill=1)
+        c.setFont(_fonts()[1], 4.2 * unit)
+        c.setFillColor(GOLD_LIGHT)
+        c.drawCentredString(cx, y + h * 0.16, "MTG Deck Manager")
+        c.restoreState()
 
     def text(self, text: str, x: float, y: float, size: float = 6, bold: bool = False, max_width: float | None = None,
              align: str = "center") -> None:
@@ -116,6 +161,18 @@ class _Page:
             self.text(text, correction.x(x), y, max_width=layout.card_w * correction.scale_x - 4)
 
 
+def back_position(index: int, duplex: Duplex) -> int:
+    """Where a card's back goes on the back page: the sheet turns over its long edge (columns swap
+    sides) or its short edge (rows swap; the images are then upside down on the page, so a cut card
+    flipped sideways shows its back upright)."""
+    row, col = divmod(index, COLUMNS)
+    if duplex == "long":
+        col = COLUMNS - 1 - col
+    elif duplex == "short":
+        row = ROWS - 1 - row
+    return row * COLUMNS + col
+
+
 def render_proxies(
     out: BinaryIO,
     slots: list[Slot],
@@ -126,22 +183,33 @@ def render_proxies(
     title: str = "",
     profile_label: str | None = None,
     progress: Callable[[int], None] | None = None,
+    backs: list[Slot | None] | None = None,
+    duplex: Duplex = "off",
 ) -> int:
     """Write the proxy pages to `out` (3 x 3 cards per page); returns the number of pages.
-    `image(slot)` returns a local image file, or None: a frame with the card's name instead."""
+    `image(slot)` returns a local image file, or None: a frame with the card's name instead.
+    With duplex, every page of fronts is followed by a page of backs: `backs[i]` (a double-faced
+    card's other face) or the app's card back."""
     canvas = _canvas(out, layout, title)
-    pages = max(1, -(-len(slots) // PER_PAGE))
+    sheets = max(1, -(-len(slots) // PER_PAGE))
+    pages = sheets * (2 if duplex != "off" else 1)
     frames = layout.frames()
-    for number in range(pages):
+
+    def draw(page: _Page, slot: Slot, frame: Rect, upside_down: bool = False) -> None:
+        path = image(slot)
+        if path is not None:
+            page.image(path, correction.image_rect(frame), upside_down)
+        else:
+            box = correction.rect(frame)
+            page.rect(box)
+            page.text(slot.name, box.x + box.w / 2, box.y + box.h / 2, size=9, bold=True, max_width=box.w - 6)
+
+    for sheet in range(sheets):
+        number = sheet * (2 if duplex != "off" else 1)
         page = _Page(canvas, layout)
-        for slot, frame in zip(slots[number * PER_PAGE:(number + 1) * PER_PAGE], frames, strict=False):
-            path = image(slot)
-            if path is not None:
-                page.image(path, correction.image_rect(frame))
-            else:
-                box = correction.rect(frame)
-                page.rect(box)
-                page.text(slot.name, box.x + box.w / 2, box.y + box.h / 2, size=9, bold=True, max_width=box.w - 6)
+        start = sheet * PER_PAGE
+        for slot, frame in zip(slots[start:start + PER_PAGE], frames, strict=False):
+            draw(page, slot, frame)
             if progress:
                 progress(1)
         if cut_marks:
@@ -155,6 +223,18 @@ def render_proxies(
             tr("print_actual_size"),
         ], top=False, correction=correction)
         canvas.showPage()
+
+        if duplex != "off":
+            # No marks or footer on the back: duplex printers don't line both sides up exactly.
+            page = _Page(canvas, layout)
+            for i, slot in enumerate(slots[start:start + PER_PAGE]):
+                frame = frames[back_position(i, duplex)]
+                back = backs[start + i] if backs else None
+                if back is not None:
+                    draw(page, back, frame, upside_down=duplex == "short")
+                else:
+                    page.card_back(correction.rect(frame))
+            canvas.showPage()
     canvas.save()
     return pages
 

@@ -32,6 +32,7 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/printing/` – proxy printing: `candidates.py` (cards a deck's box lacks), `layout.py` (pure mm geometry,
     calibration math; images are scaled uniformly, frames/marks per axis), `render.py` (reportlab; a system font with
     Polish letters, else Helvetica without diacritics), `profiles.py` (printer profiles, card size in meta),
+    `tokens.py` (tokens a deck makes, from all_parts; the test fixture has no all_parts, tests add them),
     `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).

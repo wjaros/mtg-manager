@@ -707,6 +707,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/decks/{deck_id}/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tokens
+         * @description Tokens and emblems the deck's cards make (Scryfall's related parts).
+         */
+        get: operations["tokens_api_decks__deck_id__tokens_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/print/settings": {
         parameters: {
             query?: never;
@@ -1761,6 +1781,23 @@ export interface components {
             /** Added */
             added: number;
         };
+        /** DeckToken */
+        DeckToken: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Card Id */
+            card_id: string;
+            /** Name */
+            name: string;
+            /** Type Line */
+            type_line: string | null;
+            /** Oracle Text */
+            oracle_text: string | null;
+            /** Faces */
+            faces: number;
+            /** Sources */
+            sources: string[];
+        };
         /** DeckUpdate */
         DeckUpdate: {
             /** Name */
@@ -2302,6 +2339,12 @@ export interface components {
              * @default true
              */
             cut_marks?: boolean;
+            /**
+             * Duplex
+             * @default off
+             * @enum {string}
+             */
+            duplex?: "off" | "long" | "short";
             /**
              * Title
              * @default
@@ -4012,6 +4055,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProxyCandidate"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tokens_api_decks__deck_id__tokens_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckToken"][];
                 };
             };
             /** @description Validation Error */
