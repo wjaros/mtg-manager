@@ -28,4 +28,5 @@ def card_image(
     except (ScryfallError, httpx.HTTPError) as exc:
         raise HTTPException(status_code=502, detail=f"Image download failed: {exc}") from exc
     # A printing's image practically never changes; let the browser keep it.
-    return FileResponse(path, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=2592000"})
+    media_type = "image/png" if path.suffix == ".png" else "image/jpeg"
+    return FileResponse(path, media_type=media_type, headers={"Cache-Control": "public, max-age=2592000"})

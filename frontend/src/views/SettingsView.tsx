@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, type Health, type SyncCheck, type SyncProgress, type SyncStatus } from '../api/client'
+import { PrintingPanel } from '../components/PrintingPanel'
 import { formatNumber, lang, LANGUAGES, locale, setLang, t, type Lang } from '../i18n'
 
 const STAGE_LABEL: Record<string, string> = {
@@ -164,6 +165,8 @@ export function SettingsView({ status, onStatusChange }: Props) {
       </section>
 
       <BackupPanel />
+
+      <PrintingPanel />
 
       <section className="panel">
         <h2>{t.settings.app}</h2>

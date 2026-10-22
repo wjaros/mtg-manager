@@ -2691,3 +2691,130 @@ label.button.disabled {
   filter: grayscale(0.6);
   opacity: 0.8;
 }
+
+/* ---------- Proxy printing ---------- */
+
+.proxy-dialog {
+  width: min(760px, 100%);
+}
+
+.proxy-group h3 {
+  margin: 0.25rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.proxy-row {
+  display: grid;
+  grid-template-columns: auto 3.5rem minmax(0, 1fr) minmax(0, 14rem);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.15rem 0;
+  font-size: 0.9rem;
+}
+
+.proxy-row.off .proxy-name {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.proxy-row .input.qty {
+  width: 100%;
+  padding: 0.2rem 0.35rem;
+}
+
+.proxy-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.proxy-printing {
+  min-width: 0;
+}
+
+.proxy-add-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.proxy-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+.printing-size,
+.printing-add,
+.printer-profile-row,
+.calibration-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.printing-size .input.small {
+  width: 5.5rem;
+}
+
+.printing-add {
+  margin-top: 0.75rem;
+}
+
+.printing-add .input {
+  flex: 1 1 240px;
+}
+
+.printer-profile {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.printer-profile-row .spacer {
+  flex: 1;
+}
+
+.calibration {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--bg-input);
+}
+
+.calibration p {
+  margin: 0;
+}
+
+.calibration-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.calibration-inputs .input.small {
+  width: 7rem;
+}
+
+.calibration-inputs .button {
+  align-self: flex-end;
+}
+
+@media (max-width: 640px) {
+  .proxy-row {
+    grid-template-columns: auto 3.5rem minmax(0, 1fr);
+  }
+
+  .proxy-printing {
+    grid-column: 2 / -1;
+  }
+}

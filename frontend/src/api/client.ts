@@ -51,8 +51,16 @@ export type ScanItem = Schemas['ScanItem']
 export type ScanItemUpdate = Schemas['ScanItemUpdate']
 export type ScanCommitResult = Schemas['CommitResult']
 export type OcrEngines = Schemas['OcrEngines']
+export type ProxyCandidate = Schemas['ProxyCandidate']
+export type PrinterProfile = Schemas['PrinterProfile']
+export type PrintSettings = Schemas['PrintSettings']
+export type ProxyPrint = Schemas['ProxyPrint']
+export type PrintJobStatus = Schemas['PrintJobStatus']
+export type CalibrationResult = Schemas['CalibrationResult']
+export type Measurements = Schemas['Measurements']
+export type Paper = PrinterProfile['paper']
 
-export type ImageSize = 'small' | 'normal' | 'large' | 'art_crop'
+export type ImageSize = 'small' | 'normal' | 'large' | 'art_crop' | 'png'
 export type ColorMode = 'include' | 'exact' | 'identity'
 export type Order = 'name' | 'mv' | 'released'
 
@@ -225,6 +233,24 @@ export const api = {
       if (!r.ok) throw new ApiError(r.status, r.statusText)
     }),
 
+  proxyCandidates: (deckId: number, includeBasics: boolean) =>
+    request<ProxyCandidate[]>(`/api/decks/${deckId}/proxy-candidates?include_basics=${includeBasics}`),
+  printSettings: () => request<PrintSettings>('/api/print/settings'),
+  savePrintSettings: (body: PrintSettings) => request<PrintSettings>('/api/print/settings', jsonBody('PUT', body)),
+  printerProfiles: () => request<PrinterProfile[]>('/api/print/profiles'),
+  createPrinterProfile: (name: string, paper: Paper) =>
+    request<PrinterProfile>('/api/print/profiles', jsonBody('POST', { name, paper })),
+  updatePrinterProfile: (id: number, body: { name?: string; paper?: Paper; is_default?: boolean }) =>
+    request<PrinterProfile>(`/api/print/profiles/${id}`, jsonBody('PATCH', body)),
+  deletePrinterProfile: (id: number) =>
+    fetch(`/api/print/profiles/${id}`, { method: 'DELETE' }).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+    }),
+  calibratePrinter: (id: number, body: Measurements) =>
+    request<CalibrationResult>(`/api/print/profiles/${id}/calibrate`, jsonBody('POST', body)),
+  startPrint: (body: ProxyPrint) => request<PrintJobStatus>('/api/print/jobs', jsonBody('POST', body)),
+  printJob: (id: string) => request<PrintJobStatus>(`/api/print/jobs/${id}`),
+
   syncStatus: () => request<SyncStatus>('/api/sync/status'),
   syncCheck: () => request<SyncCheck>('/api/sync/check'),
   syncStart: (force = false) => request<SyncProgress>('/api/sync/start', jsonBody('POST', { force })),
@@ -255,6 +281,14 @@ export function collectionExportUrl(
   download = false,
 ): string {
   return `/api/collection/export?${toSearchParams({ format, ...filter, download: download || undefined })}`
+}
+
+export function calibrationPdfUrl(paper: Paper, profileId?: number): string {
+  return `/api/print/calibration.pdf?${toSearchParams({ paper, profile_id: profileId })}`
+}
+
+export function printJobPdfUrl(jobId: string): string {
+  return `/api/print/jobs/${jobId}/pdf`
 }
 
 export function deckPdfUrl(deckId: number): string {

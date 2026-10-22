@@ -29,6 +29,10 @@ language from the request's Accept-Language (the frontend sends its own; default
     `usage.py` – where a card is (copies per location / deck box, decks listing it) for the deckbuilder hover
     `moxfield.py` – Moxfield collection CSV export / import (condition scale mapping Cardmarket <-> US)
     `export.py` – collection export: Arena-style list (`4 Name (SET) 123`, Scryfall set codes) and CSV
+  - `mtgdm/printing/` – proxy printing: `candidates.py` (cards a deck's box lacks), `layout.py` (pure mm geometry,
+    calibration math; images are scaled uniformly, frames/marks per axis), `render.py` (reportlab; a system font with
+    Polish letters, else Helvetica without diacritics), `profiles.py` (printer profiles, card size in meta),
+    `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
 - `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);

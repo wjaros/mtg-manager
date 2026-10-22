@@ -67,6 +67,13 @@ review the result and choose finish, condition and location before anything reac
 
 ![Import](docs/screenshots/import.webp)
 
+**Proxy printing.** From a paper deck, *Proxies* lists the cards you can't put in its box: the ones
+you don't own and the ones sitting in another deck's box. Pick the quantities and printings, add
+any card by hand, and get a PDF of 3 × 3 card-size proxies with crop marks (A4 or Letter; double-faced
+cards print both faces). Printers scale pages slightly, so *Settings → Printing* calibrates each
+printer: print a calibration page, measure two lengths with a ruler, and later prints come out at
+real card size. Card images are printed unaltered, for personal playtesting only.
+
 The interface is in Polish and English (Settings → Language).
 
 ## Install

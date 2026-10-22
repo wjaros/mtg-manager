@@ -20,6 +20,7 @@ import { DeckHistoryPanel } from '../components/DeckHistoryPanel'
 import { DeckList } from '../components/DeckList'
 import { DeckStatsPanel } from '../components/DeckStatsPanel'
 import { ExportDialog } from '../components/ExportDialog'
+import { ProxyDialog } from '../components/ProxyDialog'
 import { Filters } from '../components/Filters'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { ManaColumns } from '../components/ManaColumns'
@@ -87,6 +88,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
     }
   }
   const [exporting, setExporting] = useState(false)
+  const [printing, setPrinting] = useState(false)
   const [dropZone, setDropZone] = useState<'pool' | 'deck' | null>(null)
   const [collectionNote, setCollectionNote] = useState<string | null>(null)
   // Hover info (copies in this deck, where owned copies are) is for the pool; the deck list has the plain preview.
@@ -373,6 +375,11 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
             {deck.location_id === null ? t.builder.ownDeck : t.builder.inCollection}
           </button>
         )}
+        {deck.platform === 'paper' && (
+          <button className="button" onClick={() => setPrinting(true)} title={t.print.buttonTitle}>
+            {t.print.button}
+          </button>
+        )}
         <button className={`button ${deck.platform === 'paper' ? '' : 'header-action'}`} onClick={() => setExporting(true)}>
           {t.builder.export}
         </button>
@@ -538,6 +545,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
       {poolPreview.element}
       {menu && <ContextMenu menu={menu} onClose={closeMenu} />}
       {exporting && <ExportDialog deckId={deck.id} onClose={() => setExporting(false)} />}
+      {printing && <ProxyDialog deckId={deck.id} deckName={deck.name} onClose={() => setPrinting(false)} />}
       {detail && (
         <div className="modal-backdrop" onClick={closeDetail}>
           <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
