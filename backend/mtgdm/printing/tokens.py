@@ -14,6 +14,7 @@ from mtgdm.collection.service import DECK_BOX_BOARDS
 class DeckToken(BaseModel):
     oracle_id: str
     card_id: str            # the token printing to print
+    printing: str           # e.g. "TFDN #3"
     name: str
     type_line: str | None
     oracle_text: str | None
@@ -45,7 +46,7 @@ def deck_tokens(conn: sqlite3.Connection, deck_id: int) -> list[DeckToken]:
     tokens: dict[str, DeckToken] = {}
     for t in conn.execute(
         f"""
-        SELECT id, oracle_id, name, type_line, oracle_text, image_faces FROM cards
+        SELECT id, oracle_id, name, type_line, oracle_text, image_faces, set_code, collector_number FROM cards
         WHERE id IN ({", ".join("?" * len(sources))})
         """,
         list(sources),
@@ -55,7 +56,8 @@ def deck_tokens(conn: sqlite3.Connection, deck_id: int) -> list[DeckToken]:
             tokens[key].sources += [s for s in sources[t["id"]] if s not in tokens[key].sources]
             continue
         tokens[key] = DeckToken(
-            oracle_id=key, card_id=t["id"], name=t["name"], type_line=t["type_line"], oracle_text=t["oracle_text"],
+            oracle_id=key, card_id=t["id"], printing=f"{(t['set_code'] or '').upper()} #{t['collector_number']}",
+            name=t["name"], type_line=t["type_line"], oracle_text=t["oracle_text"],
             faces=max(1, t["image_faces"] or 0), sources=list(sources[t["id"]]),
         )
     return sorted(tokens.values(), key=lambda t: (t.name.lower(), t.type_line or ""))

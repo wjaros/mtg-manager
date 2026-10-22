@@ -13,6 +13,7 @@ from mtgdm.collection.service import DECK_BOX_BOARDS
 class ProxyCandidate(BaseModel):
     oracle_id: str
     card_id: str            # the deck's printing (the default to print)
+    printing: str           # its set code and number, e.g. "DOM #31"
     name: str
     reason: Literal["missing", "in_other_deck"]
     qty: int                # copies to proxy for this reason
@@ -28,7 +29,7 @@ def proxy_candidates(conn: sqlite3.Connection, deck_id: int, include_basics: boo
         r["oracle_id"]: r
         for r in conn.execute(
             f"""
-            SELECT c.oracle_id, c.id, c.name, c.type_line, c.image_faces,
+            SELECT c.oracle_id, c.id, c.name, c.type_line, c.image_faces, c.set_code, c.collector_number,
                    json_extract(d.raw, '$.image_status') AS image_status
             FROM deck_cards dc JOIN cards c ON c.id = dc.card_id LEFT JOIN card_details d ON d.id = c.id
             WHERE dc.deck_id = ? AND dc.board IN ({", ".join("?" * len(DECK_BOX_BOARDS))})
@@ -47,6 +48,7 @@ def proxy_candidates(conn: sqlite3.Connection, deck_id: int, include_basics: boo
         short = max(0, h.needed - available)
         missing = min(short, h.missing)
         common = {"oracle_id": h.oracle_id, "card_id": card["id"], "name": card["name"],
+                  "printing": f"{(card['set_code'] or '').upper()} #{card['collector_number']}",
                   "faces": max(1, card["image_faces"] or 0), "image_status": card["image_status"]}
         if missing:
             result.append(ProxyCandidate(**common, reason="missing", qty=missing, other_decks=[]))

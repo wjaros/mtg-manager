@@ -1847,6 +1847,8 @@ export interface components {
             oracle_id: string;
             /** Card Id */
             card_id: string;
+            /** Printing */
+            printing: string;
             /** Name */
             name: string;
             /** Type Line */
@@ -2354,6 +2356,8 @@ export interface components {
             oracle_id: string;
             /** Card Id */
             card_id: string;
+            /** Printing */
+            printing: string;
             /** Name */
             name: string;
             /**

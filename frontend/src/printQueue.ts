@@ -1,4 +1,7 @@
 import { useSyncExternalStore } from 'react'
+import type { CardSummary } from './api/client'
+
+type Card = Pick<CardSummary, 'id' | 'name' | 'image_faces' | 'set_code' | 'collector_number'>
 
 /** Cards picked for proxy printing in the collection (one entry per printing), shared by the
 collection grid, its context menu and the print dialog. Kept in this browser between visits. */
@@ -7,6 +10,7 @@ export interface QueuedCard {
   name: string
   faces: number
   qty: number
+  printing?: string // "DOM #31"
 }
 
 const STORAGE_KEY = 'mtgdm.printQueue'
@@ -35,16 +39,25 @@ function set(next: QueuedCard[]): void {
 export const printQueue = {
   items: () => queue,
   has: (cardId: string) => queue.some((q) => q.card_id === cardId),
-  add: (card: { id: string; name: string; image_faces: number }, qty = 1) => {
+  add: (card: Card, qty = 1) => {
     const same = queue.find((q) => q.card_id === card.id)
     set(
       same
         ? queue.map((q) => (q === same ? { ...q, qty: Math.min(99, q.qty + qty) } : q))
-        : [...queue, { card_id: card.id, name: card.name, faces: Math.max(1, card.image_faces), qty }],
+        : [
+            ...queue,
+            {
+              card_id: card.id,
+              name: card.name,
+              faces: Math.max(1, card.image_faces),
+              qty,
+              printing: card.set_code ? `${card.set_code.toUpperCase()} #${card.collector_number}` : undefined,
+            },
+          ],
     )
   },
   remove: (cardId: string) => set(queue.filter((q) => q.card_id !== cardId)),
-  toggle: (card: { id: string; name: string; image_faces: number }) =>
+  toggle: (card: Card) =>
     printQueue.has(card.id) ? printQueue.remove(card.id) : printQueue.add(card),
   replace: (next: QueuedCard[]) => set(next),
   clear: () => set([]),

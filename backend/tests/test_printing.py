@@ -1,4 +1,5 @@
 import json
+import re
 import time
 
 import cv2
@@ -202,7 +203,9 @@ def test_proxy_pdf(client):
 
     pdf = client.get(f"/api/print/jobs/{status['id']}/pdf")
     assert pdf.status_code == 200 and pdf.headers["content-type"] == "application/pdf"
-    assert "filename*=UTF-8''%C5%81%C3%B3d%C5%BA%20deck%20-%20proxies.pdf" in pdf.headers["content-disposition"]
+    # The deck's name (non-ASCII in RFC 5987 form) and when it was made: each download its own file.
+    assert re.search(r"filename\*=UTF-8''%C5%81%C3%B3d%C5%BA%20deck%20-%20proxies%20\d{4}-\d\d-\d\d%20\d\d-\d\d-\d\d\.pdf",
+                     pdf.headers["content-disposition"])
     doc = pdfium.PdfDocument(pdf.content)
     assert len(doc) == 2
     assert doc[0].get_size() == pytest.approx((210 * MM_TO_PT, 297 * MM_TO_PT))
@@ -274,6 +277,10 @@ GOBLIN = "01e437a1-6d74-4006-8598-06284444c837"
 PRIDEMATE_TOKEN = "7801c326-d740-4cec-9268-05348ace8302"
 
 
+def card_number(client, card_id: str) -> str:
+    return client.get(f"/api/cards/{card_id}").json()["collector_number"]
+
+
 def link_tokens(client, card_id: str, *token_ids: str) -> None:
     """The fixture leaves out all_parts: add the links the way Scryfall has them."""
     conn = connect(client.settings.db_path)
@@ -300,6 +307,7 @@ def test_deck_tokens(client):
         ("Phyrexian Goblin", ["Bygone Bishop"]),
     ]
     assert tokens[0]["card_id"] == CLUE and tokens[0]["type_line"] == "Token Artifact — Clue"
+    assert tokens[0]["printing"] == "TWHO #" + card_number(client, CLUE)
 
     # Tokens print like any card.
     status = wait(client, client.post("/api/print/jobs", json={"items": [{"card_id": CLUE, "qty": 3}]}).json()["id"])

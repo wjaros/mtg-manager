@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   api,
   printJobPdfUrl,
@@ -21,6 +21,7 @@ interface Row {
   qty: number
   checked: boolean
   faces: number
+  printing?: string // "DOM #31"; unknown for lists saved before it was kept
   other_decks: string[]
   sources?: string[] // tokens: the deck's cards that make them
   image_status: string | null
@@ -42,6 +43,7 @@ function queuedRows(): Row[] {
     qty: q.qty,
     checked: true,
     faces: q.faces,
+    printing: q.printing,
     other_decks: [],
     image_status: null,
   }))
@@ -60,7 +62,9 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
   const [rows, setRows] = useState<Row[] | null>(() => (deckId === null ? queuedRows() : null))
   useEffect(() => {
     if (deckId !== null || rows === null) return
-    printQueue.replace(rows.map((r) => ({ card_id: r.card_id, name: r.name, faces: r.faces, qty: r.qty })))
+    printQueue.replace(
+      rows.map((r) => ({ card_id: r.card_id, name: r.name, faces: r.faces, qty: r.qty, printing: r.printing })),
+    )
   }, [deckId, rows])
   const [includeBasics, setIncludeBasics] = useState(false)
   const [frontOnly, setFrontOnly] = useState(false)
@@ -90,6 +94,7 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
             qty: c.qty,
             checked: true,
             faces: c.faces,
+            printing: c.printing,
             other_decks: c.other_decks,
             image_status: c.image_status ?? null,
           })),
@@ -119,6 +124,7 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
             qty: 1,
             checked: false,
             faces: tok.faces,
+            printing: tok.printing,
             other_decks: [],
             sources: tok.sources,
             image_status: null,
@@ -175,6 +181,7 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
           qty: Math.min(99, qty),
           checked: true,
           faces: Math.max(1, card.image_faces),
+          printing: printingLabel(card),
           other_decks: [],
           image_status: null,
         },
@@ -396,10 +403,6 @@ function ProxyRow({
   onChange: (change: Partial<Row>) => void
   onRemove?: () => void
 }) {
-  const [printings, setPrintings] = useState<CardSummary[] | null>(null)
-  const load = () => {
-    if (printings === null) api.printings(row.card_id).then(setPrintings, () => setPrintings([]))
-  }
   return (
     <div className={`proxy-row ${row.checked ? '' : 'off'}`}>
       <input type="checkbox" checked={row.checked} onChange={(e) => onChange({ checked: e.target.checked })} aria-label={row.name} />
@@ -423,30 +426,113 @@ function ProxyRow({
           </span>
         )}
       </span>
-      <select
-        className="select small proxy-printing"
-        value={row.card_id}
-        onFocus={load}
-        onMouseDown={load}
-        onChange={(e) => {
-          const card = printings?.find((p) => p.id === e.target.value)
-          if (card) onChange({ card_id: card.id, faces: Math.max(1, card.image_faces), image_status: null })
-        }}
-        aria-label={t.print.printing}
-      >
-        {(printings ?? []).length === 0 && <option value={row.card_id}>{t.print.deckPrinting}</option>}
-        {(printings ?? []).map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.set_code.toUpperCase()} #{p.collector_number} · {p.set_name}
-          </option>
-        ))}
-      </select>
+      <PrintingPicker
+        cardId={row.card_id}
+        label={row.printing ?? t.print.deckPrinting}
+        onPick={(card) =>
+          onChange({
+            card_id: card.id,
+            faces: Math.max(1, card.image_faces),
+            printing: printingLabel(card),
+            image_status: null,
+          })
+        }
+      />
       {onRemove && (
         <button className="link-button danger" onClick={onRemove} aria-label={t.common.delete} title={t.common.delete}>
           ×
         </button>
       )}
     </div>
+  )
+}
+
+function printingLabel(card: CardSummary): string {
+  return `${card.set_code.toUpperCase()} #${card.collector_number}`
+}
+
+/** The printing to print: a button with the current one; its list loads when opened (a native
+select would open before the printings arrive). The list is fixed to the window, so the dialog's
+scrolling doesn't cut it off; scrolling closes it. */
+function PrintingPicker({
+  cardId,
+  label,
+  onPick,
+}: {
+  cardId: string
+  label: string
+  onPick: (card: CardSummary) => void
+}) {
+  const [printings, setPrintings] = useState<CardSummary[] | null>(null)
+  const [open, setOpen] = useState<{ left: number; top?: number; bottom?: number; width: number } | null>(null)
+  const button = useRef<HTMLButtonElement>(null)
+  const list = useRef<HTMLDivElement>(null)
+
+  const toggle = () => {
+    if (open) {
+      setOpen(null)
+      return
+    }
+    const r = button.current!.getBoundingClientRect()
+    const width = Math.max(r.width, 300)
+    const left = Math.min(r.left, window.innerWidth - width - 8)
+    // Below the button, or above it when it sits low in the window.
+    setOpen(window.innerHeight - r.bottom > 260 ? { left, top: r.bottom + 4, width } : { left, bottom: window.innerHeight - r.top + 4, width })
+    if (printings === null) api.printings(cardId).then(setPrintings, () => setPrintings([]))
+  }
+
+  useEffect(() => {
+    if (!open) return
+    const close = (e: Event) => {
+      if (e.type === 'mousedown' && (list.current?.contains(e.target as Node) || button.current?.contains(e.target as Node))) return
+      if (e.type === 'scroll' && list.current?.contains(e.target as Node)) return
+      setOpen(null)
+    }
+    window.addEventListener('mousedown', close)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => {
+      window.removeEventListener('mousedown', close)
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+    }
+  }, [open])
+
+  // Show the current printing when the list opens.
+  useLayoutEffect(() => {
+    if (open && printings) list.current?.querySelector('.current')?.scrollIntoView({ block: 'nearest' })
+  }, [open, printings])
+
+  return (
+    <>
+      <button ref={button} className="select small proxy-printing" onClick={toggle} aria-label={t.print.printing} aria-expanded={!!open}>
+        {label}
+      </button>
+      {open && (
+        <div ref={list} className="printing-list" style={open} role="listbox" aria-label={t.print.printing}>
+          {printings === null ? (
+            <p className="muted small">{t.common.loading}</p>
+          ) : (
+            printings.map((p) => (
+              <button
+                key={p.id}
+                role="option"
+                aria-selected={p.id === cardId}
+                className={p.id === cardId ? 'current' : ''}
+                onClick={() => {
+                  onPick(p)
+                  setOpen(null)
+                }}
+              >
+                <span className="mono">{printingLabel(p)}</span>
+                <span className="muted"> · {p.set_name}</span>
+                {p.released_at && <span className="muted"> · {p.released_at.slice(0, 4)}</span>}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </>
   )
 }
 

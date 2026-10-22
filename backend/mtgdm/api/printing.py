@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 from typing import Annotated, Literal
 from urllib.parse import quote
 
@@ -202,7 +203,9 @@ def start_print(db: Db, request: Request, body: ProxyPrint) -> PrintJobStatus:
     title = body.title.strip() or "Proxies"
     jobs: PrintJobs = request.app.state.print_jobs
     job = jobs.start(PrintRequest(slots, layout, correction, body.cut_marks, title, _profile_label(profile),
-                                  f"{title} - proxies", current_lang(), backs or None, body.duplex,
+                                  # Unique per print, so downloads don't overwrite each other.
+                                  f"{title} - proxies {datetime.now():%Y-%m-%d %H-%M-%S}", current_lang(),
+                                  backs or None, body.duplex,
                                   profiles.back_shift(profile, body.duplex), body.style == "text"))
     return _status(job, layout.overflow(correction))
 
