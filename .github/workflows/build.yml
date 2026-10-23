@@ -146,6 +146,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # the commits since the previous release, for the notes
 
       - uses: actions/download-artifact@v4
         with:
@@ -159,13 +161,11 @@ jobs:
           TAG: ${{ needs.version.outputs.tag }}
         run: |
           ls -l release
+          # Notes from the (squashed) commit messages since the previous release, not just PR titles.
+          previous=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // ""')
+          python3 scripts/release_notes.py "$previous" "$TAG" "$GITHUB_REPOSITORY" > notes.md
+          cat notes.md
           # On master the tag is created at this commit (a tag made with the workflow token does not
           # start another build).
-          gh release create "$TAG" release/* --target "$GITHUB_SHA" --title "MTG Deck Manager ${TAG#v}" --generate-notes \
-            --notes "Download the file for your system:
-          - **macOS (Apple Silicon: M1/M2/M3/M4)**: \`…-arm64.dmg\`
-          - **macOS (Intel)**: \`…-x86_64.dmg\`
-          - **Windows**: \`…-windows-x64.zip\` (unpack it and run \`MTG Deck Manager.exe\`; needs the Edge WebView2 runtime, built into Windows 11)
-
-          macOS: the app is not notarized – the first time, right-click it → Open.
-          On first start, open Settings → Download card data."
+          gh release create "$TAG" release/* --target "$GITHUB_SHA" --title "MTG Deck Manager ${TAG#v}" \
+            --notes-file notes.md

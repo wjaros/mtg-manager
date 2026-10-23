@@ -3222,3 +3222,125 @@ label.button.disabled {
 .precon-search .input {
   width: 100%;
 }
+
+/* ---------- Search in the deck ---------- */
+
+.deck-search {
+  position: sticky;
+  top: -0.75rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: -0.75rem -1rem 0.5rem;
+  padding: 0.6rem 1rem 0.5rem;
+  background: var(--bg-elevated);
+}
+
+.deck-search .input {
+  flex: 1;
+/* ---------- App updates ---------- */
+
+.app-update-banner {
+  background: rgb(79 191 127 / 0.12);
+}
+
+.changes-dialog {
+  width: min(760px, 100%);
+}
+
+.release-notes h3 {
+  margin: 0.5rem 0 0.25rem;
+}
+
+.markdown h4 {
+  margin: 0.9rem 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.markdown p,
+.markdown ul {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+.markdown code {
+  padding: 0 0.25rem;
+  border-radius: 4px;
+  background: var(--bg-input);
+  font-size: 0.85em;
+}
+
+.update-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+.precon-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.precon-filters .input {
+  flex: 1 1 260px;
+}
+
+.color-toggles {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.color-toggle {
+  padding: 0.15rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  opacity: 0.45;
+  cursor: pointer;
+}
+
+.color-toggle.on {
+  border-color: var(--accent);
+  opacity: 1;
+}
+
+.owned-bar {
+  width: 6rem;
+  height: 5px;
+  margin-bottom: 0.2rem;
+  border-radius: 999px;
+  background: var(--bg-input);
+  overflow: hidden;
+}
+
+.owned-bar > div {
+  height: 100%;
+  background: var(--ok);
+}
+
+.precon-suggestions {
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+
+.precon-suggestions h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.precon-suggestions ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.precon-suggestion-names {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

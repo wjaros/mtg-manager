@@ -66,6 +66,7 @@ class CardQuery:
     not_in_deck: int | None = None   # hide cards already in this deck (except basic lands)
     include_extras: bool = False
     include_proxies: bool = False    # the owned filter counts proxies as copies too
+    tags: list[str] = field(default_factory=list)  # Scryfall function tags, each required (otag:)
     unique: Unique = "cards"
     order: Order = "name"
     page: int = 1
@@ -271,6 +272,10 @@ def _filters(q: CardQuery, syntax: ParsedSyntax) -> tuple[list[str], list[Any]]:
             parts.append("c.cmc >= 7")
         if parts:
             where.append("(" + " OR ".join(parts) + ")")
+
+    for tag in q.tags:
+        where.append("c.oracle_id IN (SELECT oracle_id FROM card_tags WHERE tag = ?)")
+        params.append(tag)
 
     for type_word in q.types:
         where.append("c.type_line LIKE ?")

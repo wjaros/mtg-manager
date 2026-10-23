@@ -15,7 +15,8 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/scryfall/` – API client (headers, rate limit), sets + `default_cards` bulk sync (`mtgdm sync`)
   - `mtgdm/mtgjson/` – MTGJSON (MIT) for precon card lists only (Scryfall stays the card source; joined by Scryfall id):
     `precons.py` syncs DeckList.json + Commander decks as the last sync stage (failure doesn't fail the sync),
-    others on demand; a precon becomes import text with exact printings
+    others on demand; a precon becomes import text with exact printings; `browse_precons` (owned / value per
+    Commander precon) and `precons_for_missing` (precons covering a deck's missing cards, basics left out)
   - `mtgdm/spellbook/` – Commander Spellbook `find-my-combos` (own UA, ≥1 s between requests, 429 back-off; answers
     cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
     to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)
@@ -25,6 +26,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     `pipeline.py` (auto/single/page, manual grid), `service.py` (scans as records, PDF pages, review, commit),
     `synth.py` (synthetic photos and A4 pages for tests)
   - `mtgdm/backup.py` – JSON backup of collection, locations and decks (cards by id, then set+number, then name)
+  - `mtgdm/updates.py` – new version check (GitHub releases API, cached in meta, skip a version); notify only,
+    no self-update (unsigned macOS app)
   - `mtgdm/cloud_backup.py` – the backup written to a chosen (synced) folder by a background thread when the data
     changed (hash without timestamps); a newer file from another machine id is offered on start (never overwritten)
   - `mtgdm/decks/` – deck storage (`deck_cards` is the source of truth; decks.commander/partner/companion_card_id are derived),
@@ -44,6 +47,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     `history.py` (print_jobs: recorded prints; marking their cards as proxies in a deck's box),
     `tokens.py` (tokens a deck makes, from all_parts; the test fixture has no all_parts, tests add them),
     `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
+  - `mtgdm/scryfall/tags.py` – card functions (ramp, draw, removal, …) from Scryfall Tagger through `/cards/search?q=otag:X&format=csv`,
+    stored per oracle id in `card_tags`, refreshed weekly during sync; `otag:` in the query syntax, `functions` in deck stats
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
 - `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);

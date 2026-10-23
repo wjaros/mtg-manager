@@ -202,6 +202,14 @@ export function Filters({ value, onChange, allowFree = false }: Props) {
             </option>
           ))}
         </select>
+        <select className="select" value={value.tag} onChange={(e) => set('tag', e.target.value)} aria-label={t.stats.function}>
+          <option value="">{t.filters.anyFunction}</option>
+          {Object.entries(t.functions).map(([tag, label]) => (
+            <option key={tag} value={tag}>
+              {label}
+            </option>
+          ))}
+        </select>
         <select className="select" value={value.set} onChange={(e) => set('set', e.target.value)} aria-label="Set">
           <option value="">{t.filters.anySet}</option>
           {sets

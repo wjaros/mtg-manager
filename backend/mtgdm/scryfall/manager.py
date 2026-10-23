@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 @dataclass
 class SyncProgress:
     running: bool = False
-    stage: str | None = None   # sets | set_icons | download | import | precons
+    stage: str | None = None   # sets | set_icons | download | import | precons | tags
     done: int = 0
     total: int = 0
     started_at: float | None = None
@@ -67,6 +67,7 @@ class SyncManager:
                 "skipped": result.cards.skipped,
                 "updated_at": result.cards.updated_at,
                 "precons": result.precons,
+                "tags": result.tags,
             })
         except Exception as exc:  # reported to the UI instead of killing the thread silently
             log.exception("Scryfall sync failed")

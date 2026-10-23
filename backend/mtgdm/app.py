@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import cv2
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +28,7 @@ def create_app(
     settings: Settings | None = None,
     scryfall: ScryfallClient | None = None,
     mtgjson: MtgjsonClient | None = None,
+    github: httpx.Client | None = None,
     spellbook: SpellbookClient | None = None,
 ) -> FastAPI:
     settings = settings or load_settings()
@@ -50,6 +52,7 @@ def create_app(
             app.state.recognizer.close()
             app.state.scryfall.close()
             app.state.mtgjson.close()
+            app.state.github.close()
             app.state.spellbook.close()
 
     app = FastAPI(title="MTG Deck Manager", version=__version__, lifespan=lifespan)
@@ -59,6 +62,8 @@ def create_app(
     app.state.image_cache = ImageCache(settings.images_dir, app.state.scryfall)
     # Precon card lists fetched on demand (Commander decks come with the card data sync).
     app.state.mtgjson = mtgjson or MtgjsonClient()
+    # GitHub's releases API: is there a newer version?
+    app.state.github = github or httpx.Client(timeout=10.0, follow_redirects=True)
     # Deck combos, asked for when the deck's Combos tab opens.
     app.state.spellbook = spellbook or SpellbookClient()
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)

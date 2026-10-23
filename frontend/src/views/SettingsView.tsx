@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, type Health, type SyncCheck, type SyncProgress, type SyncStatus } from '../api/client'
+import { UpdateSettings } from '../components/AppUpdate'
 import { CloudBackupSettings } from '../components/CloudBackupSettings'
 import { PrintingPanel } from '../components/PrintingPanel'
 import { formatNumber, lang, LANGUAGES, locale, setLang, t, type Lang } from '../i18n'
@@ -10,6 +11,7 @@ const STAGE_LABEL: Record<string, string> = {
   download: t.settings.stageDownload,
   import: t.settings.stageImport,
   precons: t.settings.stagePrecons,
+  tags: t.settings.stageTags,
 }
 
 interface Props {
@@ -182,6 +184,7 @@ export function SettingsView({ status, onStatusChange }: Props) {
             {health ? t.settings.versionValue(health.version, health.schema_version) : '—'}
           </dd>
         </dl>
+        <UpdateSettings />
       </section>
 
       <section className="panel about">

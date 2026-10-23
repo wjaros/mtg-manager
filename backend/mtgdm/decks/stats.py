@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from mtgdm.decks.service import DeckNotFound
 from mtgdm.scryfall.bulk import META_UPDATED_AT, get_meta
+from mtgdm.scryfall.tags import TAGS
 
 COLORS = ["W", "U", "B", "R", "G"]
 MV_BUCKETS = ["0", "1", "2", "3", "4", "5", "6", "7+"]
@@ -50,6 +51,7 @@ class DeckStats(BaseModel):
     rarity: dict[str, int]
     colors: list[ColorBalance]
     categories: dict[str, int]
+    functions: dict[str, int] = {}  # copies with each Scryfall function tag (ramp, draw, removal, ...)
     price: Price
     wildcards: dict[str, int]      # Arena wildcards per rarity to craft the deck (basic lands are free)
 
@@ -156,6 +158,7 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
             for c in COLORS
         ],
         categories=dict(categories),
+        functions=_functions(conn, deck_id),
         price=Price(
             eur=round(eur, 2), usd=round(usd, 2),
             missing_eur=round(missing_eur, 2), missing_usd=round(missing_usd, 2),
@@ -188,3 +191,17 @@ def _price(prices: dict, currency: str) -> float | None:
         return float(value) if value else None
     except ValueError:
         return None
+
+
+def _functions(conn: sqlite3.Connection, deck_id: int) -> dict[str, int]:
+    """Copies of the deck (commander and main) per function tag, in the tags' order."""
+    counts = dict(conn.execute(
+        """
+        SELECT t.tag, SUM(dc.quantity) FROM deck_cards dc JOIN cards c ON c.id = dc.card_id
+        JOIN card_tags t ON t.oracle_id = c.oracle_id
+        WHERE dc.deck_id = ? AND dc.board IN ('main', 'commander')
+        GROUP BY t.tag
+        """,
+        (deck_id,),
+    ).fetchall())
+    return {tag: counts[tag] for tag in TAGS if tag in counts}
