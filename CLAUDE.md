@@ -41,6 +41,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     `history.py` (print_jobs: recorded prints; marking their cards as proxies in a deck's box),
     `tokens.py` (tokens a deck makes, from all_parts; the test fixture has no all_parts, tests add them),
     `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
+  - `mtgdm/scryfall/tags.py` – card functions (ramp, draw, removal, …) from Scryfall Tagger through `/cards/search?q=otag:X&format=csv`,
+    stored per oracle id in `card_tags`, refreshed weekly during sync; `otag:` in the query syntax, `functions` in deck stats
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
 - `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);

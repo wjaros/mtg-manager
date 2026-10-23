@@ -10,6 +10,7 @@ const STAGE_LABEL: Record<string, string> = {
   download: t.settings.stageDownload,
   import: t.settings.stageImport,
   precons: t.settings.stagePrecons,
+  tags: t.settings.stageTags,
 }
 
 interface Props {

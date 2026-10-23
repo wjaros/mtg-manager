@@ -78,6 +78,7 @@ export function DeckStatsPanel({ deckId, platform, revision }: Props) {
   const typeRows = Object.entries(stats.types).filter(([, n]) => n > 0)
   const rarityRows = Object.entries(stats.rarity)
   const categoryRows = Object.entries(stats.categories).sort((a, b) => b[1] - a[1])
+  const functionRows = Object.entries(stats.functions ?? {})
   const priceDate = stats.price.as_of ? new Date(stats.price.as_of).toLocaleDateString(locale) : null
 
   return (
@@ -145,6 +146,19 @@ export function DeckStatsPanel({ deckId, platform, revision }: Props) {
             head={t.stats.colorHead}
             rows={colorRows.map((c) => [COLOR_NAME[c.color], c.pips, c.land_sources, c.other_sources])}
           />
+        </section>
+      )}
+
+      {functionRows.length > 0 && (
+        <section className="chart-card">
+          <h3 className="chart-title">{t.stats.functionsTitle}</h3>
+          <p className="chart-subtitle">{t.stats.functionsSubtitle}</p>
+          <HorizontalBars
+            rows={functionRows.map(([f, n]) => ({ label: t.functions[f] ?? f, values: { value: n } }))}
+            series={SINGLE}
+            unit={t.stats.unitCards}
+          />
+          <ChartTable head={[t.stats.function, t.stats.cards]} rows={functionRows.map(([f, n]) => [t.functions[f] ?? f, n])} />
         </section>
       )}
 
