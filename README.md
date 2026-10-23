@@ -25,7 +25,9 @@ Pioneer and freeform decks:
 - the card pool shows only cards that fit the deck (commander identity, format, Arena availability);
 - format validation runs as you build;
 - mana value columns;
-- statistics: curve, colours, types, categories and the price of what's missing.
+- statistics: curve, colours, types, categories, card functions (ramp, draw, removal, board wipes…
+  from Scryfall's tags) and the price of what's missing;
+- search by function like on Scryfall (`otag:ramp`) or with the *Function* filter.
 
 Hovering a card shows how many copies the deck has, how many you own and where they are (e.g. in
 another deck's box). Singleton duplicates are greyed out.

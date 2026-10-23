@@ -1,5 +1,5 @@
 """Full sync: Scryfall sets (with icons) first, then cards (cards.set_code references sets), then
-MTGJSON's preconstructed decks (a failure there doesn't fail the card sync)."""
+MTGJSON's preconstructed decks and Scryfall's function tags (failures there don't fail the card sync)."""
 
 import logging
 from dataclasses import dataclass
@@ -9,8 +9,9 @@ from mtgdm.db import connect, migrate
 from mtgdm.mtgjson.client import MtgjsonClient, MtgjsonError
 from mtgdm.mtgjson.precons import sync_precons
 from mtgdm.scryfall.bulk import CardSyncResult, sync_cards
-from mtgdm.scryfall.client import ScryfallClient
+from mtgdm.scryfall.client import ScryfallClient, ScryfallError
 from mtgdm.scryfall.sets import Progress, sync_sets
+from mtgdm.scryfall.tags import sync_tags
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ class SyncResult:
     sets: int
     cards: CardSyncResult
     precons: int | None = None  # decks fetched from MTGJSON; None when that step failed or was skipped
+    tags: int | None = None     # cards with Scryfall function tags; None when fresh, failed or skipped
 
 
 def run_sync(
@@ -52,7 +54,12 @@ def run_sync(
             finally:
                 if own_mtgjson:
                     mtgjson.close()
-        return SyncResult(sets=sets, cards=cards, precons=fetched)
+        tagged = None
+        try:
+            tagged = sync_tags(conn, client, on_progress, force=force)
+        except (ScryfallError, ValueError, KeyError):
+            log.warning("card tag sync failed", exc_info=True)
+        return SyncResult(sets=sets, cards=cards, precons=fetched, tags=tagged)
     finally:
         conn.close()
         if own_client:

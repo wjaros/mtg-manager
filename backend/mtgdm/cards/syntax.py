@@ -1,6 +1,6 @@
 """Subset of Scryfall search syntax for the name search box:
 
-    t:angel  o:"enters the battlefield"  c:wu  c=r  id<=wr  mv>=5  r:mythic  s:who  f:brawl
+    t:angel  o:"enters the battlefield"  c:wu  c=r  id<=wr  mv>=5  r:mythic  s:who  f:brawl  otag:ramp
     -t:creature  (negation)   "exact phrase" / plain words (card name)
 
 Plain words and quoted phrases are returned as name text; every key:value becomes a SQL clause on
@@ -31,6 +31,7 @@ KEYS = {
     "s": "set", "set": "set", "e": "set", "edition": "set",
     "f": "format", "format": "format", "legal": "format",
     "name": "name",
+    "otag": "tag", "oracletag": "tag", "function": "tag",
 }
 # Keys whose result depends on the printing, not only on the card.
 PRINTING_KEYS = {"rarity", "set"}
@@ -90,6 +91,8 @@ def _clause(key: str, op: str, value: str, formats: frozenset[str]) -> tuple[str
         return "c.oracle_text LIKE ?", [f"%{value}%"]
     if key == "name":
         return "c.name LIKE ?", [f"%{value}%"]
+    if key == "tag":  # Scryfall's function tags (only those the app fetches, see mtgdm.scryfall.tags)
+        return "c.oracle_id IN (SELECT oracle_id FROM card_tags WHERE tag = ?)", [v]
     if key == "set":
         return "c.set_code = ?", [v]
     if key == "format":

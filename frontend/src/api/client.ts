@@ -83,6 +83,7 @@ export interface CardQuery {
   identity?: string
   mv?: number[]
   type?: string[]
+  tag?: string[] // Scryfall function tags
   rarity?: string[]
   set?: string[]
   format?: string

@@ -79,6 +79,20 @@ class ScryfallClient:
             return resp.json()
         raise AssertionError("unreachable")
 
+    def get_text(self, path_or_url: str, params: dict[str, Any] | None = None) -> str:
+        """GET a non-JSON response (e.g. search results as CSV), with the same rate limit and retries."""
+        url = path_or_url if path_or_url.startswith("http") else API_BASE + path_or_url
+        for attempt in range(self._max_retries + 1):
+            self._wait_for_slot()
+            resp = self._http.get(url, params=params)
+            if resp.status_code in RETRY_STATUSES and attempt < self._max_retries:
+                self._sleep(_retry_delay(resp, attempt))
+                continue
+            if resp.is_error:
+                raise _error_from(resp)
+            return resp.text
+        raise AssertionError("unreachable")
+
     def iter_list(self, path_or_url: str, params: dict[str, Any] | None = None) -> Iterator[dict[str, Any]]:
         """Iterate items of a paginated list object, following next_page."""
         page = self.get_json(path_or_url, params)

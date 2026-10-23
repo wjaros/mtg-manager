@@ -2170,6 +2170,13 @@ export interface components {
             categories: {
                 [key: string]: number;
             };
+            /**
+             * Functions
+             * @default {}
+             */
+            functions?: {
+                [key: string]: number;
+            };
             price: components["schemas"]["Price"];
             /** Wildcards */
             wildcards: {
@@ -3491,6 +3498,8 @@ export interface operations {
                 mv?: number[];
                 /** @description Type line must contain each value */
                 type?: string[];
+                /** @description Scryfall function tags (ramp, draw, removal, ...), each required */
+                tag?: string[];
                 rarity?: string[];
                 /** @description Scryfall set codes */
                 set?: string[];
