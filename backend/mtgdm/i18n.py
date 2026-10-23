@@ -271,6 +271,10 @@ MESSAGES: dict[str, dict[Lang, str]] = {
         "en": "Can't write to that folder: {error}",
     },
     "precon_not_found": {"pl": "Nie ma takiej talii.", "en": "No such deck."},
+    "combos_failed": {
+        "pl": "Nie udało się pobrać combo z Commander Spellbook (brak internetu?): {error}",
+        "en": "Couldn't get combos from Commander Spellbook (offline?): {error}",
+    },
     "precon_download_failed": {
         "pl": "Nie udało się pobrać talii z MTGJSON (brak internetu?): {error}",
         "en": "Couldn't download the deck from MTGJSON (offline?): {error}",

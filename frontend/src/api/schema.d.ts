@@ -711,6 +711,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/decks/{deck_id}/combos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Combos
+         * @description Combos in the deck and one card away, from Commander Spellbook.
+         */
+        get: operations["combos_api_decks__deck_id__combos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/images/{card_id}/{size}": {
         parameters: {
             query?: never;
@@ -1933,6 +1953,50 @@ export interface components {
             /** Other Sources */
             other_sources: number;
         };
+        /** Combo */
+        Combo: {
+            /** Id */
+            id: string;
+            /** Url */
+            url: string;
+            /** Cards */
+            cards: components["schemas"]["ComboCard"][];
+            /** Requires */
+            requires: string[];
+            /** Produces */
+            produces: string[];
+            /** Description */
+            description: string;
+            /** Prerequisites */
+            prerequisites: string;
+            /** Mana Needed */
+            mana_needed: string;
+            /** Popularity */
+            popularity: number | null;
+            /** Legal */
+            legal: boolean | null;
+        };
+        /** ComboCard */
+        ComboCard: {
+            /** Name */
+            name: string;
+            /** Oracle Id */
+            oracle_id: string | null;
+            /** Card Id */
+            card_id: string | null;
+            /**
+             * Image Faces
+             * @default 0
+             */
+            image_faces?: number;
+            /** In Deck */
+            in_deck: boolean;
+            /**
+             * Owned
+             * @default 0
+             */
+            owned?: number;
+        };
         /** CommitResult */
         CommitResult: {
             /** Added */
@@ -2052,6 +2116,13 @@ export interface components {
             platform_before: ("paper" | "arena") | null;
             /** Cards */
             cards: components["schemas"]["DeckChange"][];
+        };
+        /** DeckCombos */
+        DeckCombos: {
+            /** Included */
+            included: components["schemas"]["Combo"][];
+            /** Almost */
+            almost: components["schemas"]["Combo"][];
         };
         /** DeckCounts */
         DeckCounts: {
@@ -4772,6 +4843,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DeckStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    combos_api_decks__deck_id__combos_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckCombos"];
                 };
             };
             /** @description Validation Error */

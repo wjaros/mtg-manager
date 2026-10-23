@@ -24,6 +24,9 @@ ship inside the app in the `licenses` folder (collected at build time by
   Wizards of the Coast LLC. MTG Deck Manager is unofficial Fan Content permitted under the
   [Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy); not approved or
   endorsed by Wizards. ©Wizards of the Coast LLC.
+- **Combos**: [Commander Spellbook](https://commanderspellbook.com), asked through its public API when
+  a deck's Combos tab opens (nothing is bundled or stored on disk); each combo links back to its page.
+  Commander Spellbook's code is MIT-licensed. This project is not affiliated with Commander Spellbook.
 - **Test fixtures** (`backend/tests/fixtures/`): a small subset of Scryfall card data and card
   images, and of MTGJSON deck files, used only to test the app offline.
 

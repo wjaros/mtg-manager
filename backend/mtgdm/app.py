@@ -21,6 +21,7 @@ from mtgdm.scan.service import Recognizer
 from mtgdm.scryfall.client import ScryfallClient
 from mtgdm.scryfall.images import ImageCache
 from mtgdm.scryfall.manager import SyncManager
+from mtgdm.spellbook.client import SpellbookClient
 
 
 def create_app(
@@ -28,6 +29,7 @@ def create_app(
     scryfall: ScryfallClient | None = None,
     mtgjson: MtgjsonClient | None = None,
     github: httpx.Client | None = None,
+    spellbook: SpellbookClient | None = None,
 ) -> FastAPI:
     settings = settings or load_settings()
 
@@ -51,6 +53,7 @@ def create_app(
             app.state.scryfall.close()
             app.state.mtgjson.close()
             app.state.github.close()
+            app.state.spellbook.close()
 
     app = FastAPI(title="MTG Deck Manager", version=__version__, lifespan=lifespan)
     app.state.settings = settings
@@ -61,6 +64,8 @@ def create_app(
     app.state.mtgjson = mtgjson or MtgjsonClient()
     # GitHub's releases API: is there a newer version?
     app.state.github = github or httpx.Client(timeout=10.0, follow_redirects=True)
+    # Deck combos, asked for when the deck's Combos tab opens.
+    app.state.spellbook = spellbook or SpellbookClient()
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)
     app.state.print_jobs = PrintJobs(settings.db_path, settings.print_dir, app.state.image_cache)
     app.state.recognizer = Recognizer(settings.db_path, lambda conn: _image_loader(app.state.image_cache, conn))

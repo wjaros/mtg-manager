@@ -29,6 +29,9 @@ export type CollectionStats = Schemas['CollectionStats']
 export type Location = Schemas['Location']
 export type DeckToCollectionResult = Schemas['DeckToCollectionResult']
 export type DeckStats = Schemas['DeckStats']
+export type DeckCombos = Schemas['DeckCombos']
+export type Combo = Schemas['Combo']
+export type ComboCard = Schemas['ComboCard']
 export type CardUsage = Schemas['CardUsage']
 export type Holding = Schemas['Holding']
 export type CollectionImportReport = Schemas['CollectionImportReport']
@@ -185,6 +188,7 @@ export const api = {
   restoreDeckVersion: (id: number, versionId: number) =>
     request<DeckDetail>(`/api/decks/${id}/versions/${versionId}/restore`, { method: 'POST' }),
   deckStats: (id: number) => request<DeckStats>(`/api/decks/${id}/stats`),
+  deckCombos: (id: number) => request<DeckCombos>(`/api/decks/${id}/combos`),
   validateDeck: (id: number) => request<ValidationResult>(`/api/decks/${id}/validate`),
   exportDeck: (id: number, target: 'arena' | 'text') =>
     request<ExportResult>(`/api/decks/${id}/export?target=${target}`),
