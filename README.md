@@ -120,6 +120,11 @@ Download the latest build from [Releases](https://github.com/wjaros/mtg-manager/
 On first start, open **Settings → Download card data** (about 80 MB; the import takes 2–3 minutes).
 Refresh it now and then: the app suggests it when Scryfall has newer data.
 
+New versions: on start the app checks GitHub (at most every few hours) and, when a newer release is
+out, shows what's new and a download button for your system; *Skip this version* stops the reminders
+until the next one. The check can be turned off in *Settings → Application*. There's no automatic
+install: the macOS app isn't signed, so it can't replace itself cleanly.
+
 ## Scanning tips
 
 - **Flatbed scanner:**

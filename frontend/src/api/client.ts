@@ -59,6 +59,7 @@ export type PreconDecklist = Schemas['PreconDecklist']
 export type PreconOverview = Schemas['PreconOverview']
 export type PreconSuggestion = Schemas['PreconSuggestion']
 export type CloudBackupStatus = Schemas['CloudBackupStatus']
+export type UpdateInfo = Schemas['UpdateInfo']
 export type MarkResult = Schemas['MarkResult']
 export type ReplaceWithReal = Schemas['ReplaceWithReal']
 export type ItemKind = CollectionItem['kind']
@@ -298,6 +299,10 @@ export const api = {
     ),
   startPrint: (body: ProxyPrint) => request<PrintJobStatus>('/api/print/jobs', jsonBody('POST', body)),
   printJob: (id: string) => request<PrintJobStatus>(`/api/print/jobs/${id}`),
+
+  updates: (force = false) => request<UpdateInfo>(`/api/updates${force ? '?force=true' : ''}`),
+  setUpdateChecks: (enabled: boolean) => request<UpdateInfo>('/api/updates/settings', jsonBody('PUT', { enabled })),
+  skipUpdate: (version: string) => request<UpdateInfo>('/api/updates/skip', jsonBody('POST', { version })),
 
   syncStatus: () => request<SyncStatus>('/api/sync/status'),
   syncCheck: () => request<SyncCheck>('/api/sync/check'),

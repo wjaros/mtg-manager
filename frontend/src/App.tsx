@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, type SyncStatus } from './api/client'
+import { AppUpdateBanner } from './components/AppUpdate'
 import { CloudBackupBanner } from './components/CloudBackupBanner'
 import { UpdateBanner } from './components/UpdateBanner'
 import { t } from './i18n'
@@ -111,6 +112,7 @@ export default function App() {
           />
         )}
         {status && <CloudBackupBanner />}
+        <AppUpdateBanner />
         {backendError ? (
           <div className="view">
             <section className="panel">

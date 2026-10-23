@@ -1,6 +1,19 @@
 from fastapi import APIRouter
 
-from mtgdm.api import backup, cards, collection, decks, health, images, importing, precons, printing, scans, sync
+from mtgdm.api import (
+    backup,
+    cards,
+    collection,
+    decks,
+    health,
+    images,
+    importing,
+    precons,
+    printing,
+    scans,
+    sync,
+    updates,
+)
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
@@ -14,3 +27,4 @@ api_router.include_router(precons.router)
 api_router.include_router(printing.router)
 api_router.include_router(scans.router)
 api_router.include_router(sync.router)
+api_router.include_router(updates.router)
