@@ -58,7 +58,9 @@ review the result and choose finish, condition and location before anything reac
 **Import and export.**
 - Decklists: paste from MTG Arena or Moxfield, with a match report before saving (exact printings,
   warnings, suggestions), or find an official preconstructed deck by its name, its commander or
-  set code (lists from [MTGJSON](https://mtgjson.com), downloaded with the card data).
+  set code (lists from [MTGJSON](https://mtgjson.com), downloaded with the card data). *Import →
+  Precons* lists the Commander precons with their colors, how much of each you own and the cards'
+  value; a deck's *Missing* tab names the precons that contain several of its missing cards.
 - Collections: product contents as a card list, or Moxfield's collection CSV.
 - Exports:
   - MTG Arena (printings that aren't on Arena are swapped);
@@ -204,7 +206,9 @@ also builds and smoke-tests the macOS arm64, macOS x86_64 and Windows x64 packag
 
 To release, bump `__version__` in `backend/mtgdm/__init__.py` (e.g. in the pull request) and merge
 into `master`. When every package has built and passed its smoke test, the build creates the tag
-`v<version>` and a GitHub Release with the DMGs and the Windows zip attached. Pushes to `master`
+`v<version>` and a GitHub Release with the DMGs and the Windows zip attached; its notes are the
+commit messages since the previous release (`scripts/release_notes.py`), so write squash messages
+for readers. Pushes to `master`
 without a new version release nothing. Pushing a matching tag by hand (`git tag v0.2.0 && git push
 origin v0.2.0`) works too.
 
