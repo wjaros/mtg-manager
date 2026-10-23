@@ -1362,6 +1362,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check
+         * @description A newer release on GitHub? Checked at most every few hours unless forced (Settings: check now).
+         */
+        get: operations["check_api_updates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/updates/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Settings */
+        put: operations["settings_api_updates_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/updates/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Skip
+         * @description No reminder about this version (a newer one is shown again).
+         */
+        post: operations["skip_api_updates_skip_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2218,6 +2275,15 @@ export interface components {
             /** Changes */
             changes: components["schemas"]["DeckChange"][];
         };
+        /** Download */
+        Download: {
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+            /** Size */
+            size: number;
+        };
         /** ExportResult */
         ExportResult: {
             /**
@@ -2832,6 +2898,17 @@ export interface components {
             /** Deck Id */
             deck_id?: number | null;
         };
+        /** ReleaseNotes */
+        ReleaseNotes: {
+            /** Version */
+            version: string;
+            /** Published At */
+            published_at: string | null;
+            /** Url */
+            url: string;
+            /** Notes */
+            notes: string;
+        };
         /** RemoteBackup */
         RemoteBackup: {
             /** Machine Name */
@@ -2980,6 +3057,11 @@ export interface components {
             /** Has Icon */
             has_icon: boolean;
         };
+        /** SkipVersion */
+        SkipVersion: {
+            /** Version */
+            version: string;
+        };
         /** SyncCheck */
         SyncCheck: {
             /** Local Updated At */
@@ -3037,6 +3119,36 @@ export interface components {
             data_dir: string;
             /** Db Size Bytes */
             db_size_bytes: number;
+        };
+        /** UpdateInfo */
+        UpdateInfo: {
+            /** Enabled */
+            enabled: boolean;
+            /** Current */
+            current: string;
+            /** Latest */
+            latest: string | null;
+            /** Newer */
+            newer: boolean;
+            /**
+             * Skipped
+             * @default false
+             */
+            skipped?: boolean;
+            download: components["schemas"]["Download"] | null;
+            /** Url */
+            url: string | null;
+            /** Releases */
+            releases: components["schemas"]["ReleaseNotes"][];
+            /** Checked At */
+            checked_at: string | null;
+            /** Error */
+            error?: string | null;
+        };
+        /** UpdateSettings */
+        UpdateSettings: {
+            /** Enabled */
+            enabled: boolean;
         };
         /** UsageDeck */
         UsageDeck: {
@@ -5736,6 +5848,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    check_api_updates_get: {
+        parameters: {
+            query?: {
+                force?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateInfo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    settings_api_updates_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateInfo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    skip_api_updates_skip_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SkipVersion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateInfo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

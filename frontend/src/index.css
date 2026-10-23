@@ -3137,3 +3137,43 @@ label.button.disabled {
 .precon-search .input {
   width: 100%;
 }
+
+/* ---------- App updates ---------- */
+
+.app-update-banner {
+  background: rgb(79 191 127 / 0.12);
+}
+
+.changes-dialog {
+  width: min(760px, 100%);
+}
+
+.release-notes h3 {
+  margin: 0.5rem 0 0.25rem;
+}
+
+.markdown h4 {
+  margin: 0.9rem 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.markdown p,
+.markdown ul {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+.markdown code {
+  padding: 0 0.25rem;
+  border-radius: 4px;
+  background: var(--bg-input);
+  font-size: 0.85em;
+}
+
+.update-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+}
