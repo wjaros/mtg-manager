@@ -19,6 +19,7 @@ import { useZoom } from '../hooks/useZoom'
 import { DeckHistoryPanel } from '../components/DeckHistoryPanel'
 import { DeckList } from '../components/DeckList'
 import { DeckStatsPanel } from '../components/DeckStatsPanel'
+import { DeckSwitcher } from '../components/DeckSwitcher'
 import { DeckCombosPanel } from '../components/DeckCombosPanel'
 import { ExportDialog } from '../components/ExportDialog'
 import { ProxyDialog } from '../components/ProxyDialog'
@@ -68,9 +69,10 @@ interface Props {
   tab: DeckTab
   onTabChange: (tab: DeckTab) => void
   onBack: () => void
+  onOpenDeck: (id: number) => void
 }
 
-export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Props) {
+export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOpenDeck }: Props) {
   const actions = useDeck(deckId)
   const { deck } = actions
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
@@ -353,6 +355,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
         <h1 className="deck-title" onDoubleClick={rename} title={t.builder.renameTitle}>
           {deck.name}
         </h1>
+        <DeckSwitcher deckId={deck.id} onOpen={onOpenDeck} />
         <select
           className="select small"
           value={deck.format}

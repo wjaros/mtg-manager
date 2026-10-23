@@ -186,6 +186,9 @@ export const pl = {
   },
   builder: {
     back: '← Talie',
+    switchDeck: 'Przełącz na inną talię',
+    switchDeckFilter: 'Szukaj talii…',
+    switchDeckNone: 'Brak pasujących talii.',
     loadingDeck: 'Ładowanie talii…',
     addToDeck: 'Dodaj do talii',
     addToMaybe: 'Dodaj do maybeboard',
