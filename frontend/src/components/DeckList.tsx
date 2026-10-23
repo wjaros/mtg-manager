@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react'
 import type { Board, DeckCard, DeckChange, Holding } from '../api/client'
-import { changeKey, changeKind, changeLabel, changesByKey, groupByType, holdState, holdTitle } from '../decks'
+import { changeKey, changeKind, changeLabel, changesByKey, groupByType, holdState, holdTitle, matchesCardQuery } from '../decks'
 import { setCardDrag } from '../dnd'
 import { ManaCost } from './ManaCost'
 import { t } from '../i18n'
@@ -27,10 +27,23 @@ interface Props {
   onRestore?: (change: DeckChange) => void
   onMenu: (entry: DeckCard, event: MouseEvent) => void
   onHover: (entry: DeckCard | null, event?: MouseEvent) => void
+  /** Search in the deck: only cards whose name matches. */
+  query?: string
 }
 
 /** Text list of the deck grouped by board, then by card type (main board). */
-export function DeckList({ cards, violations, changes = [], holdings, onAdd, onRemove, onRestore, onMenu, onHover }: Props) {
+export function DeckList({
+  cards,
+  violations,
+  changes = [],
+  holdings,
+  onAdd,
+  onRemove,
+  onRestore,
+  onMenu,
+  onHover,
+  query = '',
+}: Props) {
   const byKey = changesByKey(changes)
   // Removed cards as rows (with their saved quantity), so they show where they used to be.
   const ghosts = new Map<DeckCard, DeckChange>()
@@ -41,11 +54,13 @@ export function DeckList({ cards, violations, changes = [], holdings, onAdd, onR
   }
   const counted = (list: DeckCard[]) => list.reduce((n, c) => n + (ghosts.has(c) ? 0 : c.quantity), 0)
 
+  const nothingFound = query.trim() !== '' && !cards.some((c) => matchesCardQuery(c.card, query))
   return (
     <div className="deck-list">
-      {holdings && <HoldLegend holdings={holdings} />}
+      {holdings && !query.trim() && <HoldLegend holdings={holdings} />}
+      {nothingFound && <p className="muted small">{t.builder.searchNothing}</p>}
       {BOARD_SECTIONS.map(({ board, label }) => {
-        const entries = [...cards, ...ghosts.keys()].filter((c) => c.board === board)
+        const entries = [...cards, ...ghosts.keys()].filter((c) => c.board === board && matchesCardQuery(c.card, query))
         if (!entries.length) return null
         const groups = (board === 'main' ? groupByType(entries) : [{ type: board, label, cards: entries, count: 0 }]).map(
           (g) => ({ ...g, count: counted(g.cards) }),

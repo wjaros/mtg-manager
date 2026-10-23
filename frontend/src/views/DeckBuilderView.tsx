@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type DragEvent, type MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent } from 'react'
 import {
   api,
   type CardQuery,
@@ -30,6 +30,7 @@ import { ValidationPanel } from '../components/ValidationPanel'
 import {
   canBeCommander,
   COMMANDER_FORMATS,
+  matchesCardQuery,
   coverage,
   deckSizeTarget,
   FORMAT_LABEL,
@@ -150,6 +151,20 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
   const [price, setPrice] = useState<DeckStats['price'] | null>(null)
   // Paper decks: which cards you don't own, or own but not in the deck's box.
   const [holdings, setHoldings] = useState<Map<string, Holding> | null>(null)
+  // Search in the deck: Cmd+F / Ctrl+F jumps to the field, Esc clears it.
+  const [deckQuery, setDeckQuery] = useState('')
+  const deckSearch = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault()
+        deckSearch.current?.focus()
+        deckSearch.current?.select()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   // Bumped when proxies change (they aren't part of the deck itself).
   const [holdingsVersion, setHoldingsVersion] = useState(0)
   const paper = deck?.platform === 'paper'
@@ -515,10 +530,37 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
             {t.builder.chooseCommander}
           </p>
         )}
+        {deck.cards.length > 0 && (
+          <div className="deck-search">
+            <input
+              ref={deckSearch}
+              className="input small"
+              type="search"
+              value={deckQuery}
+              onChange={(e) => setDeckQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setDeckQuery('')
+                  e.currentTarget.blur()
+                }
+              }}
+              placeholder={t.builder.searchDeck}
+              aria-label={t.builder.searchDeck}
+            />
+            {deckQuery.trim() && (
+              <span className="muted small">
+                {t.builder.searchCount(
+                  deck.cards.filter((c) => matchesCardQuery(c.card, deckQuery)).reduce((n, c) => n + c.quantity, 0),
+                )}
+              </span>
+            )}
+          </div>
+        )}
         {deck.cards.length === 0 ? (
           <p className="muted">{t.builder.emptyDeck}</p>
         ) : (
           <DeckList
+            query={deckQuery}
             cards={deck.cards}
             violations={violations}
             changes={deck.changes.cards}
@@ -545,6 +587,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
         {layout !== 'pool' && (
           <ManaColumns
             zoom={columnsZoom}
+            query={deckQuery}
             cards={deck.cards}
             changes={deck.changes.cards}
             holdings={paper ? holdings : null}

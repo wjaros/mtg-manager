@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { imageSizeFor, type DeckCard, type DeckChange, type Holding } from '../api/client'
-import { changeKey, changeKind, changeLabel, changesByKey, holdState, holdTitle, isLand } from '../decks'
+import { changeKey, changeKind, changeLabel, changesByKey, holdState, holdTitle, isLand, matchesCardQuery } from '../decks'
 import { setCardDrag } from '../dnd'
 import { CardImage } from './CardImage'
 import { t } from '../i18n'
@@ -17,6 +17,7 @@ function columnOf(entry: DeckCard): string {
 interface Props {
   cards: DeckCard[]
   zoom?: number // column width: 1 = the nine columns fill the width, at most 160px each
+  query?: string // search in the deck: only matching cards (stacked cards overlap, so dimming wouldn't do)
   changes?: DeckChange[]
   holdings?: Map<string, Holding> | null
   onRemove: (entry: DeckCard) => void
@@ -25,9 +26,9 @@ interface Props {
 }
 
 /** Main deck laid out like Arena's deckbuilder: one column per mana value, overlapping cards. */
-export function ManaColumns({ cards, zoom = 1, changes = [], holdings, onRemove, onMenu, onHover }: Props) {
+export function ManaColumns({ cards, zoom = 1, query = '', changes = [], holdings, onRemove, onMenu, onHover }: Props) {
   const byKey = changesByKey(changes)
-  const main = cards.filter((c) => c.board === 'main')
+  const main = cards.filter((c) => c.board === 'main' && matchesCardQuery(c.card, query))
   const columns = new Map<string, DeckCard[]>(COLUMNS.map((c) => [c, []]))
   for (const entry of main) columns.get(columnOf(entry))!.push(entry)
 
