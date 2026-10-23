@@ -9,6 +9,7 @@ const STAGE_LABEL: Record<string, string> = {
   set_icons: t.settings.stageSetIcons,
   download: t.settings.stageDownload,
   import: t.settings.stageImport,
+  precons: t.settings.stagePrecons,
 }
 
 interface Props {

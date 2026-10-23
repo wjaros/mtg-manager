@@ -14,6 +14,7 @@ from mtgdm.cloud_backup import CloudBackupWriter
 from mtgdm.config import Settings, load_settings
 from mtgdm.db import connect, migrate
 from mtgdm.i18n import LanguageMiddleware
+from mtgdm.mtgjson.client import MtgjsonClient
 from mtgdm.printing.jobs import PrintJobs, clear_print_dir
 from mtgdm.scan.service import Recognizer
 from mtgdm.scryfall.client import ScryfallClient
@@ -21,7 +22,9 @@ from mtgdm.scryfall.images import ImageCache
 from mtgdm.scryfall.manager import SyncManager
 
 
-def create_app(settings: Settings | None = None, scryfall: ScryfallClient | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None, scryfall: ScryfallClient | None = None, mtgjson: MtgjsonClient | None = None
+) -> FastAPI:
     settings = settings or load_settings()
 
     @asynccontextmanager
@@ -42,12 +45,15 @@ def create_app(settings: Settings | None = None, scryfall: ScryfallClient | None
             writer.stop()
             app.state.recognizer.close()
             app.state.scryfall.close()
+            app.state.mtgjson.close()
 
     app = FastAPI(title="MTG Deck Manager", version=__version__, lifespan=lifespan)
     app.state.settings = settings
     # One shared client: it enforces the Scryfall rate limit across all requests.
     app.state.scryfall = scryfall or ScryfallClient()
     app.state.image_cache = ImageCache(settings.images_dir, app.state.scryfall)
+    # Precon card lists fetched on demand (Commander decks come with the card data sync).
+    app.state.mtgjson = mtgjson or MtgjsonClient()
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)
     app.state.print_jobs = PrintJobs(settings.db_path, settings.print_dir, app.state.image_cache)
     app.state.recognizer = Recognizer(settings.db_path, lambda conn: _image_loader(app.state.image_cache, conn))

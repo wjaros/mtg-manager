@@ -535,6 +535,10 @@ export const en: Messages = {
     keep: "Keep this computer's data",
     keepTitle: "That backup won't be offered again; after the next change the folder gets this computer's data",
   },
+  precons: {
+    placeholder: 'Find an official deck (precon): name, commander or set code, e.g. Quintorius, Lorehold, SOC',
+    none: 'Nothing found. Precon lists come with the card data update (Settings).',
+  },
   printing: {
     title: 'Printing',
     intro: 'Card size and printer profiles for proxies. Calibration corrects the printer’s scale, so cut proxies are the size of real cards.',
@@ -580,6 +584,7 @@ export const en: Messages = {
     stageSets: 'Downloading the set list',
     stageSetIcons: 'Downloading set icons',
     stageDownload: 'Downloading card data',
+    stagePrecons: 'Downloading precons (MTGJSON)',
     stageImport: 'Importing cards',
     preparing: 'Preparing…',
     title: 'Settings',
@@ -607,7 +612,7 @@ export const en: Messages = {
     app: 'Application',
     about: 'About',
     aboutLicense: 'Copyright © 2026 Wojciech Jaros. Free software under the GNU GPL v3 or later: you may use, change and share the app (source code on GitHub). The licenses of the bundled libraries are in the app’s “licenses” folder.',
-    aboutScryfall: 'Card data and images come from Scryfall (scryfall.com). This app is not affiliated with or endorsed by Scryfall.',
+    aboutScryfall: 'Card data and images come from Scryfall (scryfall.com). This app is not affiliated with or endorsed by Scryfall. Official deck (precon) lists: MTGJSON (mtgjson.com), MIT License.',
     dataDir: 'Data directory',
     dbSize: 'Database size',
     version: 'Version',

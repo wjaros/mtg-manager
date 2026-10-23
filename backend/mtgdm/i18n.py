@@ -270,6 +270,11 @@ MESSAGES: dict[str, dict[Lang, str]] = {
         "pl": "Nie da się zapisać w tym folderze: {error}",
         "en": "Can't write to that folder: {error}",
     },
+    "precon_not_found": {"pl": "Nie ma takiej talii.", "en": "No such deck."},
+    "precon_download_failed": {
+        "pl": "Nie udało się pobrać talii z MTGJSON (brak internetu?): {error}",
+        "en": "Couldn't download the deck from MTGJSON (offline?): {error}",
+    },
     "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
     "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
     "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},

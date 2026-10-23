@@ -536,6 +536,10 @@ export const pl = {
     keep: 'Zostaw dane z tego komputera',
     keepTitle: 'Ta kopia nie będzie już proponowana; po następnej zmianie folder dostanie dane z tego komputera',
   },
+  precons: {
+    placeholder: 'Szukaj oficjalnej talii (precon): nazwa, dowódca albo kod setu, np. Quintorius, Lorehold, SOC',
+    none: 'Nie znaleziono. Listy preconów pobierają się z aktualizacją danych kart (Ustawienia).',
+  },
   printing: {
     title: 'Drukowanie',
     intro: 'Rozmiar karty i profile drukarek do proxy. Kalibracja koryguje skalę drukarki, żeby wycięte proxy miały rozmiar prawdziwej karty.',
@@ -581,6 +585,7 @@ export const pl = {
     stageSets: 'Pobieranie listy setów',
     stageSetIcons: 'Pobieranie ikon setów',
     stageDownload: 'Pobieranie danych kart',
+    stagePrecons: 'Pobieranie preconów (MTGJSON)',
     stageImport: 'Import kart do bazy',
     preparing: 'Przygotowanie…',
     title: 'Ustawienia',
@@ -608,7 +613,7 @@ export const pl = {
     app: 'Aplikacja',
     about: 'O aplikacji',
     aboutLicense: 'Copyright © 2026 Wojciech Jaros. Wolne oprogramowanie na licencji GNU GPL v3 lub nowszej: możesz używać, zmieniać i udostępniać aplikację (kod źródłowy w serwisie GitHub). Licencje użytych bibliotek są w folderze „licenses” aplikacji.',
-    aboutScryfall: 'Dane i obrazy kart pochodzą ze Scryfall (scryfall.com). Aplikacja nie jest powiązana ze Scryfall ani przez niego wspierana.',
+    aboutScryfall: 'Dane i obrazy kart pochodzą ze Scryfall (scryfall.com). Aplikacja nie jest powiązana ze Scryfall ani przez niego wspierana. Listy oficjalnych talii (preconów): MTGJSON (mtgjson.com), licencja MIT.',
     dataDir: 'Katalog danych',
     dbSize: 'Rozmiar bazy',
     version: 'Wersja',

@@ -1,0 +1,107 @@
+{
+ "meta": {
+  "date": "2026-10-22",
+  "version": "5.3.0"
+ },
+ "data": {
+  "code": "SOC",
+  "name": "Lorehold Spirit",
+  "type": "Commander Deck",
+  "releaseDate": "2026-04-24",
+  "commander": [
+   {
+    "name": "Quintorius, History Chaser",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "7",
+    "identifiers": {
+     "scryfallId": "0742f19d-179c-43c4-ab95-4160c56b4384"
+    }
+   }
+  ],
+  "mainBoard": [
+   {
+    "name": "Excava, the Risen Past",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "2",
+    "identifiers": {
+     "scryfallId": "d47ebf19-b3fa-48a2-851a-254d32b0305a"
+    }
+   },
+   {
+    "name": "Lorehold Archivist // Restore Relic",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "49",
+    "identifiers": {
+     "scryfallId": "cb535433-f062-4c35-977e-2f896251b1d8"
+    }
+   },
+   {
+    "name": "Augusta, Order Returned",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "11",
+    "identifiers": {
+     "scryfallId": "a0d1df84-0cb6-44fb-9916-d766d93f1519"
+    }
+   },
+   {
+    "name": "Ceaseless Conflict",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "12",
+    "identifiers": {
+     "scryfallId": "a0e18f74-7fa6-4e3a-bc80-390a25055205"
+    }
+   },
+   {
+    "name": "Vanguard of the Restless",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "16",
+    "identifiers": {
+     "scryfallId": "91211c56-b562-4889-8c5c-110c42be62c8"
+    }
+   },
+   {
+    "name": "Advanced Reconstruction",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "30",
+    "identifiers": {
+     "scryfallId": "cc912fec-827d-4deb-8430-79f5ea31ca9b"
+    }
+   },
+   {
+    "name": "Fateful Tempest",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "31",
+    "identifiers": {
+     "scryfallId": "96ab4d23-14d7-429f-b62e-868c13997fb8"
+    }
+   },
+   {
+    "name": "Naktamun Lorespinner // Wheel of Fortune",
+    "count": 1,
+    "setCode": "SOC",
+    "number": "33",
+    "identifiers": {
+     "scryfallId": "acca1fd4-6384-460e-905f-118f01aa76ed"
+    }
+   },
+   {
+    "name": "Lightning Bolt",
+    "count": 1,
+    "setCode": "XYZ",
+    "number": "1",
+    "identifiers": {
+     "scryfallId": "00000000-0000-0000-0000-000000000000"
+    }
+   }
+  ],
+  "sideBoard": []
+ }
+}

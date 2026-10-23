@@ -11,12 +11,21 @@ ship inside the app in the `licenses` folder (collected at build time by
 - **Card data and images**: [Scryfall](https://scryfall.com), used under the
   [Scryfall API guidelines](https://scryfall.com/docs/api): cached locally, never altered.
   This project is not produced by or endorsed by Scryfall.
+- **Preconstructed deck lists**: [MTGJSON](https://mtgjson.com), downloaded with the card data,
+  MIT License, Copyright (c) 2018–present Zach Halpern: "Permission is hereby granted, free of charge,
+  to any person obtaining a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so, subject to the following
+  conditions: The above copyright notice and this permission notice shall be included in all copies
+  or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED." (full text: https://mtgjson.com/license/)
 - **Magic: The Gathering**: card names, text, symbols and images are property of
   Wizards of the Coast LLC. MTG Deck Manager is unofficial Fan Content permitted under the
   [Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy); not approved or
   endorsed by Wizards. ©Wizards of the Coast LLC.
 - **Test fixtures** (`backend/tests/fixtures/`): a small subset of Scryfall card data and card
-  images, used only to test the app offline.
+  images, and of MTGJSON deck files, used only to test the app offline.
 
 ## Bundled software (desktop app)
 
