@@ -143,3 +143,16 @@ export function canBeCommander(typeLine: string | null | undefined): boolean {
   const front = (typeLine ?? '').split('//')[0]
   return front.includes('Legendary') && (front.includes('Creature') || front.includes('Planeswalker'))
 }
+
+/** Lower case without diacritics, for searching card names ("Éowyn" matches "eowyn"). */
+function fold(text: string): string {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+}
+
+/** Does the card's name (or its printed name) contain every word of the query? */
+export function matchesCardQuery(card: { name: string; printed_name?: string | null }, query: string): boolean {
+  const words = fold(query).split(/\s+/).filter(Boolean)
+  if (!words.length) return true
+  const text = fold(`${card.name} ${card.printed_name ?? ''}`)
+  return words.every((w) => text.includes(w))
+}
