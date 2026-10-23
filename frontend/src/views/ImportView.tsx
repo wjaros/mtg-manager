@@ -12,6 +12,7 @@ import { useHoverPreview } from '../hooks/useHoverPreview'
 import { FORMAT_LABEL } from '../decks'
 import { t } from '../i18n'
 import { CollectionImportPanel } from '../components/CollectionImportPanel'
+import { PreconSearch } from '../components/PreconSearch'
 
 const BOARD_LABEL: Record<Board, string> = {
   commander: t.panels.boardCommander,
@@ -91,6 +92,12 @@ export function ImportView({ onImported, onCollectionImported }: Props) {
         <>
 
         <section className="panel import-input">
+          <PreconSearch
+            onLoad={(deckText) => {
+              setText(deckText)
+              analyze(deckText)
+            }}
+          />
           {seeds.length > 0 && (
             <div className="seed-row">
               <span className="muted small">{t.importer.examples}</span>

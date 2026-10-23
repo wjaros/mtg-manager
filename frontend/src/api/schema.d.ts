@@ -791,6 +791,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/precons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search
+         * @description Official preconstructed decks (MTGJSON), loaded with the card data sync.
+         */
+        get: operations["search_api_precons_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/{file_name}/decklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Decklist
+         * @description The deck as text for the import (its cards are fetched from MTGJSON when not stored yet).
+         */
+        get: operations["decklist_api_precons__file_name__decklist_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/decks/{deck_id}/proxy-candidates": {
         parameters: {
             query?: never;
@@ -2521,6 +2561,33 @@ export interface components {
             available: string[];
             /** Default */
             default: string;
+        };
+        /** PreconDecklist */
+        PreconDecklist: {
+            precon: components["schemas"]["PreconSummary"];
+            /** Text */
+            text: string;
+        };
+        /** PreconSummary */
+        PreconSummary: {
+            /** File Name */
+            file_name: string;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /** Set Name */
+            set_name: string | null;
+            /** Type */
+            type: string;
+            /** Release Date */
+            release_date: string | null;
+            /** Commanders */
+            commanders: string[];
+            /** Card Count */
+            card_count: number | null;
+            /** Loaded */
+            loaded: boolean;
         };
         /** Price */
         Price: {
@@ -4634,6 +4701,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SeedInfo"][];
+                };
+            };
+        };
+    };
+    search_api_precons_get: {
+        parameters: {
+            query?: {
+                /** @description Words of the deck's or its commander's name, or the set code */
+                q?: string;
+                /** @description Deck types, e.g. 'Commander Deck' */
+                type?: string[];
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreconSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decklist_api_precons__file_name__decklist_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file_name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreconDecklist"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -1,0 +1,29 @@
+{
+ "meta": {
+  "date": "2026-10-22",
+  "version": "5.3.0"
+ },
+ "data": [
+  {
+   "code": "SOC",
+   "fileName": "LoreholdSpirit_SOC",
+   "name": "Lorehold Spirit",
+   "releaseDate": "2026-04-24",
+   "type": "Commander Deck"
+  },
+  {
+   "code": "C21",
+   "fileName": "LoreholdLegacies_C21",
+   "name": "Lorehold Legacies",
+   "releaseDate": "2021-04-23",
+   "type": "Commander Deck"
+  },
+  {
+   "code": "DOM",
+   "fileName": "AngelicHost_DOM",
+   "name": "Angelic Host",
+   "releaseDate": "2018-04-27",
+   "type": "Theme Deck"
+  }
+ ]
+}

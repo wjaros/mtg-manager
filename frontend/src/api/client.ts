@@ -54,6 +54,8 @@ export type OcrEngines = Schemas['OcrEngines']
 export type ProxyCandidate = Schemas['ProxyCandidate']
 export type DeckToken = Schemas['DeckToken']
 export type PrintHistory = Schemas['PrintHistory']
+export type PreconSummary = Schemas['PreconSummary']
+export type PreconDecklist = Schemas['PreconDecklist']
 export type CloudBackupStatus = Schemas['CloudBackupStatus']
 export type MarkResult = Schemas['MarkResult']
 export type ReplaceWithReal = Schemas['ReplaceWithReal']
@@ -186,6 +188,9 @@ export const api = {
     request<ImportReport>('/api/import/parse', jsonBody('POST', { text, platform })),
   commitImport: (body: ImportCommitRequest) => request<DeckDetail>('/api/import/commit', jsonBody('POST', body)),
   seeds: () => request<SeedInfo[]>('/api/import/seeds'),
+  precons: (q: string) => request<PreconSummary[]>(`/api/precons?${toSearchParams({ q })}`),
+  preconDecklist: (fileName: string) =>
+    request<PreconDecklist>(`/api/precons/${encodeURIComponent(fileName)}/decklist`),
 
   collection: (filter: {
     card_id?: string

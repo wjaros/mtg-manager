@@ -57,7 +57,8 @@ review the result and choose finish, condition and location before anything reac
 
 **Import and export.**
 - Decklists: paste from MTG Arena or Moxfield, with a match report before saving (exact printings,
-  warnings, suggestions).
+  warnings, suggestions), or find an official preconstructed deck by its name, its commander or
+  set code (lists from [MTGJSON](https://mtgjson.com), downloaded with the card data).
 - Collections: product contents as a card list, or Moxfield's collection CSV.
 - Exports:
   - MTG Arena (printings that aren't on Arena are swapped);
@@ -229,6 +230,7 @@ Third-party components and data: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md
 
 Card data and images come from [Scryfall](https://scryfall.com) and follow its API guidelines:
 cached locally, never altered. This app is not affiliated with or endorsed by Scryfall.
+Preconstructed deck lists come from [MTGJSON](https://mtgjson.com) (MIT License).
 
 MTG Deck Manager is unofficial Fan Content permitted under the
 [Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy). It is not approved or
