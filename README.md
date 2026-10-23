@@ -199,7 +199,9 @@ also builds and smoke-tests the macOS arm64, macOS x86_64 and Windows x64 packag
 
 To release, bump `__version__` in `backend/mtgdm/__init__.py` (e.g. in the pull request) and merge
 into `master`. When every package has built and passed its smoke test, the build creates the tag
-`v<version>` and a GitHub Release with the DMGs and the Windows zip attached. Pushes to `master`
+`v<version>` and a GitHub Release with the DMGs and the Windows zip attached; its notes are the
+commit messages since the previous release (`scripts/release_notes.py`), so write squash messages
+for readers. Pushes to `master`
 without a new version release nothing. Pushing a matching tag by hand (`git tag v0.2.0 && git push
 origin v0.2.0`) works too.
 
