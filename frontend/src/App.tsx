@@ -144,6 +144,7 @@ export default function App() {
             tab={route.tab}
             onTabChange={(tab) => go(`decks/${route.deckId}${tab === 'pool' ? '' : `/${tab}`}`)}
             onBack={() => go('decks')}
+            onOpenDeck={(id) => go(`decks/${id}${route.tab === 'pool' ? '' : `/${route.tab}`}`)}
           />
         ) : (
           <CollectionPage

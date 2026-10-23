@@ -182,6 +182,9 @@ export const en: Messages = {
   },
   builder: {
     back: '← Decks',
+    switchDeck: 'Switch to another deck',
+    switchDeckFilter: 'Find a deck…',
+    switchDeckNone: 'No matching decks.',
     loadingDeck: 'Loading deck…',
     addToDeck: 'Add to deck',
     addToMaybe: 'Add to maybeboard',
