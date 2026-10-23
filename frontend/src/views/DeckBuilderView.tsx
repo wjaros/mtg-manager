@@ -19,6 +19,7 @@ import { useZoom } from '../hooks/useZoom'
 import { DeckHistoryPanel } from '../components/DeckHistoryPanel'
 import { DeckList } from '../components/DeckList'
 import { DeckStatsPanel } from '../components/DeckStatsPanel'
+import { DeckCombosPanel } from '../components/DeckCombosPanel'
 import { ExportDialog } from '../components/ExportDialog'
 import { ProxyDialog } from '../components/ProxyDialog'
 import { Filters } from '../components/Filters'
@@ -42,7 +43,7 @@ import { useDebounced } from '../hooks/useDebounced'
 import { useDeck } from '../hooks/useDeck'
 import { formatNumber, locale, t } from '../i18n'
 
-export type DeckTab = 'pool' | 'stats' | 'missing' | 'history'
+export type DeckTab = 'pool' | 'stats' | 'combos' | 'missing' | 'history'
 
 // How the height is shared between the pool (top) and the mana columns (bottom): the pool alone,
 // both, or the deck's columns over the whole height. Remembered per browser.
@@ -439,6 +440,9 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
           <button className={tab === 'stats' ? 'on' : ''} onClick={() => setTab('stats')} role="tab">
             {t.builder.tabStats}
           </button>
+          <button className={tab === 'combos' ? 'on' : ''} onClick={() => setTab('combos')} role="tab">
+            {t.builder.tabCombos}
+          </button>
           {deck.platform === 'paper' && (
             <button className={tab === 'missing' ? 'on' : ''} onClick={() => setTab('missing')} role="tab">
               {t.builder.tabMissing}
@@ -463,6 +467,15 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
         ) : tab === 'stats' ? (
           <div className="stats-scroll">
             <DeckStatsPanel deckId={deck.id} platform={deck.platform} revision={revision} />
+          </div>
+        ) : tab === 'combos' ? (
+          <div className="stats-scroll">
+            <DeckCombosPanel
+              deckId={deck.id}
+              revision={revision}
+              onAdd={(cardId) => actions.add(cardId)}
+              onHover={deckPreview.show}
+            />
           </div>
         ) : tab === 'missing' && deck.platform === 'paper' ? (
           <div className="stats-scroll">

@@ -32,6 +32,9 @@ another deck's box). Singleton duplicates are greyed out.
 
 ![Statistics](docs/screenshots/stats.webp)
 
+**Combos.** The *Combos* tab lists combos the deck has and those one card away, from
+[Commander Spellbook](https://commanderspellbook.com), with the steps; the missing card is one click from the deck.
+
 **Version history.** Decks save as you edit. *Save version* takes a snapshot, and everything since
 the last snapshot is highlighted: added cards in green, removed ones struck through in red, swapped
 printings in yellow. You can compare versions, restore one or discard unsaved changes.
@@ -230,7 +233,8 @@ Third-party components and data: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md
 
 Card data and images come from [Scryfall](https://scryfall.com) and follow its API guidelines:
 cached locally, never altered. This app is not affiliated with or endorsed by Scryfall.
-Preconstructed deck lists come from [MTGJSON](https://mtgjson.com) (MIT License).
+Preconstructed deck lists come from [MTGJSON](https://mtgjson.com) (MIT License), combos from
+[Commander Spellbook](https://commanderspellbook.com).
 
 MTG Deck Manager is unofficial Fan Content permitted under the
 [Fan Content Policy](https://company.wizards.com/en/legal/fancontentpolicy). It is not approved or

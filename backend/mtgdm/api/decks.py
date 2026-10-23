@@ -27,6 +27,8 @@ from mtgdm.decks.stats import DeckStats, deck_stats
 from mtgdm.decks.validation import ValidationResult, validate_deck
 from mtgdm.decks.versions import NoChanges, VersionNotFound
 from mtgdm.i18n import tr
+from mtgdm.spellbook.client import SpellbookError
+from mtgdm.spellbook.combos import DeckCombos, deck_combos
 
 router = APIRouter(prefix="/decks", tags=["decks"])
 
@@ -162,3 +164,12 @@ def validate(db: Db, deck_id: int) -> ValidationResult:
 @router.get("/{deck_id}/stats")
 def stats(db: Db, deck_id: int) -> DeckStats:
     return _handle(lambda: deck_stats(db, deck_id))
+
+
+@router.get("/{deck_id}/combos")
+def combos(db: Db, request: Request, deck_id: int) -> DeckCombos:
+    """Combos in the deck and one card away, from Commander Spellbook."""
+    try:
+        return _handle(lambda: deck_combos(db, request.app.state.spellbook, deck_id))
+    except SpellbookError as exc:
+        raise HTTPException(status_code=502, detail=tr("combos_failed", error=exc)) from exc

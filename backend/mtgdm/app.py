@@ -20,10 +20,14 @@ from mtgdm.scan.service import Recognizer
 from mtgdm.scryfall.client import ScryfallClient
 from mtgdm.scryfall.images import ImageCache
 from mtgdm.scryfall.manager import SyncManager
+from mtgdm.spellbook.client import SpellbookClient
 
 
 def create_app(
-    settings: Settings | None = None, scryfall: ScryfallClient | None = None, mtgjson: MtgjsonClient | None = None
+    settings: Settings | None = None,
+    scryfall: ScryfallClient | None = None,
+    mtgjson: MtgjsonClient | None = None,
+    spellbook: SpellbookClient | None = None,
 ) -> FastAPI:
     settings = settings or load_settings()
 
@@ -46,6 +50,7 @@ def create_app(
             app.state.recognizer.close()
             app.state.scryfall.close()
             app.state.mtgjson.close()
+            app.state.spellbook.close()
 
     app = FastAPI(title="MTG Deck Manager", version=__version__, lifespan=lifespan)
     app.state.settings = settings
@@ -54,6 +59,8 @@ def create_app(
     app.state.image_cache = ImageCache(settings.images_dir, app.state.scryfall)
     # Precon card lists fetched on demand (Commander decks come with the card data sync).
     app.state.mtgjson = mtgjson or MtgjsonClient()
+    # Deck combos, asked for when the deck's Combos tab opens.
+    app.state.spellbook = spellbook or SpellbookClient()
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)
     app.state.print_jobs = PrintJobs(settings.db_path, settings.print_dir, app.state.image_cache)
     app.state.recognizer = Recognizer(settings.db_path, lambda conn: _image_loader(app.state.image_cache, conn))

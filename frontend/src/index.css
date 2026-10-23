@@ -1856,6 +1856,91 @@ a.button {
   font-weight: 600;
 }
 
+/* ---------- Combos ---------- */
+
+.combos-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  max-width: 900px;
+}
+
+.combos-section {
+  margin: 0.4rem 0 0;
+  font-size: 0.95rem;
+}
+
+.combo {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+}
+
+.combo-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.combo-card {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: default;
+}
+
+.combo-card-missing {
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.combo-card .button {
+  padding: 0.1rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.combos-panel a {
+  color: var(--accent);
+}
+
+.combo-warn {
+  color: var(--warn);
+}
+
+.combo-produces {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.875rem;
+}
+
+.combo-details {
+  margin-top: 0.4rem;
+  font-size: 0.875rem;
+}
+
+.combo-details summary {
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.combo-details h4 {
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.85rem;
+}
+
+.combo-details ul,
+.combo-details ol {
+  margin: 0 0 0.5rem;
+  padding-left: 1.3rem;
+}
+
 /* ---------- Collection page ---------- */
 
 .collection-page {

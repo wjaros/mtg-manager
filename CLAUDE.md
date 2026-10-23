@@ -16,6 +16,9 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/mtgjson/` – MTGJSON (MIT) for precon card lists only (Scryfall stays the card source; joined by Scryfall id):
     `precons.py` syncs DeckList.json + Commander decks as the last sync stage (failure doesn't fail the sync),
     others on demand; a precon becomes import text with exact printings
+  - `mtgdm/spellbook/` – Commander Spellbook `find-my-combos` (own UA, ≥1 s between requests, 429 back-off; answers
+    cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
+    to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)
   - `mtgdm/cards/` – search (FTS5 + filters), card detail, printings; `syntax.py` – Scryfall-style query syntax
   - `mtgdm/scan/` – card scanning: `detect.py` (find + straighten; single card or up to 9 on a page), `ocr/` (Apple Vision on macOS, RapidOCR),
     `reader.py` (OCR lines -> name / number / set / artist / year), `match.py` (set+number, fuzzy name, image hash),
