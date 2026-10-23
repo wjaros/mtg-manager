@@ -180,3 +180,100 @@ def _summary(row: sqlite3.Row) -> PreconSummary:
         card_count=row["card_count"], loaded=row["loaded_at"] is not None,
     )
 
+
+
+# --- browsing and suggestions -------------------------------------------------------
+
+COLOR_ORDER = "WUBRG"
+
+
+class PreconOverview(BaseModel):
+    precon: PreconSummary
+    colors: list[str]     # the commanders' color identity
+    cards: int            # copies in the deck (commander and main deck)
+    owned: int            # of those, how many your real copies cover (any printing)
+    price_eur: float      # the cards' value at single-card prices (not the product's price)
+
+
+class PreconSuggestion(BaseModel):
+    precon: PreconSummary
+    covers: int           # missing copies of the deck that this precon contains
+    names: list[str]      # those cards
+    price_eur: float      # the precon's cards' value
+
+
+def browse_precons(conn: sqlite3.Connection, types: tuple[str, ...] = EAGER_TYPES) -> list[PreconOverview]:
+    """Loaded precons of these types with what you own of them, newest first."""
+    stats = _deck_stats(conn, types)
+    summaries = {p.file_name: p for p in search_precons(conn, "", list(types), limit=10_000) if p.loaded}
+    owned = _owned_by_oracle(conn)
+    result = []
+    for file_name, precon in summaries.items():
+        s = stats.get(file_name)
+        if s is None:
+            continue
+        result.append(PreconOverview(
+            precon=precon,
+            colors=[c for c in COLOR_ORDER if c in s["colors"]],
+            cards=precon.card_count or sum(s["need"].values()),  # also printings the card data lacks
+            owned=sum(min(n, owned.get(oracle, 0)) for oracle, n in s["need"].items()),
+            price_eur=round(s["price"], 2),
+        ))
+    result.sort(key=lambda o: o.precon.release_date or "", reverse=True)
+    return result
+
+
+def precons_for_missing(conn: sqlite3.Connection, missing: dict[str, tuple[str, int]], limit: int = 5,
+                        minimum: int = 3) -> list[PreconSuggestion]:
+    """Precons holding several of a deck's missing cards (oracle id -> (name, missing copies)),
+    those covering the most first. Only loaded precons count."""
+    if not missing:
+        return []
+    stats = _deck_stats(conn, None)
+    suggestions = []
+    for file_name, s in stats.items():
+        # Basic lands don't count: every precon has them, and they're cheap anyway.
+        covered = {oracle: min(n, missing[oracle][1]) for oracle, n in s["need"].items()
+                   if oracle in missing and oracle not in s["basics"]}
+        total = sum(covered.values())
+        if total >= minimum:
+            suggestions.append((total, file_name, sorted(missing[o][0] for o in covered), s["price"]))
+    suggestions.sort(key=lambda x: (-x[0], x[3]))
+    return [
+        PreconSuggestion(precon=get_precon(conn, file_name), covers=total, names=names, price_eur=round(price, 2))
+        for total, file_name, names, price in suggestions[:limit]
+    ]
+
+
+def _deck_stats(conn: sqlite3.Connection, types: tuple[str, ...] | None) -> dict[str, dict]:
+    """Per loaded precon: copies needed per oracle id, commander colors, cards' value (EUR)."""
+    where = f"AND p.type IN ({', '.join('?' * len(types))})" if types else ""
+    stats: dict[str, dict] = {}
+    for r in conn.execute(
+        f"""
+        SELECT pc.file_name, pc.board, pc.quantity, c.oracle_id, c.type_line,
+               CASE WHEN pc.board = 'commander' THEN c.color_identity END AS colors,
+               COALESCE(json_extract(d.prices, '$.eur'), json_extract(d.prices, '$.eur_foil')) AS eur
+        FROM precon_cards pc JOIN precons p ON p.file_name = pc.file_name
+        LEFT JOIN cards c ON c.id = pc.card_id LEFT JOIN card_details d ON d.id = pc.card_id
+        WHERE pc.board != 'sideboard' {where}
+        """,
+        list(types or ()),
+    ):
+        s = stats.setdefault(r["file_name"], {"need": {}, "colors": set(), "price": 0.0, "basics": set()})
+        if r["oracle_id"]:
+            s["need"][r["oracle_id"]] = s["need"].get(r["oracle_id"], 0) + r["quantity"]
+            if (r["type_line"] or "").startswith("Basic"):
+                s["basics"].add(r["oracle_id"])
+        if r["colors"]:
+            s["colors"].update(json.loads(r["colors"]))
+        if r["eur"]:
+            s["price"] += float(r["eur"]) * r["quantity"]
+    return stats
+
+
+def _owned_by_oracle(conn: sqlite3.Connection) -> dict[str, int]:
+    return dict(conn.execute(
+        "SELECT x.oracle_id, SUM(ci.quantity) FROM collection_items ci JOIN cards x ON x.id = ci.card_id"
+        " WHERE ci.kind = 'real' GROUP BY x.oracle_id"
+    ).fetchall())

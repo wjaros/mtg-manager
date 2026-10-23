@@ -12,6 +12,7 @@ import { useHoverPreview } from '../hooks/useHoverPreview'
 import { FORMAT_LABEL } from '../decks'
 import { t } from '../i18n'
 import { CollectionImportPanel } from '../components/CollectionImportPanel'
+import { PreconBrowser } from '../components/PreconBrowser'
 import { PreconSearch } from '../components/PreconSearch'
 
 const BOARD_LABEL: Record<Board, string> = {
@@ -38,7 +39,7 @@ interface Props {
 }
 
 export function ImportView({ onImported, onCollectionImported }: Props) {
-  const [kind, setKind] = useState<'deck' | 'collection'>('deck')
+  const [kind, setKind] = useState<'deck' | 'collection' | 'precons'>('deck')
   const [text, setText] = useState('')
   const [platform, setPlatform] = useState<'' | Platform>('')
   const [seeds, setSeeds] = useState<SeedInfo[]>([])
@@ -83,11 +84,27 @@ export function ImportView({ onImported, onCollectionImported }: Props) {
           <button className={kind === 'collection' ? 'on' : ''} onClick={() => setKind('collection')} role="tab">
             {t.collectionImport.tabCollection}
           </button>
+          <button className={kind === 'precons' ? 'on' : ''} onClick={() => setKind('precons')} role="tab">
+            {t.collectionImport.tabPrecons}
+          </button>
         </div>
       </div>
 
       {kind === 'collection' ? (
         <CollectionImportPanel onImported={onCollectionImported} />
+      ) : kind === 'precons' ? (
+        <PreconBrowser
+          onImport={(fileName) =>
+            api.preconDecklist(fileName).then(
+              (deck) => {
+                setKind('deck')
+                setText(deck.text)
+                analyze(deck.text)
+              },
+              (e: Error) => setError(e.message),
+            )
+          }
+        />
       ) : (
         <>
 

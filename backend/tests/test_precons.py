@@ -113,3 +113,38 @@ def test_offline_download_is_reported(card_settings):
         assert resp.status_code == 502
         # Loaded decks don't need the network.
         assert client.get("/api/precons/LoreholdSpirit_SOC/decklist").status_code == 200
+
+
+def test_browse_and_missing_suggestions(card_settings):
+    fake = FakeMtgjson()
+    with TestClient(create_app(card_settings, mtgjson=mtgjson_client(fake))) as client:
+        conn = connect(card_settings.db_path)
+        sync_precons(conn, mtgjson_client(fake))
+        cards = conn.execute(
+            "SELECT pc.card_id, pc.name FROM precon_cards pc JOIN cards c ON c.id = pc.card_id"
+            " WHERE pc.file_name = 'LoreholdSpirit_SOC' AND pc.board = 'main' ORDER BY pc.rowid"
+        ).fetchall()
+        conn.close()
+
+        # Own one card of the precon.
+        client.post("/api/collection", json={"card_id": cards[0]["card_id"]})
+        overview = client.get("/api/precons/commander").json()
+        assert [o["precon"]["file_name"] for o in overview] == ["LoreholdSpirit_SOC"]  # loaded Commander decks only
+        soc = overview[0]
+        assert soc["colors"] == ["W", "R"] and soc["owned"] == 1 and soc["cards"] == 10  # commander + 9
+        assert soc["price_eur"] >= 0
+
+        # A deck missing four of the precon's cards: the precon is suggested.
+        deck = client.post("/api/decks", json={"name": "Wants", "format": "freeform", "platform": "paper"}).json()
+        for c in cards[1:5]:
+            client.post(f"/api/decks/{deck['id']}/cards", json={"card_id": c["card_id"]})
+        suggestions = client.get(f"/api/decks/{deck['id']}/missing/precons").json()
+        assert [(s["precon"]["file_name"], s["covers"]) for s in suggestions] == [("LoreholdSpirit_SOC", 4)]
+        assert sorted(s for s in suggestions[0]["names"]) == sorted(c["name"] for c in cards[1:5])
+
+        # Two missing cards are not worth a precon.
+        small = client.post("/api/decks", json={"name": "Two", "format": "freeform", "platform": "paper"}).json()
+        for c in cards[1:3]:
+            client.post(f"/api/decks/{small['id']}/cards", json={"card_id": c["card_id"]})
+        assert client.get(f"/api/decks/{small['id']}/missing/precons").json() == []
+        assert client.get("/api/decks/999/missing/precons").status_code == 404
