@@ -172,3 +172,19 @@ def test_backup_keeps_proxies(client):
     client.post("/api/backup/import", json=backup, params={"replace": True})
     kinds = sorted((i["kind"], bool(i["printed_at"])) for i in client.get("/api/collection").json())
     assert kinds == [("proxy", True), ("real", False)]
+
+
+def test_coverage_counts_the_sideboard_apart(client):
+    serra, bolt = card(client, "Serra Angel"), card(client, "Lightning Bolt")
+    deck = client.post("/api/decks", json={"name": "Sideboard", "format": "freeform", "platform": "paper"}).json()
+    client.post(f"/api/decks/{deck['id']}/cards", json={"card_id": serra["id"], "quantity": 3})
+    client.post(f"/api/decks/{deck['id']}/cards", json={"card_id": serra["id"], "quantity": 2, "board": "sideboard"})
+    client.post(f"/api/decks/{deck['id']}/cards", json={"card_id": bolt["id"], "quantity": 2, "board": "sideboard"})
+    client.post("/api/collection", json={"card_id": serra["id"], "quantity": 4})  # 4 of the 5 Serras
+    client.post(f"/api/decks/{deck['id']}/proxies", json={"card_id": bolt["id"]})  # 1 of the 2 Bolts
+
+    h = holdings(client, deck["id"])
+    # Serra: main deck 3 of 3 real, sideboard 1 of 2 real.
+    assert (h["Serra Angel"]["real"], h["Serra Angel"]["sideboard"], h["Serra Angel"]["sideboard_real"]) == (4, 2, 1)
+    # Bolt: sideboard only, one proxy, one missing.
+    assert (h["Lightning Bolt"]["sideboard_real"], h["Lightning Bolt"]["sideboard_proxy"], h["Lightning Bolt"]["uncovered"]) == (0, 1, 1)

@@ -591,13 +591,24 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack }: Pr
   )
 }
 
-/** Paper decks: what the deck's copies are (real + proxy + missing = the deck's size). */
+/** Paper decks: what the deck's copies are (real + proxy + missing = the deck's size), and the
+sideboard's in short (covered / size, details on hover). */
 function CoverageTotals({ holdings }: { holdings: Map<string, Holding> }) {
-  const total = coverage(holdings.values())
+  const { deck, sideboard } = coverage(holdings.values())
+  const sideSize = sideboard.real + sideboard.proxy + sideboard.uncovered
   return (
     <span className="coverage-totals small" title={t.builder.coverageTitle}>
-      {t.builder.coverageReal(total.real)} · <span className="proxy-text">{t.builder.coverageProxy(total.proxy)}</span> ·{' '}
-      <span className={total.uncovered ? 'error-text' : ''}>{t.builder.coverageMissing(total.uncovered)}</span>
+      {t.builder.coverageReal(deck.real)} · <span className="proxy-text">{t.builder.coverageProxy(deck.proxy)}</span> ·{' '}
+      <span className={deck.uncovered ? 'error-text' : ''}>{t.builder.coverageMissing(deck.uncovered)}</span>
+      {sideSize > 0 && (
+        <span
+          className={sideboard.uncovered ? 'error-text' : 'muted'}
+          title={t.builder.coverageSideboardTitle(sideboard.real, sideboard.proxy, sideboard.uncovered)}
+        >
+          {' '}
+          · {t.builder.coverageSideboard(sideboard.real + sideboard.proxy, sideSize)}
+        </span>
+      )}
     </span>
   )
 }

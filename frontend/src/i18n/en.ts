@@ -197,7 +197,10 @@ export const en: Messages = {
     category: (name: string | null) => (name ? `Category: ${name}…` : 'Category…'),
     categoryPrompt: 'Card category (e.g. Ramp, Removal, Draw, Protection, Win condition). Empty = no category.',
     addProxy: 'Add a proxy in this deck',
-    coverageTitle: "The deck's cards (sideboard included): real (in the box or loose), proxies in the box, missing (not owned, or in another deck)",
+    coverageTitle: "The deck's cards (without the sideboard): real (in the box or loose), proxies in the box, missing (not owned, or in another deck)",
+    coverageSideboard: (covered: number, size: number) => `SB ${covered}/${size}`,
+    coverageSideboardTitle: (real: number, proxy: number, missing: number) =>
+      `Sideboard: real ${real}, proxy ${proxy}, missing ${missing} (copies go to the deck first)`,
     coverageReal: (n: number) => `Real ${n}`,
     coverageProxy: (n: number) => `Proxy ${n}`,
     coverageMissing: (n: number) => `Missing ${n}`,
