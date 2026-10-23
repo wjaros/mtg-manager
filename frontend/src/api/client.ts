@@ -56,7 +56,10 @@ export type DeckToken = Schemas['DeckToken']
 export type PrintHistory = Schemas['PrintHistory']
 export type PreconSummary = Schemas['PreconSummary']
 export type PreconDecklist = Schemas['PreconDecklist']
+export type PreconOverview = Schemas['PreconOverview']
+export type PreconSuggestion = Schemas['PreconSuggestion']
 export type CloudBackupStatus = Schemas['CloudBackupStatus']
+export type UpdateInfo = Schemas['UpdateInfo']
 export type MarkResult = Schemas['MarkResult']
 export type ReplaceWithReal = Schemas['ReplaceWithReal']
 export type ItemKind = CollectionItem['kind']
@@ -189,6 +192,9 @@ export const api = {
   commitImport: (body: ImportCommitRequest) => request<DeckDetail>('/api/import/commit', jsonBody('POST', body)),
   seeds: () => request<SeedInfo[]>('/api/import/seeds'),
   precons: (q: string) => request<PreconSummary[]>(`/api/precons?${toSearchParams({ q })}`),
+  commanderPrecons: () => request<PreconOverview[]>('/api/precons/commander'),
+  missingPrecons: (deckId: number, excludeOtherDecks: boolean) =>
+    request<PreconSuggestion[]>(`/api/decks/${deckId}/missing/precons?exclude_other_decks=${excludeOtherDecks}`),
   preconDecklist: (fileName: string) =>
     request<PreconDecklist>(`/api/precons/${encodeURIComponent(fileName)}/decklist`),
 
@@ -293,6 +299,10 @@ export const api = {
     ),
   startPrint: (body: ProxyPrint) => request<PrintJobStatus>('/api/print/jobs', jsonBody('POST', body)),
   printJob: (id: string) => request<PrintJobStatus>(`/api/print/jobs/${id}`),
+
+  updates: (force = false) => request<UpdateInfo>(`/api/updates${force ? '?force=true' : ''}`),
+  setUpdateChecks: (enabled: boolean) => request<UpdateInfo>('/api/updates/settings', jsonBody('PUT', { enabled })),
+  skipUpdate: (version: string) => request<UpdateInfo>('/api/updates/skip', jsonBody('POST', { version })),
 
   syncStatus: () => request<SyncStatus>('/api/sync/status'),
   syncCheck: () => request<SyncCheck>('/api/sync/check'),

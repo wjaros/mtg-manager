@@ -1,5 +1,12 @@
 import { useEffect, useState, type MouseEvent } from 'react'
-import { api, missingExportUrl, type MissingEntry, type MissingFormat, type MissingReport } from '../api/client'
+import {
+  api,
+  missingExportUrl,
+  type MissingEntry,
+  type MissingFormat,
+  type MissingReport,
+  type PreconSuggestion,
+} from '../api/client'
 import { copyText } from '../clipboard'
 import { locale, t } from '../i18n'
 
@@ -18,6 +25,19 @@ export function MissingPanel({ deckId, revision, onHover }: Props) {
   const [report, setReport] = useState<MissingReport | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
+
+  // Precons that contain several of the missing cards (often cheaper than the singles).
+  const [precons, setPrecons] = useState<PreconSuggestion[]>([])
+  useEffect(() => {
+    let cancelled = false
+    api.missingPrecons(deckId, excludeOtherDecks).then(
+      (list) => !cancelled && setPrecons(list),
+      () => !cancelled && setPrecons([]),
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [deckId, excludeOtherDecks, revision])
 
   useEffect(() => {
     let cancelled = false
@@ -95,6 +115,28 @@ export function MissingPanel({ deckId, revision, onHover }: Props) {
             </label>
           )}
           <p className="muted small">{t.panels.cardmarketHint}</p>
+
+          {precons.length > 0 && (
+            <div className="precon-suggestions">
+              <h3>{t.precons.suggestTitle}</h3>
+              <ul>
+                {precons.map((s) => (
+                  <li key={s.precon.file_name} title={s.names.join(', ')}>
+                    <strong>{s.precon.name}</strong>{' '}
+                    <span className="muted small">
+                      {s.precon.set_name ?? s.precon.code.toUpperCase()}
+                      {s.precon.release_date && ` · ${s.precon.release_date.slice(0, 4)}`}
+                    </span>
+                    <span className="small">
+                      {' '}
+                      · {t.precons.suggestCovers(s.covers)} · {t.precons.suggestValue(s.price_eur.toFixed(0))}
+                    </span>
+                    <div className="muted small precon-suggestion-names">{s.names.join(', ')}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Copies with no copy at all, then those a proxy stands in for (still to buy). */}
           <MissingTable

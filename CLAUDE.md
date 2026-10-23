@@ -15,13 +15,16 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/scryfall/` – API client (headers, rate limit), sets + `default_cards` bulk sync (`mtgdm sync`)
   - `mtgdm/mtgjson/` – MTGJSON (MIT) for precon card lists only (Scryfall stays the card source; joined by Scryfall id):
     `precons.py` syncs DeckList.json + Commander decks as the last sync stage (failure doesn't fail the sync),
-    others on demand; a precon becomes import text with exact printings
+    others on demand; a precon becomes import text with exact printings; `browse_precons` (owned / value per
+    Commander precon) and `precons_for_missing` (precons covering a deck's missing cards, basics left out)
   - `mtgdm/cards/` – search (FTS5 + filters), card detail, printings; `syntax.py` – Scryfall-style query syntax
   - `mtgdm/scan/` – card scanning: `detect.py` (find + straighten; single card or up to 9 on a page), `ocr/` (Apple Vision on macOS, RapidOCR),
     `reader.py` (OCR lines -> name / number / set / artist / year), `match.py` (set+number, fuzzy name, image hash),
     `pipeline.py` (auto/single/page, manual grid), `service.py` (scans as records, PDF pages, review, commit),
     `synth.py` (synthetic photos and A4 pages for tests)
   - `mtgdm/backup.py` – JSON backup of collection, locations and decks (cards by id, then set+number, then name)
+  - `mtgdm/updates.py` – new version check (GitHub releases API, cached in meta, skip a version); notify only,
+    no self-update (unsigned macOS app)
   - `mtgdm/cloud_backup.py` – the backup written to a chosen (synced) folder by a background thread when the data
     changed (hash without timestamps); a newer file from another machine id is offered on start (never overwritten)
   - `mtgdm/decks/` – deck storage (`deck_cards` is the source of truth; decks.commander/partner/companion_card_id are derived),

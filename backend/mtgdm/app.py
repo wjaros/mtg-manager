@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import cv2
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -23,7 +24,10 @@ from mtgdm.scryfall.manager import SyncManager
 
 
 def create_app(
-    settings: Settings | None = None, scryfall: ScryfallClient | None = None, mtgjson: MtgjsonClient | None = None
+    settings: Settings | None = None,
+    scryfall: ScryfallClient | None = None,
+    mtgjson: MtgjsonClient | None = None,
+    github: httpx.Client | None = None,
 ) -> FastAPI:
     settings = settings or load_settings()
 
@@ -46,6 +50,7 @@ def create_app(
             app.state.recognizer.close()
             app.state.scryfall.close()
             app.state.mtgjson.close()
+            app.state.github.close()
 
     app = FastAPI(title="MTG Deck Manager", version=__version__, lifespan=lifespan)
     app.state.settings = settings
@@ -54,6 +59,8 @@ def create_app(
     app.state.image_cache = ImageCache(settings.images_dir, app.state.scryfall)
     # Precon card lists fetched on demand (Commander decks come with the card data sync).
     app.state.mtgjson = mtgjson or MtgjsonClient()
+    # GitHub's releases API: is there a newer version?
+    app.state.github = github or httpx.Client(timeout=10.0, follow_redirects=True)
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)
     app.state.print_jobs = PrintJobs(settings.db_path, settings.print_dir, app.state.image_cache)
     app.state.recognizer = Recognizer(settings.db_path, lambda conn: _image_loader(app.state.image_cache, conn))
