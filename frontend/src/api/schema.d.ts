@@ -811,6 +811,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/precons/commander": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Commander Precons
+         * @description Commander precons with their commanders' colors, what you own of them and the cards' value.
+         */
+        get: operations["commander_precons_api_precons_commander_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/missing/precons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Missing Precons
+         * @description Precons that contain several of the cards this deck is missing.
+         */
+        get: operations["missing_precons_api_decks__deck_id__missing_precons_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/precons/{file_name}/decklist": {
         parameters: {
             query?: never;
@@ -2567,6 +2607,28 @@ export interface components {
             precon: components["schemas"]["PreconSummary"];
             /** Text */
             text: string;
+        };
+        /** PreconOverview */
+        PreconOverview: {
+            precon: components["schemas"]["PreconSummary"];
+            /** Colors */
+            colors: string[];
+            /** Cards */
+            cards: number;
+            /** Owned */
+            owned: number;
+            /** Price Eur */
+            price_eur: number;
+        };
+        /** PreconSuggestion */
+        PreconSuggestion: {
+            precon: components["schemas"]["PreconSummary"];
+            /** Covers */
+            covers: number;
+            /** Names */
+            names: string[];
+            /** Price Eur */
+            price_eur: number;
         };
         /** PreconSummary */
         PreconSummary: {
@@ -4727,6 +4789,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PreconSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    commander_precons_api_precons_commander_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreconOverview"][];
+                };
+            };
+        };
+    };
+    missing_precons_api_decks__deck_id__missing_precons_get: {
+        parameters: {
+            query?: {
+                exclude_other_decks?: boolean;
+            };
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreconSuggestion"][];
                 };
             };
             /** @description Validation Error */
