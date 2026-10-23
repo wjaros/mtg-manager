@@ -184,6 +184,11 @@ class Holding(BaseModel):
     real: int = 0
     proxy: int = 0
     uncovered: int = 0
+    # The same for the sideboard's copies (part of the numbers above): copies go to the main deck
+    # first, so the deck's size (main + commander + companion) is real + proxy + uncovered minus these.
+    sideboard: int = 0
+    sideboard_real: int = 0
+    sideboard_proxy: int = 0
     # Where the copies this deck lacks (beyond its box) have to come from:
     #   "missing"     you don't own enough (proxies included),
     #   "other_deck"  only from another deck's box (loose / binder copies don't cover it),
@@ -201,7 +206,8 @@ def deck_holdings(conn: sqlite3.Connection, deck_id: int) -> list[Holding]:
     box = deck["location_id"]
     rows = conn.execute(
         f"""
-        SELECT c.oracle_id, SUM(dc.quantity) AS needed
+        SELECT c.oracle_id, SUM(dc.quantity) AS needed,
+               SUM(CASE WHEN dc.board = 'sideboard' THEN dc.quantity ELSE 0 END) AS sideboard
         FROM deck_cards dc JOIN cards c ON c.id = dc.card_id
         WHERE dc.deck_id = ? AND dc.board IN ({", ".join("?" * len(DECK_BOX_BOARDS))})
         GROUP BY c.oracle_id
@@ -246,6 +252,11 @@ def deck_holdings(conn: sqlite3.Connection, deck_id: int) -> list[Holding]:
         real = min(needed, boxed + loose)
         proxy = min(needed - real, proxies.get(oracle, 0))
         uncovered = needed - real - proxy
+        # Main deck first: what's left over (if anything) covers the sideboard.
+        side = r["sideboard"]
+        main = needed - side
+        side_real = max(0, real - main)
+        side_proxy = max(0, min(side - side_real, proxy - max(0, main - real)))
         if uncovered > 0:
             state = "missing" if have + proxy < needed else "other_deck"
         elif proxy > 0:
@@ -266,6 +277,9 @@ def deck_holdings(conn: sqlite3.Connection, deck_id: int) -> list[Holding]:
             real=real,
             proxy=proxy,
             uncovered=uncovered,
+            sideboard=side,
+            sideboard_real=side_real,
+            sideboard_proxy=side_proxy,
             state=state,
         ))
     return holdings

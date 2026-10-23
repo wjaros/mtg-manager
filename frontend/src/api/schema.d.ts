@@ -2296,6 +2296,21 @@ export interface components {
              * @default 0
              */
             uncovered?: number;
+            /**
+             * Sideboard
+             * @default 0
+             */
+            sideboard?: number;
+            /**
+             * Sideboard Real
+             * @default 0
+             */
+            sideboard_real?: number;
+            /**
+             * Sideboard Proxy
+             * @default 0
+             */
+            sideboard_proxy?: number;
             /** State */
             state: ("missing" | "other_deck" | "proxy" | "elsewhere") | null;
         };

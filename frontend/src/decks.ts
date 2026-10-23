@@ -111,15 +111,29 @@ export function holdTitle(state: NonNullable<HoldState>): string {
   return t.panels.holdElsewhereTitle
 }
 
-/** Real + proxy + uncovered copies of a paper deck (sum = the deck's size, sideboard included). */
-export function coverage(holdings: Iterable<Holding>): { real: number; proxy: number; uncovered: number } {
-  const total = { real: 0, proxy: 0, uncovered: 0 }
+export interface Coverage {
+  real: number
+  proxy: number
+  uncovered: number
+}
+
+/** Real + proxy + uncovered copies of a paper deck: the deck itself (sum = its size, like the
+card count next to it) and its sideboard apart (copies go to the deck first). */
+export function coverage(holdings: Iterable<Holding>): { deck: Coverage; sideboard: Coverage } {
+  const deck = { real: 0, proxy: 0, uncovered: 0 }
+  const sideboard = { real: 0, proxy: 0, uncovered: 0 }
   for (const h of holdings) {
-    total.real += h.real ?? 0
-    total.proxy += h.proxy ?? 0
-    total.uncovered += h.uncovered ?? 0
+    const side = h.sideboard ?? 0
+    const sideReal = h.sideboard_real ?? 0
+    const sideProxy = h.sideboard_proxy ?? 0
+    sideboard.real += sideReal
+    sideboard.proxy += sideProxy
+    sideboard.uncovered += side - sideReal - sideProxy
+    deck.real += (h.real ?? 0) - sideReal
+    deck.proxy += (h.proxy ?? 0) - sideProxy
+    deck.uncovered += (h.uncovered ?? 0) - (side - sideReal - sideProxy)
   }
-  return total
+  return { deck, sideboard }
 }
 
 export function groupByType(cards: DeckCard[]): CardGroup[] {

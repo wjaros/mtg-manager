@@ -201,7 +201,10 @@ export const pl = {
     category: (name: string | null) => (name ? `Kategoria: ${name}…` : 'Kategoria…'),
     categoryPrompt: 'Kategoria karty (np. Rampa, Usuwanie, Dobieranie, Ochrona, Wygrana). Puste = bez kategorii.',
     addProxy: 'Dodaj proxy w tej talii',
-    coverageTitle: 'Karty talii (z sideboardem): prawdziwe (w pudełku albo luzem), proxy w pudełku, brakujące (nie masz albo leżą w innej talii)',
+    coverageTitle: 'Karty talii (bez sideboardu): prawdziwe (w pudełku albo luzem), proxy w pudełku, brakujące (nie masz albo leżą w innej talii)',
+    coverageSideboard: (covered: number, size: number) => `SB ${covered}/${size}`,
+    coverageSideboardTitle: (real: number, proxy: number, missing: number) =>
+      `Sideboard: prawdziwe ${real}, proxy ${proxy}, brak ${missing} (kopie idą najpierw do talii)`,
     coverageReal: (n: number) => `Prawdziwe ${n}`,
     coverageProxy: (n: number) => `Proxy ${n}`,
     coverageMissing: (n: number) => `Brak ${n}`,
