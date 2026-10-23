@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from mtgdm import __version__
+from mtgdm.collection.wants import backup_wants, restore_wants
 from mtgdm.decks.service import _after_change
 from mtgdm.decks.versions import current_entries
 from mtgdm.i18n import tr
@@ -55,6 +56,7 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
             """
         )
     ]
+    wants = backup_wants(conn)
     decks = []
     for d in conn.execute("SELECT * FROM decks ORDER BY id"):
         cards = [
@@ -89,6 +91,7 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
             "name": d["name"], "format": d["format"], "platform": d["platform"], "description": d["description"],
             "preferred_sets": json.loads(d["preferred_sets"]) if d["preferred_sets"] else [],
             "location_id": d["location_id"], "created_at": d["created_at"], "cards": cards, "versions": history,
+            "wants": wants.get(d["id"], []),
         })
     return {
         "format": FORMAT,
@@ -98,6 +101,8 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
         "locations": locations,
         "collection": collection,
         "decks": decks,
+        # Cards to buy added by hand (a deck's own are with the deck).
+        "wants": wants.get(None, []),
         # Calibration of the user's printers (raw measurements included) and the card size.
         "printer_profiles": [
             {k: r[k] for k in r.keys() if k != "id"}
@@ -120,7 +125,7 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
     try:
         with conn:
             if replace:
-                for table in ("deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "locations",
+                for table in ("wants", "deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "locations",
                               "printer_profiles"):
                     conn.execute(f"DELETE FROM {table}")
 
@@ -173,7 +178,10 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
                     result.deck_cards += 1
                 _after_change(conn, deck_id)
                 _restore_versions(conn, deck_id, deck.get("versions") or [], resolver)
+                result.missing_cards += restore_wants(conn, deck.get("wants") or [], deck_id)
                 result.decks += 1
+
+            result.missing_cards += restore_wants(conn, data.get("wants") or [], None)
 
             has_default = conn.execute("SELECT 1 FROM printer_profiles WHERE is_default = 1").fetchone()
             for profile in data.get("printer_profiles", []):

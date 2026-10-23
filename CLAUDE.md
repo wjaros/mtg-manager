@@ -37,6 +37,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     snapshots; changes vs the latest snapshot = "unsaved" (diffed per card name + board, so a printing swap isn't a removal)
   - `mtgdm/collection/` – physical copies (`collection_items`) and locations; "I own this deck" puts a deck into its box location;
     `missing.py` – missing-cards report per deck + exports (text / CardMarket wants / CSV)
+    `wants.py` – shopping list (`wants`, per oracle id: by hand or a deck's missing copies; real copies added
+    after a row count as bought, via `owned_at_add`), Cardmarket / CSV export, in the backup
     `usage.py` – where a card is (copies per location / deck box, decks listing it) for the deckbuilder hover
     `moxfield.py` – Moxfield collection CSV export / import (condition scale mapping Cardmarket <-> US)
     `export.py` – collection export: Arena-style list (`4 Name (SET) 123`, Scryfall set codes) and CSV

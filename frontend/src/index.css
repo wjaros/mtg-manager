@@ -3137,6 +3137,32 @@ label.button.disabled {
   padding-top: 1rem;
 }
 
+/* ---------- Shopping list ---------- */
+
+.wants-view {
+  padding-top: 1rem;
+}
+
+.wants-table td a {
+  margin-right: 0.5rem;
+  color: var(--accent);
+}
+
+/* After a card is put on the shopping list from a context menu. */
+.notice {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 45;
+  max-width: min(420px, calc(100vw - 2.5rem));
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.55);
+  font-size: 0.875rem;
+}
+
 .proxies-filters,
 .proxies-bulk {
   display: flex;

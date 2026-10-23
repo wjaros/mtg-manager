@@ -9,6 +9,7 @@ import {
 } from '../api/client'
 import { copyText } from '../clipboard'
 import { locale, t } from '../i18n'
+import { wants } from '../wants'
 
 interface Props {
   deckId: number
@@ -54,6 +55,16 @@ export function MissingPanel({ deckId, revision, onHover }: Props) {
     try {
       await copyText(await api.missingExport(deckId, format, excludeOtherDecks, includeProxied))
       setNote(t.panels.copiedList(label))
+    } catch (e) {
+      setNote(t.common.error((e as Error).message))
+    }
+  }
+
+  const addToWants = async () => {
+    try {
+      const result = await api.deckWants(deckId, excludeOtherDecks, includeProxied)
+      wants.update(result.wants)
+      setNote(t.wants.deckAdded(result.added))
     } catch (e) {
       setNote(t.common.error((e as Error).message))
     }
@@ -106,6 +117,9 @@ export function MissingPanel({ deckId, revision, onHover }: Props) {
             <a className="button" href={missingExportUrl(deckId, 'csv', excludeOtherDecks, includeProxied)} download>
               {t.panels.downloadCsv}
             </a>
+            <button className="button" onClick={addToWants} title={t.wants.deckAddTitle}>
+              {t.wants.deckAdd}
+            </button>
             {note && <span className="muted small">{note}</span>}
           </div>
           {report.entries.some((e) => (e.proxied ?? 0) > 0) && (
