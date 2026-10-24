@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Smoke test of a built app: start its executable in server mode on an empty, temporary data
-directory and check that the API, the bundled UI, migrations and seeds work. No network needed.
+directory and check that the API, the bundled UI, migrations and seeds work, and that the window
+toolkit loads (on Windows with the files marked as downloaded, as unpacking a downloaded zip with
+Explorer leaves them). No network needed.
 
     python scripts/smoke_test.py "dist/MTG Deck Manager.app/Contents/MacOS/mtgdm"
     python scripts/smoke_test.py "dist/MTG Deck Manager/MTG Deck Manager.exe"
@@ -64,11 +66,22 @@ def post_scan(url: str, png: bytes, engine: str) -> dict:
         return json.loads(resp.read())
 
 
+def mark_downloaded(folder: Path) -> None:
+    """Windows' "from the internet" mark (a Zone.Identifier stream) on every file; .NET refuses to load
+    marked assemblies unless the app drops the mark."""
+    for path in folder.rglob("*"):
+        if path.is_file():
+            with open(f"{path}:Zone.Identifier", "w", encoding="utf-8") as mark:
+                mark.write("[ZoneTransfer]\nZoneId=3\n")
+
+
 def main() -> int:
     exe = Path(sys.argv[1])
     if not exe.is_file():
         print(f"Executable not found: {exe}", file=sys.stderr)
         return 2
+    if sys.platform == "win32":
+        mark_downloaded(exe.parent)
     port = free_port()
     base = f"http://127.0.0.1:{port}"
 
@@ -133,6 +146,12 @@ def main() -> int:
             print("pdf: printer calibration page works")
 
             assert (Path(data_dir) / "db.sqlite").is_file(), "database not created"
+
+            # The window: pywebview's GUI backend loads (Windows: pythonnet and the WebView2 assemblies).
+            check = subprocess.run([str(exe), "check-window"], env=env, timeout=STARTUP_TIMEOUT)
+            if check.returncode != 0:
+                raise RuntimeError(f"window toolkit failed to load (exit code {check.returncode})")
+            print("window: toolkit loads")
             print("OK")
             return 0
         except Exception as exc:  # report and fail the CI step
