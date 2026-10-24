@@ -282,6 +282,17 @@ MESSAGES: dict[str, dict[Lang, str]] = {
     "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
     "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
     "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},
+    # app window (native dialogs, shown before the UI is up)
+    "window_failed": {
+        "pl": "Nie można otworzyć okna aplikacji.\n\n{error}\n\nSzczegóły w logu:\n{log}",
+        "en": "Could not open the app window.\n\n{error}\n\nDetails are in the log:\n{log}",
+    },
+    "webview2_missing": {
+        "pl": "Nie można otworzyć okna aplikacji: brakuje Microsoft Edge WebView2 Runtime.\n\n"
+              "Zainstaluj go ze strony:\nhttps://developer.microsoft.com/microsoft-edge/webview2/",
+        "en": "Could not open the app window: Microsoft Edge WebView2 Runtime is missing.\n\n"
+              "Install it from:\nhttps://developer.microsoft.com/microsoft-edge/webview2/",
+    },
 }
 
 

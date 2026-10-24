@@ -8,7 +8,7 @@ language from the request's Accept-Language (the frontend sends its own; default
 
 ## Layout
 - `backend/` – Python 3.12, FastAPI, managed with `uv`. Package `mtgdm` (flat layout, no `src/`).
-  - `mtgdm/__main__.py` – CLI `mtgdm app | serve | sync`
+  - `mtgdm/__main__.py` – CLI `mtgdm app | serve | sync | check-window` (the last loads the window toolkit, for the smoke test)
   - `mtgdm/app.py` – app factory; serves `frontend/dist` (SPA fallback) when it exists
   - `mtgdm/config.py` – data dir via platformdirs; override with `MTGDM_DATA_DIR`, `MTGDM_FRONTEND_DIST`
   - `mtgdm/db/migrations/NNN_name.sql` – numbered SQL migrations, applied on startup, tracked in `schema_version`
@@ -55,7 +55,10 @@ language from the request's Accept-Language (the frontend sends its own; default
   the bundle uses a minimal OpenCV (`scripts/build_opencv.py`: core/imgproc/imgcodecs, JPEG+PNG, same version as uv.lock,
   cached in `build/opencv-slim/`) put first on PYTHONPATH; dev and tests use the PyPI wheel. A new cv2 function from
   another module (e.g. features, photo) needs adding to BUILD_LIST there. HEIC only on macOS, through ImageIO
-  (`scan/imageio_mac.py`): libheif wheels carry the GPL x265 encoder, not bundled on purpose
+  (`scan/imageio_mac.py`): libheif wheels carry the GPL x265 encoder, not bundled on purpose.
+  Windows window = pywebview → pythonnet (.NET Framework) → WebView2. A zip unpacked by Explorer marks every file
+  as downloaded and .NET won't load marked assemblies ("Failed to resolve Python.Runtime.Loader.Initialize"): the
+  app drops the mark from its DLLs before loading pythonnet; the smoke test marks the bundle to keep this covered
 - License: GPL-3.0-or-later (LICENSE). Dependencies must be GPLv3-compatible (MIT, BSD, Apache-2.0, MPL-2.0 are;
   GPL-2.0-only is not). Third-party licenses in THIRD_PARTY_NOTICES.md (update it with new dependencies)
   bundled resource paths live in `mtgdm/config.py` (FROZEN branch) and must match the spec
