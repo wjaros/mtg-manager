@@ -18,6 +18,7 @@ from mtgdm.cards.models import (
     Unique,
 )
 from mtgdm.cards.syntax import ParsedSyntax, QuerySyntaxError, parse_syntax
+from mtgdm.cards.user_tags import tags_of
 
 COLORS = "WUBRG"
 FORMATS = frozenset({
@@ -175,6 +176,7 @@ def get_card(conn: sqlite3.Connection, card_id: str) -> CardDetail | None:
         promo=bool(row["promo"]),
         faces=[CardFace(**{k: v for k, v in f.items() if k in face_fields}) for f in faces],
         printings_count=row["printings_count"],
+        user_tags=tags_of(conn, row["oracle_id"]),
     )
 
 

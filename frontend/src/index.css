@@ -618,6 +618,21 @@ nav {
   background: rgb(15 18 24 / 0.85);
 }
 
+.user-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.user-tag {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-input);
+  font-size: 0.8rem;
+}
+
 .detail-title {
   display: flex;
   justify-content: space-between;

@@ -4,6 +4,7 @@ import { CardDetailPanel } from '../components/CardDetailPanel'
 import { CardGrid, MIN_CARD_WIDTH } from '../components/CardGrid'
 import { ContextMenu, type MenuState } from '../components/ContextMenu'
 import { SimilarCardsPanel } from '../components/SimilarCardsPanel'
+import { editUserTagsFromMenu } from '../userTags'
 import { printQueue, usePrintQueue } from '../printQueue'
 import { ZoomControl } from '../components/ZoomControl'
 import { useZoom } from '../hooks/useZoom'
@@ -98,6 +99,8 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
                   ? { label: t.print.unqueue, onClick: () => printQueue.remove(card.id) }
                   : { label: t.print.queue, onClick: () => printQueue.add(card) },
                 { label: t.similar.menu, onClick: () => setSimilarTo(card) },
+                // A tag: search shows the change at once.
+                { label: t.userTags.menu, onClick: () => editUserTagsFromMenu(card, () => setVersion((v) => v + 1)) },
                 { label: t.builder.details, onClick: () => setSelected(card.id) },
               ],
             })

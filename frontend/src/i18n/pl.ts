@@ -117,6 +117,7 @@ export const pl = {
       ['s:who', 'set (kod Scryfall)'],
       ['f:brawl', 'legalne w formacie'],
       ['otag:ramp  otag:removal', 'funkcja karty (tag Scryfalla): ramp, draw, removal, board-wipe, counterspell, tutor, protection, recursion, lifegain'],
+      ['tag:wincon  tag:"pet card"', 'twoje tagi (prawy przycisk na karcie → Moje tagi…)'],
       ['-t:creature', 'negacja dowolnego filtra'],
     ] as [string, string][],
     namePlaceholder: 'Nazwa albo filtry, np. t:angel mv<=3 id:wr',
@@ -407,6 +408,13 @@ export const pl = {
     table: 'Tabela',
     chartBy: (unit: string, axis: string) => `Wykres: ${unit} wg ${axis}`,
     chart: (unit: string) => `Wykres: ${unit}`,
+  },
+  userTags: {
+    menu: 'Moje tagi…',
+    label: 'Moje tagi',
+    edit: 'Edytuj',
+    prompt: (name: string, used: string) =>
+      `Twoje tagi karty ${name}, po przecinku (szukasz ich przez tag:nazwa).` + (used ? `\n\nUżywane: ${used}` : ''),
   },
   card: {
     loyalty: (n: string) => `Lojalność: ${n}`,

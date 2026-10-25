@@ -2,6 +2,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 from mtgdm.api.deps import AppSettings, Db
 from mtgdm.cards.models import (
@@ -23,6 +24,7 @@ from mtgdm.cards.search import (
     search_cards,
 )
 from mtgdm.cards.similar import DeckNotFound, SimilarCards, similar_cards
+from mtgdm.cards.user_tags import UserTag, all_tags, set_tags
 from mtgdm.collection.usage import CardUsage, card_usage
 
 router = APIRouter(tags=["cards"])
@@ -117,6 +119,25 @@ def similar(
     if result is None:
         raise HTTPException(status_code=404, detail="Card not found")
     return result
+
+
+class UserTagsUpdate(BaseModel):
+    tags: list[str]
+
+
+@router.put("/cards/{card_id}/user-tags")
+def update_user_tags(db: Db, card_id: str, body: UserTagsUpdate) -> list[str]:
+    """Replace the user's own tags on a card (every printing of it); returns them as stored."""
+    result = set_tags(db, card_id, body.tags)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Card not found")
+    return result
+
+
+@router.get("/user-tags")
+def user_tags(db: Db) -> list[UserTag]:
+    """The user's own tags in use, with their numbers of cards."""
+    return all_tags(db)
 
 
 @router.get("/sets")

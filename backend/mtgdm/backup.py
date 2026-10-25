@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from mtgdm import __version__
+from mtgdm.cards.user_tags import backup_tags, restore_tags
 from mtgdm.decks.service import _after_change
 from mtgdm.decks.versions import current_entries
 from mtgdm.i18n import tr
@@ -104,6 +105,7 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
             for r in conn.execute("SELECT * FROM printer_profiles ORDER BY id")
         ],
         "print_settings": {k: get_meta(conn, k) for k in (CARD_W_KEY, CARD_H_KEY) if get_meta(conn, k)},
+        "user_tags": backup_tags(conn),
     }
 
 
@@ -121,7 +123,7 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
         with conn:
             if replace:
                 for table in ("deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "locations",
-                              "printer_profiles"):
+                              "printer_profiles", "user_tags"):
                     conn.execute(f"DELETE FROM {table}")
 
             location_ids: dict[Any, int] = {}
@@ -188,6 +190,7 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
             for key, value in (data.get("print_settings") or {}).items():
                 if key in (CARD_W_KEY, CARD_H_KEY):
                     set_meta(conn, key, str(float(value)))
+            result.missing_cards += restore_tags(conn, data.get("user_tags") or [])
     except (KeyError, TypeError, ValueError, sqlite3.IntegrityError) as exc:
         raise BackupError(tr("backup_broken", error=exc)) from exc
     result.missing_cards = sorted(set(result.missing_cards))

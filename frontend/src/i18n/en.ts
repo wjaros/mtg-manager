@@ -113,6 +113,7 @@ export const en: Messages = {
       ['s:who', 'set (Scryfall code)'],
       ['f:brawl', 'legal in format'],
       ['otag:ramp  otag:removal', "card function (Scryfall tag): ramp, draw, removal, board-wipe, counterspell, tutor, protection, recursion, lifegain"],
+      ['tag:wincon  tag:"pet card"', 'your own tags (right click on a card → My tags…)'],
       ['-t:creature', 'negates any filter'],
     ] as [string, string][],
     namePlaceholder: 'Name or filters, e.g. t:angel mv<=3 id:wr',
@@ -406,6 +407,13 @@ export const en: Messages = {
     table: 'Table',
     chartBy: (unit: string, axis: string) => `Chart: ${unit} by ${axis}`,
     chart: (unit: string) => `Chart: ${unit}`,
+  },
+  userTags: {
+    menu: 'My tags…',
+    label: 'My tags',
+    edit: 'Edit',
+    prompt: (name: string, used: string) =>
+      `Your tags for ${name}, comma-separated (search them with tag:name).` + (used ? `\n\nIn use: ${used}` : ''),
   },
   card: {
     loyalty: (n: string) => `Loyalty: ${n}`,
