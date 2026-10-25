@@ -8,6 +8,7 @@ interface State {
   total: number | null
   pages: Map<number, CardSummary[]>
   error: string | null
+  typeHint: string | null // the query with type words as type filters ("desert" -> "t:desert")
 }
 
 /**
@@ -17,7 +18,7 @@ interface State {
 export function useCardPages(query: CardQuery, version = 0) {
   // version: bump to refetch the same query after data changed (e.g. the collection).
   const key = JSON.stringify([query, version])
-  const [state, setState] = useState<State>({ key, total: null, pages: new Map(), error: null })
+  const [state, setState] = useState<State>({ key, total: null, pages: new Map(), error: null, typeHint: null })
   const inflight = useRef(new Map<number, AbortController>())
   const generation = useRef(0)
 
@@ -34,13 +35,18 @@ export function useCardPages(query: CardQuery, version = 0) {
           setState((prev) => {
             const pages = new Map(prev.key === key ? prev.pages : [])
             pages.set(page, result.items)
-            return { key, total: result.total, pages, error: null }
+            const typeHint = page === 0 ? (result.type_hint ?? null) : prev.key === key ? prev.typeHint : null
+            return { key, total: result.total, pages, error: null, typeHint }
           })
         })
         .catch((err: Error) => {
           if (gen !== generation.current || err.name === 'AbortError') return
           inflight.current.delete(page)
-          setState((prev) => (prev.key === key ? { ...prev, error: err.message } : { key, total: null, pages: new Map(), error: err.message }))
+          setState((prev) =>
+            prev.key === key
+              ? { ...prev, error: err.message }
+              : { key, total: null, pages: new Map(), error: err.message, typeHint: null },
+          )
         })
     },
     [key],
@@ -69,5 +75,5 @@ export function useCardPages(query: CardQuery, version = 0) {
     [pages],
   )
 
-  return { total: current?.total ?? null, error: current?.error ?? null, cardAt, ensureRange }
+  return { total: current?.total ?? null, error: current?.error ?? null, typeHint: current?.typeHint ?? null, cardAt, ensureRange }
 }

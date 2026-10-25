@@ -17,7 +17,7 @@ from mtgdm.cards.models import (
     SetInfo,
     Unique,
 )
-from mtgdm.cards.syntax import ParsedSyntax, QuerySyntaxError, parse_syntax
+from mtgdm.cards.syntax import ParsedSyntax, QuerySyntaxError, bare_words, parse_syntax
 
 COLORS = "WUBRG"
 FORMATS = frozenset({
@@ -127,7 +127,26 @@ def search_cards(conn: sqlite3.Connection, query: CardQuery) -> CardPage:
     )]
     if own_art:
         ids = owned_printings(conn, ids)
-    return CardPage(total=total, page=page, page_size=page_size, items=card_summaries(conn, ids))
+    hint = type_hint(conn, query.q) if page == 1 and syntax.name_text else None
+    return CardPage(total=total, page=page, page_size=page_size, items=card_summaries(conn, ids), type_hint=hint)
+
+
+def type_hint(conn: sqlite3.Connection, text: str | None) -> str | None:
+    """`text` with each word naming a card type turned into a type filter, or None without such words."""
+    text = text or ""
+    out, last = [], 0
+    for m in bare_words(text):
+        word = m.group(0)
+        if len(word) >= 3 and word.isalpha() and _is_type(conn, word):
+            out += [text[last:m.start()], f"t:{word}"]
+            last = m.end()
+    return "".join(out) + text[last:] if out else None
+
+
+def _is_type(conn: sqlite3.Connection, word: str) -> bool:
+    """In the type line of a few cards at least (one odd Un-card's type line doesn't make a type)."""
+    rows = conn.execute("SELECT 1 FROM cards_fts WHERE cards_fts MATCH ? LIMIT 3", (f'type_line : "{word}"',))
+    return len(rows.fetchall()) >= 3
 
 
 def owned_printings(conn: sqlite3.Connection, ids: list[str]) -> list[str]:

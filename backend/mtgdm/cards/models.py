@@ -71,6 +71,9 @@ class CardPage(BaseModel):
     page: int
     page_size: int
     items: list[CardSummary]
+    # The query with its words that are card types as type filters ("desert" -> "t:desert"); first
+    # page only. Words without a key search names, as on Scryfall: surprising when a type was meant.
+    type_hint: str | None = None
 
 
 class SetInfo(BaseModel):

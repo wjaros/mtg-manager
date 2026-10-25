@@ -112,3 +112,16 @@ def test_rarity_set_and_format(client):
 def test_syntax_combines_with_ui_filters(client):
     found = search(client, "t:angel", colors="W", color_mode="exact", game="arena")
     assert found and all(c["colors"] == ["W"] and "arena" in c["games"] for c in found)
+
+
+@pytest.mark.parametrize(("q", "hint"), [
+    ("angel", "t:angel"),                    # bare words search names; a type was probably meant
+    ("serra angel mv>=5", "serra t:angel mv>=5"),
+    ("sol ring", None),
+    ('"angel"', None),                       # quoted: a name on purpose
+    ("t:angel", None),
+])
+def test_type_hint(client, q, hint):
+    page = client.get("/api/cards", params={"q": q}).json()
+    assert page["type_hint"] == hint
+    assert client.get("/api/cards", params={"q": q, "page": 2}).json()["type_hint"] is None  # first page only

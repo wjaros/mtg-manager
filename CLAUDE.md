@@ -20,10 +20,10 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/spellbook/` – Commander Spellbook `find-my-combos` (own UA, ≥1 s between requests, 429 back-off; answers
     cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
     to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)
-  - `mtgdm/cards/` – search (FTS5 + filters), card detail, printings; `syntax.py` – Scryfall-style query syntax;
-    one card per result shows the printing owned in most copies (`owned_printings`; not on Arena or with printing filters)
-    `similar.py` – similar cards on the fly (FTS5 phrase query on the rules text + rarity-weighted shared Tagger tags +
-    mana value; owned ones ranked apart), context menu → Similar cards
+  - `mtgdm/cards/` – search (FTS5 + filters), card detail, printings; `syntax.py` – Scryfall-style query syntax
+    `similar.py` – similar cards on the fly (FTS5 phrase query on the rules text + shared Tagger tags with their
+    ancestors, weighted by rarity; non-functional tag families such as cycles ignored; mana value only scales the
+    score; weak matches dropped; owned ones ranked apart against the same text reference), context menu → Similar cards
   - `mtgdm/scan/` – card scanning: `detect.py` (find + straighten; single card or up to 9 on a page), `ocr/` (Apple Vision on macOS, RapidOCR),
     `reader.py` (OCR lines -> name / number / set / artist / year), `match.py` (set+number, fuzzy name, image hash),
     `pipeline.py` (auto/single/page, manual grid), `service.py` (scans as records, PDF pages, review, commit),
@@ -85,6 +85,8 @@ language from the request's Accept-Language (the frontend sends its own; default
 - `collection_items.kind`: 'real' copies are owned; 'proxy' copies stand in for a card in a deck's box and must never
   count as owned (search owned filters, stats, missing, exports, validation): filter `kind = 'real'` in new queries.
 - `cards` is kept narrow (searched by full scans); bulky JSON lives in `card_details` (1:1).
+- One card per search result shows the printing owned in most copies (`owned_printings` in `cards/search.py`),
+  not on Arena or with printing filters.
 - `oracle_cards` = one row per card with `default_card_id` / `arena_card_id` (both prefer regular booster printings in a plain frame), rebuilt after each sync.
 - Scryfall bulk is gzipped JSONL now (`jsonl_download_uri`); there are no `A-` (Alchemy rebalanced) cards in it.
 - Scryfall `arena_code` can collide with another set's `code` (me1 → `med`): resolve set codes by `code` first.

@@ -83,6 +83,11 @@ def parse_syntax(text: str, formats: frozenset[str]) -> ParsedSyntax:
     return parsed
 
 
+def bare_words(text: str) -> list[re.Match[str]]:
+    """The query's words without a key (they search card names), with their positions."""
+    return [m for m in _TOKEN_RE.finditer(text or "") if m.group("word") is not None]
+
+
 def _clause(key: str, op: str, value: str, formats: frozenset[str]) -> tuple[str, list[Any]]:
     v = value.lower()
     if key == "type":
