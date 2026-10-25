@@ -1,9 +1,11 @@
 """Cards to buy sent to CardTrader as a (private) wishlist: a deck's missing cards or the shopping
 list, any printing. CardTrader silently leaves out lines it doesn't recognize, so the wishlist is read
-back and the cards it lacks are reported. The token is kept in the local database only (meta), never
-in backups."""
+back (where cards are named by slug: "teferi-who-slows-the-sunset") and the cards it lacks are
+reported. The token is kept in the local database only (meta), never in backups."""
 
+import re
 import sqlite3
+import unicodedata
 
 from pydantic import BaseModel
 
@@ -59,8 +61,8 @@ def forget_token(conn: sqlite3.Connection) -> None:
 
 
 def deck_lines(conn: sqlite3.Connection, deck_id: int, exclude_other_decks: bool = False,
-               include_proxied: bool = True) -> tuple[str, list[tuple[int, str]]]:
-    """The deck's name and its missing cards as (copies, name) lines."""
+               include_proxied: bool = True) -> tuple[str, list[tuple[int, str, str]]]:
+    """The deck's name and its missing cards as (copies, MTGA name, full name) lines."""
     deck = conn.execute("SELECT name FROM decks WHERE id = ?", (deck_id,)).fetchone()
     if deck is None:
         raise DeckNotFound(deck_id)
@@ -68,28 +70,32 @@ def deck_lines(conn: sqlite3.Connection, deck_id: int, exclude_other_decks: bool
     for e in missing_report(conn, deck_id, exclude_other_decks).entries:
         copies = e.missing if include_proxied else e.missing - e.proxied
         if copies > 0:
-            lines.append((copies, arena_name(e.name, e.card.layout)))
+            lines.append((copies, arena_name(e.name, e.card.layout), e.name))
     return deck["name"], lines
 
 
-def wants_lines(conn: sqlite3.Connection) -> list[tuple[int, str]]:
-    return [(w.quantity, arena_name(w.name, w.card.layout)) for w in want_list(conn).entries if w.quantity > 0]
+def wants_lines(conn: sqlite3.Connection) -> list[tuple[int, str, str]]:
+    return [(w.quantity, arena_name(w.name, w.card.layout), w.name) for w in want_list(conn).entries if w.quantity > 0]
 
 
-def send_wishlist(client: CardTraderClient, name: str, lines: list[tuple[int, str]]) -> WishlistResult:
+def send_wishlist(client: CardTraderClient, name: str, lines: list[tuple[int, str, str]]) -> WishlistResult:
+    """Lines: (copies, name in the list, the card's full name)."""
     if not lines:
         raise NothingToSend
     name = name[:NAME_LENGTH]
-    created = client.create_wishlist(name, "\n".join(f"{copies} {card}" for copies, card in lines))
+    created = client.create_wishlist(name, "\n".join(f"{copies} {card}" for copies, card, _ in lines))
     stored = client.wishlist(created["id"])
     found = {_key(item.get("meta_name") or "") for item in stored.get("items") or []}
     return WishlistResult(
         id=created["id"], name=stored.get("name") or name, cards=len(lines),
-        copies=sum(copies for copies, _ in lines),
-        not_found=[card for _, card in lines if _key(card) not in found],
+        copies=sum(copies for copies, _, _ in lines),
+        # A multi-face card may come back by its front face or its full name.
+        not_found=[card for _, card, full in lines if not {_key(card), _key(full)} & found],
     )
 
 
 def _key(name: str) -> str:
-    """Names compared in any case, a multi-face card by its front face (CardTrader may use either)."""
-    return name.split(" // ")[0].strip().casefold()
+    """Letters and digits only, without accents or case: "Teferi, Who Slows the Sunset" and CardTrader's
+    slug "teferi-who-slows-the-sunset" are alike."""
+    plain = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]", "", plain.lower())

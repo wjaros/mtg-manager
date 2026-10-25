@@ -1,4 +1,5 @@
 import json
+import re
 
 import httpx
 import pytest
@@ -13,8 +14,14 @@ TOKEN = "good-token"
 UNKNOWN = "Lightning Bolt"  # a card the fake CardTrader doesn't recognize
 
 
+def slug(name: str) -> str:
+    """How CardTrader names a card in a wishlist it returns."""
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
 class FakeCardTrader:
-    """CardTrader's API: the token, wishlists made from MTGA text (unknown lines left out silently)."""
+    """CardTrader's API: the token, wishlists made from MTGA text (unknown lines left out silently),
+    their cards named by slug."""
 
     def __init__(self):
         self.wishlists: dict[int, dict] = {}
@@ -38,7 +45,7 @@ class FakeCardTrader:
             for line in deck["deck_items_from_text_deck"].splitlines():
                 quantity, name = line.split(" ", 1)
                 if name != UNKNOWN:
-                    items.append({"quantity": int(quantity), "meta_name": name, "expansion_code": None})
+                    items.append({"quantity": int(quantity), "meta_name": slug(name), "expansion_code": None})
             wishlist_id = len(self.wishlists) + 1
             self.wishlists[wishlist_id] = {"id": wishlist_id, "name": deck["name"], "game_id": 1, "items": items}
             return httpx.Response(200, json={k: v for k, v in self.wishlists[wishlist_id].items() if k != "items"})

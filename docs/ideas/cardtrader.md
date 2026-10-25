@@ -22,7 +22,8 @@ Cloudflare check, the API host is not).
   - `deck_items_attributes`: a list of DeckItems. Fields: `quantity`, and either `meta_name`
     (the card name: any edition) or `blueprint_id` / `expansion_code` + `collector_number`
     (one printing). Optionally `language`, `condition`, `foil`.
-- `GET /wishlists/:id` returns the items as stored, so we can check what was recognized.
+- `GET /wishlists/:id` returns the items as stored, so we can check what was recognized. Their
+  `meta_name` is a slug (`teferi-who-slows-the-sunset`), seen on a real wishlist on 2026-10-25.
   `GET /wishlists?game_id=1` lists them; `DELETE /wishlists/:id` removes one.
 - The docs don't say whether the website's wishlist form takes a pasted list (to check by hand).
 
