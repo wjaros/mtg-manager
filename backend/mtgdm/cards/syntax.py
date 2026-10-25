@@ -91,7 +91,7 @@ def _clause(key: str, op: str, value: str, formats: frozenset[str]) -> tuple[str
         return "c.oracle_text LIKE ?", [f"%{value}%"]
     if key == "name":
         return "c.name LIKE ?", [f"%{value}%"]
-    if key == "tag":  # Scryfall's function tags (only those the app fetches, see mtgdm.scryfall.tags)
+    if key == "tag":  # Scryfall's function tags (only those the app counts, see mtgdm.scryfall.tags)
         return "c.oracle_id IN (SELECT oracle_id FROM card_tags WHERE tag = ?)", [v]
     if key == "set":
         return "c.set_code = ?", [v]

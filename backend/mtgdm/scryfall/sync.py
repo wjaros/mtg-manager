@@ -4,6 +4,8 @@ MTGJSON's preconstructed decks and Scryfall's function tags (failures there don'
 import logging
 from dataclasses import dataclass
 
+import httpx
+
 from mtgdm.config import Settings
 from mtgdm.db import connect, migrate
 from mtgdm.mtgjson.client import MtgjsonClient, MtgjsonError
@@ -56,8 +58,8 @@ def run_sync(
                     mtgjson.close()
         tagged = None
         try:
-            tagged = sync_tags(conn, client, on_progress, force=force)
-        except (ScryfallError, ValueError, KeyError):
+            tagged = sync_tags(conn, client, settings.bulk_dir, on_progress, force=force)
+        except (ScryfallError, httpx.HTTPError, ValueError, KeyError):
             log.warning("card tag sync failed", exc_info=True)
         return SyncResult(sets=sets, cards=cards, precons=fetched, tags=tagged)
     finally:

@@ -279,7 +279,7 @@ function SyncProgressBar({ progress }: { progress: SyncProgress }) {
   const { stage, done, total } = progress
   const pct = total > 0 ? Math.min(100, (done / total) * 100) : null
   let detail = ''
-  if (stage === 'download') detail = total ? `${Math.round(done / 1e6)} / ${Math.round(total / 1e6)} MB` : ''
+  if (stage === 'download' || stage === 'tags') detail = total ? `${Math.round(done / 1e6)} / ${Math.round(total / 1e6)} MB` : ''
   else if (stage === 'import') detail = t.settings.printingsCount(formatNumber(done))
   else if (total) detail = `${done} / ${total}`
 
