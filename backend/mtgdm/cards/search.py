@@ -68,6 +68,7 @@ class CardQuery:
     include_extras: bool = False
     include_proxies: bool = False    # the owned filter counts proxies as copies too
     tags: list[str] = field(default_factory=list)  # Scryfall function tags, each required (otag:)
+    user_tags: list[str] = field(default_factory=list)  # the user's own tags, each required (tag:)
     unique: Unique = "cards"
     order: Order = "name"
     page: int = 1
@@ -322,6 +323,10 @@ def _filters(q: CardQuery, syntax: ParsedSyntax) -> tuple[list[str], list[Any]]:
 
     for tag in q.tags:
         where.append("c.oracle_id IN (SELECT oracle_id FROM card_tags WHERE tag = ?)")
+        params.append(tag)
+
+    for tag in q.user_tags:  # the column ignores case
+        where.append("c.oracle_id IN (SELECT oracle_id FROM user_tags WHERE tag = ?)")
         params.append(tag)
 
     for type_word in q.types:

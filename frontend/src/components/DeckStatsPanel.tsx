@@ -79,6 +79,7 @@ export function DeckStatsPanel({ deckId, platform, revision }: Props) {
   const rarityRows = Object.entries(stats.rarity)
   const categoryRows = Object.entries(stats.categories).sort((a, b) => b[1] - a[1])
   const functionRows = Object.entries(stats.functions ?? {})
+  const userTagRows = Object.entries(stats.user_tags ?? {}) // most first
   const priceDate = stats.price.as_of ? new Date(stats.price.as_of).toLocaleDateString(locale) : null
 
   return (
@@ -159,6 +160,19 @@ export function DeckStatsPanel({ deckId, platform, revision }: Props) {
             unit={t.stats.unitCards}
           />
           <ChartTable head={[t.stats.function, t.stats.cards]} rows={functionRows.map(([f, n]) => [t.functions[f] ?? f, n])} />
+        </section>
+      )}
+
+      {userTagRows.length > 0 && (
+        <section className="chart-card">
+          <h3 className="chart-title">{t.userTags.label}</h3>
+          <p className="chart-subtitle">{t.stats.userTagsSubtitle}</p>
+          <HorizontalBars
+            rows={userTagRows.map(([tag, n]) => ({ label: tag, values: { value: n } }))}
+            series={SINGLE}
+            unit={t.stats.unitCards}
+          />
+          <ChartTable head={[t.userTags.label, t.stats.cards]} rows={userTagRows.map(([tag, n]) => [tag, n])} />
         </section>
       )}
 

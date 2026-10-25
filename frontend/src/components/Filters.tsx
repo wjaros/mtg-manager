@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { api, type ColorMode, type Order, type SetInfo } from '../api/client'
+import { api, type ColorMode, type Order, type SetInfo, type UserTag } from '../api/client'
 import { EMPTY_FILTERS, type FilterState } from '../filters'
 import { t } from '../i18n'
 
@@ -53,6 +53,12 @@ export function Filters({ value, onChange, allowFree = false }: Props) {
   const [sets, setSets] = useState<SetInfo[]>([])
   useEffect(() => {
     api.sets().then(setSets, () => setSets([]))
+  }, [])
+  // The user's own tags; fetched again on focus, as cards get tagged from their menus meanwhile.
+  const [userTags, setUserTags] = useState<UserTag[]>([])
+  const loadUserTags = () => api.userTags().then(setUserTags, () => setUserTags([]))
+  useEffect(() => {
+    api.userTags().then(setUserTags, () => setUserTags([]))
   }, [])
 
   const set = <K extends keyof FilterState>(key: K, v: FilterState[K]) => onChange({ ...value, [key]: v })
@@ -210,6 +216,22 @@ export function Filters({ value, onChange, allowFree = false }: Props) {
             </option>
           ))}
         </select>
+        {(userTags.length > 0 || value.userTag) && (
+          <select
+            className="select"
+            value={value.userTag}
+            onChange={(e) => set('userTag', e.target.value)}
+            onFocus={loadUserTags}
+            aria-label={t.userTags.label}
+          >
+            <option value="">{t.filters.anyUserTag}</option>
+            {userTags.map((u) => (
+              <option key={u.tag} value={u.tag}>
+                {u.tag} ({u.cards})
+              </option>
+            ))}
+          </select>
+        )}
         <select className="select" value={value.set} onChange={(e) => set('set', e.target.value)} aria-label="Set">
           <option value="">{t.filters.anySet}</option>
           {sets

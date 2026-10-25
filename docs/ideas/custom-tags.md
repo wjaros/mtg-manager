@@ -1,8 +1,8 @@
 # Idea: my own card tags
 
-Status: first version done (2026-10-25): `user_tags` per oracle id, set from the card menus
-(My tags…) or a card's details, searched with `tag:`, in the backup. Not yet: deck stats, a
-filter in the filter bar, and the open questions below.
+Status: done (2026-10-25). `user_tags` per oracle id, set from the card menus (My tags…) or a
+card's details. Searched with `tag:` or the filter bar's "Any of my tags". Counted in the deck
+stats. In the backup.
 
 ## What I want
 
@@ -29,10 +29,8 @@ Tagger tags: several per card, the same in the collection and every deck.
 
 ## Decided
 
-- **Per card**, not per copy (2026-10-25): a tag belongs to the card (oracle id, all printings).
-  "For sale" is about a copy, so it stays a separate per-copy flag (see `sell-list.md`).
-
-## Open questions
-
-- **Deck categories:** keep them as a deck's own roles, or let them default from my tags?
-- **Tagger tags:** should they be visible and pickable too, e.g. to copy one as my own tag?
+- **Per card**, not per copy: a tag belongs to the card (oracle id, all printings). "For sale" is
+  about a copy, so it stays a separate per-copy flag (see `sell-list.md`).
+- **Deck categories** stay separate: a card's role in one deck, while tags are the same everywhere.
+- **Tagger tags** are not offered as tags. Scryfall asks apps showing them to be able to hide
+  individual tags; worth it only if there's a need.

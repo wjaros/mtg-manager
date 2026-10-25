@@ -36,6 +36,20 @@ def test_tags_per_card_in_any_case(app):
     assert app.put("/api/cards/nope/user-tags", json={"tags": ["x"]}).status_code == 404
 
 
+def test_tags_filter_and_deck_stats(app):
+    app.put(f"/api/cards/{SOL_RING}/user-tags", json={"tags": ["wincon", "pet card"]})
+    app.put(f"/api/cards/{BOLT}/user-tags", json={"tags": ["wincon"]})
+    found = app.get("/api/cards", params={"user_tag": ["WINCON", "pet card"]}).json()["items"]
+    assert [c["name"] for c in found] == ["Sol Ring"]  # each tag required, in any case
+
+    deck = app.post("/api/decks", json={"name": "Tags", "format": "freeform", "platform": "paper"}).json()
+    for card_id, qty in ((SOL_RING_OTHER, 1), (BOLT, 4)):
+        app.post(f"/api/decks/{deck['id']}/cards", json={"card_id": card_id, "quantity": qty})
+    app.post(f"/api/decks/{deck['id']}/cards", json={"card_id": BOLT, "quantity": 2, "board": "maybe"})
+    stats = app.get(f"/api/decks/{deck['id']}/stats").json()
+    assert list(stats["user_tags"].items()) == [("wincon", 5), ("pet card", 1)]  # most first; maybeboard left out
+
+
 def test_tags_in_the_backup(app, tmp_path, card_db_template):
     app.put(f"/api/cards/{SOL_RING}/user-tags", json={"tags": ["wincon", "pet card"]})
     backup = app.get("/api/backup/export").json()

@@ -13,6 +13,7 @@ export interface FilterState {
   game: '' | 'paper' | 'arena'
   owned: '' | 'owned' | 'missing' | 'free'
   tag: string // Scryfall function tag (ramp, removal, ...)
+  userTag: string // one of the user's own tags
   includeProxies: boolean // the owned filter counts proxies as copies
   unique: 'cards' | 'prints'
   order: Order
@@ -31,6 +32,7 @@ export const EMPTY_FILTERS: FilterState = {
   game: '',
   owned: '',
   tag: '',
+  userTag: '',
   includeProxies: false,
   unique: 'cards',
   order: 'name',
@@ -45,6 +47,7 @@ export function toQuery(f: FilterState): CardQuery {
     mv: f.mv.length ? f.mv : undefined,
     type: f.type ? [f.type] : undefined,
     tag: f.tag ? [f.tag] : undefined,
+    user_tag: f.userTag ? [f.userTag] : undefined,
     rarity: f.rarity.length ? f.rarity : undefined,
     set: f.set ? [f.set] : undefined,
     format: f.format || undefined,

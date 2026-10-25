@@ -52,6 +52,7 @@ class DeckStats(BaseModel):
     colors: list[ColorBalance]
     categories: dict[str, int]
     functions: dict[str, int] = {}  # copies with each Scryfall function tag (ramp, draw, removal, ...)
+    user_tags: dict[str, int] = {}  # copies with each of the user's own tags, most first
     price: Price
     wildcards: dict[str, int]      # Arena wildcards per rarity to craft the deck (basic lands are free)
 
@@ -159,6 +160,7 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
         ],
         categories=dict(categories),
         functions=_functions(conn, deck_id),
+        user_tags=_user_tags(conn, deck_id),
         price=Price(
             eur=round(eur, 2), usd=round(usd, 2),
             missing_eur=round(missing_eur, 2), missing_usd=round(missing_usd, 2),
@@ -205,3 +207,16 @@ def _functions(conn: sqlite3.Connection, deck_id: int) -> dict[str, int]:
         (deck_id,),
     ).fetchall())
     return {tag: counts[tag] for tag in TAGS if tag in counts}
+
+
+def _user_tags(conn: sqlite3.Connection, deck_id: int) -> dict[str, int]:
+    """Copies of the deck (commander and main) per own tag, most first."""
+    return dict(conn.execute(
+        """
+        SELECT t.tag, SUM(dc.quantity) AS copies FROM deck_cards dc JOIN cards c ON c.id = dc.card_id
+        JOIN user_tags t ON t.oracle_id = c.oracle_id
+        WHERE dc.deck_id = ? AND dc.board IN ('main', 'commander')
+        GROUP BY t.tag ORDER BY copies DESC, t.tag
+        """,
+        (deck_id,),
+    ).fetchall())

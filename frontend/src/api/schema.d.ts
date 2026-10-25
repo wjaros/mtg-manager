@@ -2316,6 +2316,13 @@ export interface components {
             functions?: {
                 [key: string]: number;
             };
+            /**
+             * User Tags
+             * @default {}
+             */
+            user_tags?: {
+                [key: string]: number;
+            };
             price: components["schemas"]["Price"];
             /** Wildcards */
             wildcards: {
@@ -3666,6 +3673,8 @@ export interface operations {
                 type?: string[];
                 /** @description Scryfall function tags (ramp, draw, removal, ...), each required */
                 tag?: string[];
+                /** @description The user's own tags, each required */
+                user_tag?: string[];
                 rarity?: string[];
                 /** @description Scryfall set codes */
                 set?: string[];
