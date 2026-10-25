@@ -100,24 +100,31 @@ Zakładka **Porównaj** zestawia tę talię (A) z inną (B), np. papierowego Qui
 Talię B wybierasz z listy; aplikacja sama podpowiada talię z tym samym dowódcą. Karty porównywane
 są po nazwie (dowolne wydanie); liczą się dowódca, talia główna i companion.
 
-- **Tabela:** karta, liczba kopii w A i w B, cena. Kolory: tylko w A (czerwony), tylko w B
-  (zielony), różna liczba (żółty). **Pokaż wspólne** dodaje karty, które obie talie mają tak samo.
+- **Obok siebie:** A po lewej, B po prawej, każda karta w jednym wierszu, z kosztem many i ceną;
+  po stronie talii, która jej nie ma, puste miejsce (albo powód, dla którego karta tam nie pasuje).
+  Kolory: to, czego brakuje w drugiej talii, na czerwono po stronie A, na zielono po stronie B.
+- **Tabela:** karta, koszt many, liczba kopii w A i w B, cena. Kolory: tylko w A (czerwony), tylko
+  w B (zielony), różna liczba (żółty).
 - **Diff:** linia pod linią, jak w porównaniu plików: `− 2 Karta` dla A, `+ 1 Karta` dla B.
-- **Sortowanie:** cena od najdroższych albo od najtańszych (karty o tej samej cenie alfabetycznie)
-  albo nazwa.
+- **Sortowanie:** mana value rosnąco (domyślnie) albo malejąco, z nagłówkiem dla każdej wartości;
+  cena od najdroższych albo od najtańszych; nazwa. Karty o tym samym koszcie (albo cenie) idą
+  alfabetycznie, **A→Z** albo **Z→A**.
+- **Pokaż wspólne** dodaje karty, które obie talie mają tak samo.
 - Nad listą jest podsumowanie: ile kart jest tylko w A, tylko w B, z różną liczbą, wspólnych, i
   wartość orientacyjna obu talii.
 
-![Porównanie talii: tabela](../images/pl/compare.webp)
+![Porównanie talii: obok siebie](../images/pl/compare-side.webp)
 
 Najechanie na nazwę karty pokazuje jej podgląd i krótką informację dla obu talii: ile kopii jest w
 talii, czy kartę można dodać, a jeśli nie, to dlaczego (nielegalna w formacie, poza kolorami
 dowódcy, brak na Arenie).
 
-**→ B** i **← A** dodają brakujące kopie do drugiej talii, ale tylko gdy karta może tam trafić:
-jest legalna w formacie, mieści się w kolorach dowódcy, a dla talii z Areny jest na Arenie. W
-formatach singleton dodawana jest najwyżej jedna kopia. Do talii z Areny trafia wydanie z Areny, do
-papierowej to, którego masz najwięcej kopii (albo domyślne).
+**→** i **←** (w tabeli i diffie **→ B** i **← A**) dodają brakujące kopie do drugiej talii, ale
+tylko gdy karta może tam trafić: jest legalna w formacie, mieści się w kolorach dowódcy, a dla
+talii z Areny jest na Arenie. W formatach singleton dodawana jest najwyżej jedna kopia. Do talii z
+Areny trafia wydanie z Areny, do papierowej to, którego masz najwięcej kopii (albo domyślne).
+
+![Porównanie talii: tabela według ceny](../images/pl/compare.webp)
 
 ![Porównanie talii: diff](../images/pl/compare-diff.webp)
 

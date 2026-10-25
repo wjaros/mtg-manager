@@ -1568,6 +1568,92 @@ nav {
   cursor: default;
 }
 
+.compare-group {
+  margin-top: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+tr.compare-group td {
+  padding-top: 0.6rem;
+}
+
+.compare-side {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.875rem;
+}
+
+.side-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.5rem minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.side-head {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.side-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.side-cell .compare-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.compare-only-a > .side-cell:first-child,
+.compare-differ > .side-cell:first-child {
+  background: rgb(224 102 102 / 0.1);
+}
+
+.compare-only-b > .side-cell:last-child,
+.compare-differ > .side-cell:last-child {
+  background: rgb(79 191 127 / 0.1);
+}
+
+.compare-same > .side-cell {
+  color: var(--text-muted);
+}
+
+.side-cell.empty {
+  border: 1px dashed var(--border);
+  background: none;
+}
+
+.side-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.side-middle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.side-row:not(.side-head):hover > .side-cell:not(.empty) {
+  outline: 1px solid var(--border);
+}
+
 .diff-row {
   display: flex;
   align-items: center;
@@ -1600,6 +1686,10 @@ nav {
 
 .diff-line.same {
   color: var(--text-muted);
+}
+
+.diff-line .mana-cost {
+  margin-left: 0.5rem;
 }
 
 .diff-sign {

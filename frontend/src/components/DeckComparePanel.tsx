@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { Fragment, useEffect, useMemo, useState, type MouseEvent } from 'react'
 import { api, type CardFit, type CompareRow, type DeckComparison, type DeckDetail, type DeckSummary } from '../api/client'
 import { FORMAT_LABEL } from '../decks'
 import { useHoverPreview } from '../hooks/useHoverPreview'
+import { ManaCost } from './ManaCost'
 import { locale, t } from '../i18n'
 
-type Sort = 'price-desc' | 'price-asc' | 'name'
-type View = 'table' | 'diff'
+type Sort = 'mv-asc' | 'mv-desc' | 'price-desc' | 'price-asc' | 'name'
+type View = 'side' | 'table' | 'diff'
 const STORE_KEY = 'mtgdm.compareWith'
 
 /** The deck (A) next to another one (B), card by card: copies in each, price, what one could take from
-the other. A table, or a diff with B's lines under A's. */
+the other. Side by side, a table, or a diff with B's lines under A's; sorted by mana value or price, equal
+ones by name. */
 export function DeckComparePanel({
   deck,
   revision,
@@ -28,8 +30,9 @@ export function DeckComparePanel({
       return null
     }
   })
-  const [view, setView] = useState<View>('table')
-  const [sort, setSort] = useState<Sort>('price-desc')
+  const [view, setView] = useState<View>('side')
+  const [sort, setSort] = useState<Sort>('mv-asc')
+  const [nameDesc, setNameDesc] = useState(false)
   const [showSame, setShowSame] = useState(false)
   const [otherRevision, setOtherRevision] = useState(0)
   const [result, setResult] = useState<{ key: string; data: DeckComparison } | null>(null)
@@ -74,15 +77,23 @@ export function DeckComparePanel({
   const rows = useMemo(() => {
     const all = data?.rows ?? []
     const shown = showSame ? all : all.filter((r) => r.a !== r.b)
-    const byName = (a: CompareRow, b: CompareRow) => a.name.localeCompare(b.name, locale)
+    const byName = (a: CompareRow, b: CompareRow) => (nameDesc ? -1 : 1) * a.name.localeCompare(b.name, locale)
     if (sort === 'name') return [...shown].sort(byName)
-    const sign = sort === 'price-desc' ? -1 : 1
-    // Equal prices by name; cards without a price last either way.
+    const value = (r: CompareRow) => (sort === 'mv-asc' || sort === 'mv-desc' ? r.card.cmc : r.price_eur)
+    const sign = sort === 'mv-desc' || sort === 'price-desc' ? -1 : 1
+    // Equal values by name; cards without one (no price) last either way.
     return [...shown].sort((a, b) => {
-      if (a.price_eur == null || b.price_eur == null) return a.price_eur == null ? (b.price_eur == null ? byName(a, b) : 1) : -1
-      return sign * (a.price_eur - b.price_eur) || byName(a, b)
+      const va = value(a)
+      const vb = value(b)
+      if (va == null || vb == null) return va == null ? (vb == null ? byName(a, b) : 1) : -1
+      return sign * (va - vb) || byName(a, b)
     })
-  }, [data, showSame, sort])
+  }, [data, showSame, sort, nameDesc])
+
+  // Sorted by mana value: a heading where it changes.
+  const grouped = sort === 'mv-asc' || sort === 'mv-desc'
+  const groupAt = (i: number) =>
+    grouped && (i === 0 || rows[i].card.cmc !== rows[i - 1].card.cmc) ? t.compare.mvGroup(rows[i].card.cmc ?? '—') : null
 
   const byCardId = useMemo(() => new Map((data?.rows ?? []).map((r) => [r.card.id, r])), [data])
   const preview = useHoverPreview((cardId) => {
@@ -126,6 +137,23 @@ export function DeckComparePanel({
     }
   }, [data])
 
+  // One deck's side of a row: its copies, or (none) why the other deck's can't come here.
+  const sideCell = (row: CompareRow, copies: number, fit: CardFit, side: DeckComparison['a'], lacks: boolean) => (
+    <div className={`side-cell ${copies ? '' : 'empty'}`}>
+      {copies > 0 ? (
+        <>
+          {name(row, `${copies} ${row.name}`)}
+          <span className="side-meta">
+            <ManaCost cost={row.card.mana_cost} />
+            <span className="muted small">{row.price_eur != null ? `€${row.price_eur.toFixed(2)}` : '—'}</span>
+          </span>
+        </>
+      ) : (
+        lacks && fit.addable === 0 && <span className="muted small">{blocker(fit, side)}</span>
+      )}
+    </div>
+  )
+
   const actions = (row: CompareRow) => (
     <span className="compare-actions">
       {row.fit_b.addable > 0 && (
@@ -159,6 +187,9 @@ export function DeckComparePanel({
           </select>
         </label>
         <div className="segmented" role="tablist">
+          <button className={view === 'side' ? 'on' : ''} onClick={() => setView('side')}>
+            {t.compare.side}
+          </button>
           <button className={view === 'table' ? 'on' : ''} onClick={() => setView('table')}>
             {t.compare.table}
           </button>
@@ -167,10 +198,20 @@ export function DeckComparePanel({
           </button>
         </div>
         <select className="select" value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label={t.compare.sort}>
+          <option value="mv-asc">{t.compare.mvAsc}</option>
+          <option value="mv-desc">{t.compare.mvDesc}</option>
           <option value="price-desc">{t.compare.priceDesc}</option>
           <option value="price-asc">{t.compare.priceAsc}</option>
           <option value="name">{t.compare.byName}</option>
         </select>
+        <div className="segmented" title={t.compare.nameOrder}>
+          <button className={nameDesc ? '' : 'on'} onClick={() => setNameDesc(false)}>
+            {t.compare.nameAsc}
+          </button>
+          <button className={nameDesc ? 'on' : ''} onClick={() => setNameDesc(true)}>
+            {t.compare.nameDesc}
+          </button>
+        </div>
         <label className="checkbox">
           <input type="checkbox" checked={showSame} onChange={(e) => setShowSame(e.target.checked)} />
           {t.compare.showSame}
@@ -188,11 +229,47 @@ export function DeckComparePanel({
           </p>
           {rows.length === 0 ? (
             <p className="muted">{t.compare.identical}</p>
+          ) : view === 'side' ? (
+            <div className="compare-side">
+              <div className="side-row side-head">
+                <div>
+                  <strong>A · {data.a.name}</strong>
+                  <div className="muted small">€{counts.priceA.toFixed(2)}</div>
+                </div>
+                <div />
+                <div>
+                  <strong>B · {data.b.name}</strong>
+                  <div className="muted small">€{counts.priceB.toFixed(2)}</div>
+                </div>
+              </div>
+              {rows.map((row, i) => (
+                <Fragment key={row.oracle_id}>
+                  {groupAt(i) && <div className="compare-group">{groupAt(i)}</div>}
+                  <div className={`side-row compare-${status(row)}`}>
+                    {sideCell(row, row.a, row.fit_a, data.a, row.b > row.a)}
+                    <div className="side-middle">
+                      {row.fit_b.addable > 0 && (
+                        <button className="link-button small" onClick={() => addToOther(row)} title={t.compare.addToTitle(data.b.name)}>
+                          → +{row.fit_b.addable}
+                        </button>
+                      )}
+                      {row.fit_a.addable > 0 && (
+                        <button className="link-button small" onClick={() => addHere(row)} title={t.compare.addToTitle(deck.name)}>
+                          +{row.fit_a.addable} ←
+                        </button>
+                      )}
+                    </div>
+                    {sideCell(row, row.b, row.fit_b, data.b, row.a > row.b)}
+                  </div>
+                </Fragment>
+              ))}
+            </div>
           ) : view === 'table' ? (
             <table className="missing-table compare-table">
               <thead>
                 <tr>
                   <th>{t.panels.card}</th>
+                  <th>{t.compare.manaCost}</th>
                   <th className="num" title={data.a.name}>
                     A
                   </th>
@@ -204,52 +281,66 @@ export function DeckComparePanel({
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row) => (
-                  <tr key={row.oracle_id} className={`compare-${status(row)}`}>
-                    <td>{name(row, row.name)}</td>
-                    <td className="num strong">{row.a || '–'}</td>
-                    <td className="num strong">{row.b || '–'}</td>
-                    <td className="num muted">{row.price_eur != null ? `€${row.price_eur.toFixed(2)}` : '—'}</td>
-                    <td>{actions(row)}</td>
-                  </tr>
+                {rows.map((row, i) => (
+                  <Fragment key={row.oracle_id}>
+                    {groupAt(i) && (
+                      <tr className="compare-group">
+                        <td colSpan={6}>{groupAt(i)}</td>
+                      </tr>
+                    )}
+                    <tr className={`compare-${status(row)}`}>
+                      <td>{name(row, row.name)}</td>
+                      <td>
+                        <ManaCost cost={row.card.mana_cost} />
+                      </td>
+                      <td className="num strong">{row.a || '–'}</td>
+                      <td className="num strong">{row.b || '–'}</td>
+                      <td className="num muted">{row.price_eur != null ? `€${row.price_eur.toFixed(2)}` : '—'}</td>
+                      <td>{actions(row)}</td>
+                    </tr>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
           ) : (
             <div className="compare-diff">
-              {rows.map((row) => (
-                <div key={row.oracle_id} className="diff-row">
-                  <div className="diff-lines">
-                    {row.a === row.b ? (
-                      <div className="diff-line same">
-                        <span className="diff-sign"> </span>
-                        {name(row, `${row.a} ${row.name}`)}
-                      </div>
-                    ) : (
-                      <>
-                        {row.a > 0 && (
-                          <div className="diff-line removed">
-                            <span className="diff-sign">−</span>
-                            {name(row, `${row.a} ${row.name}`)}
-                          </div>
-                        )}
-                        {row.b > 0 && (
-                          <div className="diff-line added">
-                            <span className="diff-sign">+</span>
-                            {name(row, `${row.b} ${row.name}`)}
-                          </div>
-                        )}
-                      </>
-                    )}
+              {rows.map((row, i) => (
+                <Fragment key={row.oracle_id}>
+                  {groupAt(i) && <div className="compare-group">{groupAt(i)}</div>}
+                  <div className="diff-row">
+                    <div className="diff-lines">
+                      {row.a === row.b ? (
+                        <div className="diff-line same">
+                          <span className="diff-sign"> </span>
+                          {name(row, `${row.a} ${row.name}`)}
+                          <ManaCost cost={row.card.mana_cost} />
+                        </div>
+                      ) : (
+                        <>
+                          {row.a > 0 && (
+                            <div className="diff-line removed">
+                              <span className="diff-sign">−</span>
+                              {name(row, `${row.a} ${row.name}`)}
+                              <ManaCost cost={row.card.mana_cost} />
+                            </div>
+                          )}
+                          {row.b > 0 && (
+                            <div className="diff-line added">
+                              <span className="diff-sign">+</span>
+                              {name(row, `${row.b} ${row.name}`)}
+                              <ManaCost cost={row.card.mana_cost} />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    {row.a !== row.b && actions(row)}
                   </div>
-                  {row.a !== row.b && actions(row)}
-                </div>
+                </Fragment>
               ))}
             </div>
           )}
-          <p className="muted small">
-            {t.compare.legend(data.a.name, data.b.name)}
-          </p>
+          <p className="muted small">{t.compare.legend(data.a.name, data.b.name)}</p>
         </>
       )}
       {preview.element}
