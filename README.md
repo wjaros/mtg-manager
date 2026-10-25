@@ -8,6 +8,8 @@ print proxies of the cards you're missing, and export decks to MTG Arena, Moxfie
 phone-friendly PDF. Everything runs on your computer; card data comes from
 [Scryfall](https://scryfall.com) and works offline once downloaded.
 
+**User guide** with screenshots: [English](docs/en/index.md) · [Polski](docs/pl/index.md)
+
 ![Deckbuilder](docs/screenshots/deckbuilder.webp)
 
 ## Features
@@ -17,7 +19,9 @@ phone-friendly PDF. Everything runs on your computer; card data comes from
 (binders, boxes, deck boxes). Open any card and you see where each of your copies lies, e.g. "1×
 DOM #31 · NM · Giada, Font of Hope" means it sits in that deck's box, so you know where to take it from. A
 card you own shows the printing you have the most copies of, here and in the deckbuilder's pool (paper decks).
-Filter the search to the cards you own or to the ones you're missing.
+Filter the search to the cards you own or to the ones you're missing. A word that is a card type
+(e.g. "desert") searches names, as on Scryfall, so the search offers `t:desert` for the type line.
+Right-click a card to copy its name, or use the copy button in its details.
 Tag cards your own way (right click → *My tags…*: "wincon", "pet card"…) and search them with
 `tag:wincon`.
 
@@ -58,6 +62,20 @@ estimated prices. Copies built into your other decks can count as unavailable, s
 having both decks at once. Copy the list into a CardMarket wants list or download it as CSV.
 
 ![Missing cards](docs/screenshots/missing.webp)
+
+**Shopping list.** *Collection → To buy* gathers what to buy across decks: a deck's missing cards
+(one click in its *Missing* tab) and any card you right-click in the search or a deck. Copies you
+add to the collection afterwards count as bought and drop off the list. Copy it into a Cardmarket
+wants list and let its Shopping Wizard find the sellers (e.g. the fewest shipments), or download
+it as CSV.
+
+**CardTrader.** With your CardTrader API token (from your CardTrader profile settings, added in
+*Settings → CardTrader*), *Send to CardTrader* keeps one private CardTrader wishlist in step with
+the shopping list (any printing); from a deck's *Missing* tab, its missing cards go on the shopping
+list first. Each send replaces the wishlist, so take cards off the shopping list here rather than on
+CardTrader. Cards CardTrader doesn't recognize are listed, so you can add them there by hand. The
+cards' language can be set in *Settings → CardTrader* (any by default). The
+token stays on your computer and is never part of a backup.
 
 **Scanning.** Drop photos of single cards, flatbed scans of whole pages (up to 9 cards, e.g. a binder
 page) or PDFs. Cards are found, straightened and recognized by name, collector line and art. You

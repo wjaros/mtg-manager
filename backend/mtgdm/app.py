@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from mtgdm import __version__
 from mtgdm.api import api_router
+from mtgdm.cardtrader.client import new_http
 from mtgdm.cloud_backup import CloudBackupWriter
 from mtgdm.config import Settings, load_settings
 from mtgdm.db import connect, migrate
@@ -30,6 +31,7 @@ def create_app(
     mtgjson: MtgjsonClient | None = None,
     github: httpx.Client | None = None,
     spellbook: SpellbookClient | None = None,
+    cardtrader: httpx.Client | None = None,
 ) -> FastAPI:
     settings = settings or load_settings()
 
@@ -54,6 +56,7 @@ def create_app(
             app.state.mtgjson.close()
             app.state.github.close()
             app.state.spellbook.close()
+            app.state.cardtrader.close()
 
     app = FastAPI(title="MTG Deck Manager", version=__version__, lifespan=lifespan)
     app.state.settings = settings
@@ -66,6 +69,8 @@ def create_app(
     app.state.github = github or httpx.Client(timeout=10.0, follow_redirects=True)
     # Deck combos, asked for when the deck's Combos tab opens.
     app.state.spellbook = spellbook or SpellbookClient()
+    # CardTrader wishlists, with the user's own token (Settings › CardTrader).
+    app.state.cardtrader = cardtrader or new_http()
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)
     app.state.print_jobs = PrintJobs(settings.db_path, settings.print_dir, app.state.image_cache)
     app.state.recognizer = Recognizer(settings.db_path, lambda conn: _image_loader(app.state.image_cache, conn))

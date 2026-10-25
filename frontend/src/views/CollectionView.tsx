@@ -14,6 +14,7 @@ import { EMPTY_FILTERS, toQuery, type FilterState } from '../filters'
 import { useCardPages } from '../hooks/useCardPages'
 import { useDebounced } from '../hooks/useDebounced'
 import { formatNumber, t } from '../i18n'
+import { wants } from '../wants'
 
 interface Props {
   hasData: boolean
@@ -108,6 +109,7 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
                 { label: t.common.copyName, onClick: () => copyFromMenu(card.name) },
                 // A tag: search shows the change at once.
                 { label: t.userTags.menu, onClick: () => editUserTagsFromMenu(card, () => setVersion((v) => v + 1)) },
+                { label: t.wants.addToList, onClick: () => wants.add(card) },
                 { label: t.builder.details, onClick: () => setSelected(card.id) },
               ],
             })

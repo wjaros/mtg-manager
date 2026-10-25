@@ -42,6 +42,7 @@ import {
   isBasicLand,
 } from '../decks'
 import { getCardDrag, isCardDrag, type CardDrag } from '../dnd'
+import { wants } from '../wants'
 import { EMPTY_FILTERS, toQuery, type FilterState } from '../filters'
 import { useCardPages } from '../hooks/useCardPages'
 import { useDebounced } from '../hooks/useDebounced'
@@ -277,6 +278,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
     items.push({ label: t.similar.menu, onClick: () => setSimilarTo(card) })
     items.push({ label: t.common.copyName, onClick: () => copyFromMenu(card.name) })
     items.push({ label: t.userTags.menu, onClick: () => editUserTagsFromMenu(card) })
+    items.push({ label: t.wants.addToList, onClick: () => wants.add(card) })
     items.push({ label: t.builder.details, onClick: () => setDetail({ cardId: card.id }) })
     setMenu({ x: e.clientX, y: e.clientY, title: card.name, items })
   }
@@ -308,6 +310,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
     items.push({ label: t.similar.menu, onClick: () => setSimilarTo(card) })
     items.push({ label: t.common.copyName, onClick: () => copyFromMenu(card.name) })
     items.push({ label: t.userTags.menu, onClick: () => editUserTagsFromMenu(card) })
+    items.push({ label: t.wants.addToList, onClick: () => wants.add(card) })
     if (deck?.platform === 'paper' && board !== 'maybe') {
       items.push({
         label: t.builder.addProxy,

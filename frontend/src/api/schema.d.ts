@@ -310,6 +310,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cardtrader": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Status
+         * @description Whether a CardTrader token is set (the token itself is never sent back).
+         */
+        get: operations["get_status_api_cardtrader_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cardtrader/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Token
+         * @description Keep the user's CardTrader API token once CardTrader accepts it.
+         */
+        put: operations["put_token_api_cardtrader_token_put"];
+        post?: never;
+        /** Delete Token */
+        delete: operations["delete_token_api_cardtrader_token_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cardtrader/language": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Language
+         * @description The language of the cards on the wishlist from the next send on; None: any.
+         */
+        put: operations["put_language_api_cardtrader_language_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cardtrader/wishlists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Wishlist
+         * @description Make the one CardTrader wishlist (private, any printing) the shopping list, a deck's missing
+         *     cards put on it first; the result lists the cards CardTrader didn't recognize.
+         */
+        post: operations["post_wishlist_api_cardtrader_wishlists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/collection": {
         parameters: {
             query?: never;
@@ -1540,6 +1622,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/wants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Wants
+         * @description Cards to buy: copies added by hand and decks' missing copies, minus those bought since.
+         */
+        get: operations["get_wants_api_wants_get"];
+        put?: never;
+        /** Post Want */
+        post: operations["post_want_api_wants_post"];
+        /** Clear Wants */
+        delete: operations["clear_wants_api_wants_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/wants/{oracle_id}/reduce": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post Reduce Want */
+        post: operations["post_reduce_want_api_wants__oracle_id__reduce_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/wants/{oracle_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Want */
+        delete: operations["delete_want_api_wants__oracle_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/wants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Deck Wants
+         * @description Put the deck's missing cards on the list (replacing what this deck added before).
+         */
+        post: operations["post_deck_wants_api_decks__deck_id__wants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/wants/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Wants */
+        get: operations["export_wants_api_wants_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1761,6 +1936,15 @@ export interface components {
             owned: number;
             /** Owned Printing */
             owned_printing: number;
+        };
+        /** CardTraderStatus */
+        CardTraderStatus: {
+            /** Connected */
+            connected: boolean;
+            /** App Name */
+            app_name?: string | null;
+            /** Language */
+            language?: string | null;
         };
         /** CardUsage */
         CardUsage: {
@@ -2468,6 +2652,12 @@ export interface components {
             /** Changes */
             changes: components["schemas"]["DeckChange"][];
         };
+        /** DeckWantsResult */
+        DeckWantsResult: {
+            /** Added */
+            added: number;
+            wants: components["schemas"]["WantList"];
+        };
         /** Download */
         Download: {
             /** Name */
@@ -2718,6 +2908,11 @@ export interface components {
              * @default []
              */
             card_ids?: string[];
+        };
+        /** LanguageBody */
+        LanguageBody: {
+            /** Language */
+            language?: string | null;
         };
         /** Location */
         Location: {
@@ -3365,6 +3560,11 @@ export interface components {
             /** Db Size Bytes */
             db_size_bytes: number;
         };
+        /** TokenBody */
+        TokenBody: {
+            /** Token */
+            token: string;
+        };
         /** UpdateInfo */
         UpdateInfo: {
             /** Enabled */
@@ -3457,6 +3657,103 @@ export interface components {
             format: string;
             /** Issues */
             issues: components["schemas"]["Issue"][];
+        };
+        /** Want */
+        Want: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            card: components["schemas"]["CardSummary"];
+            /** Quantity */
+            quantity: number;
+            /** Wanted */
+            wanted: number;
+            /** Owned */
+            owned: number;
+            /** Sources */
+            sources: components["schemas"]["WantSource"][];
+            /** Price Eur */
+            price_eur: number | null;
+            /** Price Usd */
+            price_usd: number | null;
+        };
+        /** WantAdd */
+        WantAdd: {
+            /** Card Id */
+            card_id: string;
+            /**
+             * Quantity
+             * @default 1
+             */
+            quantity?: number;
+        };
+        /** WantList */
+        WantList: {
+            /** Entries */
+            entries: components["schemas"]["Want"][];
+            /** Copies */
+            copies: number;
+            /** Total Eur */
+            total_eur: number;
+            /** Total Usd */
+            total_usd: number;
+            /** Prices As Of */
+            prices_as_of: string | null;
+        };
+        /** WantSource */
+        WantSource: {
+            /** Deck Id */
+            deck_id: number | null;
+            /** Deck Name */
+            deck_name: string | null;
+            /** Quantity */
+            quantity: number;
+        };
+        /** WishlistRequest */
+        WishlistRequest: {
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "deck" | "wants";
+            /** Deck Id */
+            deck_id?: number | null;
+            /**
+             * Exclude Other Decks
+             * @default false
+             */
+            exclude_other_decks?: boolean;
+            /**
+             * Include Proxied
+             * @default true
+             */
+            include_proxied?: boolean;
+        };
+        /** WishlistResult */
+        WishlistResult: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Cards */
+            cards: number;
+            /** Copies */
+            copies: number;
+            /** Not Found */
+            not_found: string[];
+            /**
+             * Added
+             * @default 0
+             */
+            added?: number;
+            /** Language */
+            language?: string | null;
+            /**
+             * Language Ignored
+             * @default false
+             */
+            language_ignored?: boolean;
         };
     };
     responses: never;
@@ -3947,6 +4244,143 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_status_api_cardtrader_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardTraderStatus"];
+                };
+            };
+        };
+    };
+    put_token_api_cardtrader_token_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardTraderStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_token_api_cardtrader_token_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    put_language_api_cardtrader_language_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LanguageBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardTraderStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_wishlist_api_cardtrader_wishlists_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WishlistRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WishlistResult"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -6373,6 +6807,208 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UpdateInfo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_wants_api_wants_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WantList"];
+                };
+            };
+        };
+    };
+    post_want_api_wants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WantAdd"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WantList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clear_wants_api_wants_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WantList"];
+                };
+            };
+        };
+    };
+    post_reduce_want_api_wants__oracle_id__reduce_post: {
+        parameters: {
+            query?: {
+                quantity?: number;
+            };
+            header?: never;
+            path: {
+                oracle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WantList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_want_api_wants__oracle_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                oracle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WantList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_deck_wants_api_decks__deck_id__wants_post: {
+        parameters: {
+            query?: {
+                exclude_other_decks?: boolean;
+                include_proxied?: boolean;
+            };
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckWantsResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_wants_api_wants_export_get: {
+        parameters: {
+            query?: {
+                format?: "cardmarket" | "csv";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
                 };
             };
             /** @description Validation Error */
