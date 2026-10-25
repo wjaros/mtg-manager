@@ -164,11 +164,12 @@ def _system_lang() -> Lang:
 def cmd_sync(force: bool) -> int:
     from mtgdm.scryfall.sync import run_sync
 
-    labels = {"sets": "Sets", "set_icons": "Set icons", "download": "Downloading cards", "import": "Importing cards"}
+    labels = {"sets": "Sets", "set_icons": "Set icons", "download": "Downloading cards", "import": "Importing cards",
+              "precons": "Precons", "tags": "Downloading card functions"}
     started = time.monotonic()
 
     def progress(stage: str, done: int, total: int) -> None:
-        if stage == "download":
+        if stage in ("download", "tags"):
             amount = f"{done / 1e6:.0f}/{total / 1e6:.0f} MB" if total else f"{done / 1e6:.0f} MB"
         else:
             amount = f"{done}/{total}" if total else str(done)

@@ -1,7 +1,8 @@
 """HTTP client following Scryfall's API rules (https://scryfall.com/docs/api).
 
 - Custom User-Agent and Accept headers on every request.
-- api.scryfall.com: at least MIN_INTERVAL between requests, retry on 429/5xx with backoff.
+- api.scryfall.com: at least MIN_INTERVAL between requests (more before the endpoints with stricter
+  limits, https://scryfall.com/docs/api/rate-limits), retry on 429/5xx with backoff.
 - *.scryfall.io (bulk files, images): no rate limit, fetched via stream().
 """
 
@@ -19,9 +20,15 @@ API_BASE = "https://api.scryfall.com"
 USER_AGENT = f"{APP_NAME}/{__version__}"
 ACCEPT = "application/json;q=0.9,*/*;q=0.8"
 
-MIN_INTERVAL = 0.1  # seconds between api.scryfall.com requests (~10 req/s)
+MIN_INTERVAL = 0.1  # seconds between api.scryfall.com requests (10 req/s)
+# Scryfall's hard limits of single endpoints, as seconds between requests.
+ENDPOINT_INTERVALS = {
+    "/cards/search": 0.5, "/cards/named": 0.5, "/cards/random": 0.5, "/cards/collection": 0.5,
+    "/cards/manifest": 6.0,
+}
 MAX_RETRIES = 4
 BACKOFF_BASE = 1.0  # seconds, doubled per retry unless Retry-After says otherwise
+RATE_LIMITED_PAUSE = 30.0  # a 429 locks the client out for 30 s (unless Retry-After says otherwise)
 RETRY_STATUSES = {429, 500, 502, 503, 504}
 
 
@@ -69,7 +76,7 @@ class ScryfallClient:
         """GET a JSON object from the API, honouring the rate limit and retrying 429/5xx."""
         url = path_or_url if path_or_url.startswith("http") else API_BASE + path_or_url
         for attempt in range(self._max_retries + 1):
-            self._wait_for_slot()
+            self._wait_for_slot(url)
             resp = self._http.get(url, params=params)
             if resp.status_code in RETRY_STATUSES and attempt < self._max_retries:
                 self._sleep(_retry_delay(resp, attempt))
@@ -83,7 +90,7 @@ class ScryfallClient:
         """GET a non-JSON response (e.g. search results as CSV), with the same rate limit and retries."""
         url = path_or_url if path_or_url.startswith("http") else API_BASE + path_or_url
         for attempt in range(self._max_retries + 1):
-            self._wait_for_slot()
+            self._wait_for_slot(url)
             resp = self._http.get(url, params=params)
             if resp.status_code in RETRY_STATUSES and attempt < self._max_retries:
                 self._sleep(_retry_delay(resp, attempt))
@@ -121,11 +128,12 @@ class ScryfallClient:
                 raise _error_from(resp)
             yield resp
 
-    def _wait_for_slot(self) -> None:
+    def _wait_for_slot(self, url: str) -> None:
+        interval = max(self._min_interval, ENDPOINT_INTERVALS.get(httpx.URL(url).path, 0.0))
         with self._lock:
             now = self._clock()
             if self._last_request is not None:
-                remaining = self._min_interval - (now - self._last_request)
+                remaining = interval - (now - self._last_request)
                 if remaining > 0:
                     self._sleep(remaining)
                     now += remaining
@@ -138,7 +146,9 @@ def _retry_delay(resp: httpx.Response, attempt: int) -> float:
         try:
             return max(float(retry_after), 0.0)
         except ValueError:
-            pass  # HTTP-date form; fall back to exponential backoff
+            pass  # HTTP-date form; fall back to the defaults below
+    if resp.status_code == 429:
+        return RATE_LIMITED_PAUSE
     return BACKOFF_BASE * 2**attempt
 
 

@@ -47,8 +47,10 @@ language from the request's Accept-Language (the frontend sends its own; default
     `history.py` (print_jobs: recorded prints; marking their cards as proxies in a deck's box),
     `tokens.py` (tokens a deck makes, from all_parts; the test fixture has no all_parts, tests add them),
     `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
-  - `mtgdm/scryfall/tags.py` – card functions (ramp, draw, removal, …) from Scryfall Tagger through `/cards/search?q=otag:X&format=csv`,
-    stored per oracle id in `card_tags`, refreshed weekly during sync; `otag:` in the query syntax, `functions` in deck stats
+  - `mtgdm/scryfall/tags.py` – Scryfall Tagger's oracle tags from the `oracle_tags` bulk file, refreshed weekly during sync:
+    all of them with their hierarchy (`oracle_tags`, `oracle_tag_parents`, `oracle_taggings`; a tag's cards include its
+    descendants'), and the card functions the app counts (ramp, draw, removal, …: Tagger tags pinned by id, slugs change)
+    derived into `card_tags`; `otag:` in the query syntax, `functions` in deck stats
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
 - `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);
@@ -68,8 +70,10 @@ language from the request's Accept-Language (the frontend sends its own; default
 - `scripts/` – `dev.sh`, `gen_api_types.sh`, `make_fixture.py` (cuts `backend/tests/fixtures/scryfall/{cards.jsonl.gz,sets.json}` out of real data; run with `--decklists ../seeds/*.txt`)
 
 ## Scryfall rules (https://scryfall.com/docs/api)
-- Every request to api.scryfall.com: own `User-Agent: MTGDeckManager/<version>` and `Accept` headers, 50–100 ms between
-  requests, back off on 429. Files on `*.scryfall.io` (bulk, images) have no rate limit.
+- Every request to api.scryfall.com: own `User-Agent: MTGDeckManager/<version>` and `Accept` headers, 100 ms between
+  requests, 500 ms before `/cards/search`, `/named`, `/random` and `/collection` (hard limits, `ENDPOINT_INTERVALS` in
+  the client); a 429 locks the app out for 30 s and repeated ones risk a ban: prefer bulk files over many API requests.
+  Files on `*.scryfall.io` (bulk, images) have no rate limit.
 - Card data comes from the `default_cards` bulk file (streamed, never loaded whole); refresh weekly or after a set release.
 - Images are cached locally and never hotlinked, cropped (copyright / artist line), filtered or watermarked.
 - Prices in bulk data are up to a day old: show them as estimates with their date. Never paywall or republish raw data.

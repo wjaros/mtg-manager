@@ -50,6 +50,24 @@ def test_rate_limit_spaces_api_requests():
     assert t.sleeps == [pytest.approx(0.1)]
 
 
+def test_stricter_endpoints_wait_longer():
+    client, t = make_client(lambda r: httpx.Response(200, json={}), min_interval=0.1)
+    client.get_text("/cards/search", {"q": "otag:ramp"})
+    client.get_text("/cards/search", {"q": "otag:ramp", "page": 2})  # 2 per second at most
+    client.get_json("/sets")
+    assert t.sleeps == [pytest.approx(0.5), pytest.approx(0.1)]
+
+
+def test_429_without_retry_after_waits_out_the_lockout():
+    responses = iter([
+        httpx.Response(429, json={"object": "error", "details": "slow down"}),
+        httpx.Response(200, json={"ok": True}),
+    ])
+    client, t = make_client(lambda r: next(responses), min_interval=0)
+    assert client.get_json("/sets") == {"ok": True}
+    assert t.sleeps == [30.0]
+
+
 def test_retries_429_using_retry_after():
     responses = iter([
         httpx.Response(429, headers={"Retry-After": "2"}, json={"object": "error", "details": "slow down"}),

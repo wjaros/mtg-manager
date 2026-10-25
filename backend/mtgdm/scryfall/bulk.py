@@ -91,11 +91,12 @@ def sync_cards(
 
 
 def download_bulk(
-    client: ScryfallClient, info: dict[str, Any], bulk_dir: Path, on_progress: Progress | None = None
+    client: ScryfallClient, info: dict[str, Any], bulk_dir: Path, on_progress: Progress | None = None,
+    *, name: str = BULK_TYPE, stage: str = "download",
 ) -> Path:
     bulk_dir.mkdir(parents=True, exist_ok=True)
     url = info.get("jsonl_download_uri") or info["download_uri"]
-    target = bulk_dir / f"{BULK_TYPE}.data"
+    target = bulk_dir / f"{name}.data"
     tmp = target.with_suffix(".part")
     total = int(info.get("compressed_size") or info.get("size") or 0)
     done = 0
@@ -107,7 +108,7 @@ def download_bulk(
                 f.write(chunk)
                 done += len(chunk)
                 if on_progress:
-                    on_progress("download", done, total)
+                    on_progress(stage, done, total)
         tmp.replace(target)
     finally:
         tmp.unlink(missing_ok=True)
