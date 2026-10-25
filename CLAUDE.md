@@ -21,6 +21,7 @@ language from the request's Accept-Language (the frontend sends its own; default
     cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
     to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)
   - `mtgdm/cards/` – search (FTS5 + filters), card detail, printings; `syntax.py` – Scryfall-style query syntax
+    `user_tags.py` – the user's own tags per oracle id (`tag:` in the syntax, one spelling per tag, in the backup)
     `similar.py` – similar cards on the fly (FTS5 phrase query on the rules text + shared Tagger tags with their
     ancestors, weighted by rarity; non-functional tag families such as cycles ignored; mana value only scales the
     score; weak matches dropped; owned ones ranked apart against the same text reference), context menu → Similar cards

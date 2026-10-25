@@ -236,6 +236,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cards/{card_id}/user-tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update User Tags
+         * @description Replace the user's own tags on a card (every printing of it); returns them as stored.
+         */
+        put: operations["update_user_tags_api_cards__card_id__user_tags_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * User Tags
+         * @description The user's own tags in use, with their numbers of cards.
+         */
+        get: operations["user_tags_api_user_tags_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sets": {
         parameters: {
             query?: never;
@@ -1634,6 +1674,11 @@ export interface components {
             faces: components["schemas"]["CardFace"][];
             /** Printings Count */
             printings_count: number;
+            /**
+             * User Tags
+             * @default []
+             */
+            user_tags?: string[];
         };
         /** CardFace */
         CardFace: {
@@ -2269,6 +2314,13 @@ export interface components {
              * @default {}
              */
             functions?: {
+                [key: string]: number;
+            };
+            /**
+             * User Tags
+             * @default {}
+             */
+            user_tags?: {
                 [key: string]: number;
             };
             price: components["schemas"]["Price"];
@@ -3372,6 +3424,18 @@ export interface components {
              */
             kind?: string;
         };
+        /** UserTag */
+        UserTag: {
+            /** Tag */
+            tag: string;
+            /** Cards */
+            cards: number;
+        };
+        /** UserTagsUpdate */
+        UserTagsUpdate: {
+            /** Tags */
+            tags: string[];
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -3609,6 +3673,8 @@ export interface operations {
                 type?: string[];
                 /** @description Scryfall function tags (ramp, draw, removal, ...), each required */
                 tag?: string[];
+                /** @description The user's own tags, each required */
+                user_tag?: string[];
                 rarity?: string[];
                 /** @description Scryfall set codes */
                 set?: string[];
@@ -3785,6 +3851,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_tags_api_cards__card_id__user_tags_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserTagsUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    user_tags_api_user_tags_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserTag"][];
                 };
             };
         };

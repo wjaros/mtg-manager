@@ -64,6 +64,7 @@ class CardDetail(CardSummary):
     promo: bool
     faces: list[CardFace]
     printings_count: int
+    user_tags: list[str] = []  # the user's own tags on the card
 
 
 class CardPage(BaseModel):

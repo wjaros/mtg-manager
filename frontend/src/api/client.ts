@@ -6,6 +6,7 @@ export type Health = Schemas['Health']
 export type CardSummary = Schemas['CardSummary']
 export type CardDetail = Schemas['CardDetail']
 export type CardPage = Schemas['CardPage']
+export type UserTag = Schemas['UserTag']
 export type SimilarCards = Schemas['SimilarCards']
 export type SetInfo = Schemas['SetInfo']
 export type SyncStatus = Schemas['SyncStatus']
@@ -88,6 +89,7 @@ export interface CardQuery {
   mv?: number[]
   type?: string[]
   tag?: string[] // Scryfall function tags
+  user_tag?: string[] // the user's own tags
   rarity?: string[]
   set?: string[]
   format?: string
@@ -157,6 +159,9 @@ export const api = {
   cardUsage: (id: string, deck?: number) =>
     request<CardUsage>(`/api/cards/${id}/usage?${toSearchParams({ deck })}`),
   printings: (id: string) => request<CardSummary[]>(`/api/cards/${id}/printings`),
+  userTags: () => request<UserTag[]>('/api/user-tags'),
+  updateUserTags: (id: string, tags: string[]) =>
+    request<string[]>(`/api/cards/${id}/user-tags`, jsonBody('PUT', { tags })),
   similarCards: (id: string, params: { colors?: string; deck?: number }) =>
     request<SimilarCards>(`/api/cards/${id}/similar?${toSearchParams(params)}`),
   sets: () => request<SetInfo[]>('/api/sets'),

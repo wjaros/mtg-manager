@@ -2,6 +2,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 from mtgdm.api.deps import AppSettings, Db
 from mtgdm.cards.models import (
@@ -23,6 +24,7 @@ from mtgdm.cards.search import (
     search_cards,
 )
 from mtgdm.cards.similar import DeckNotFound, SimilarCards, similar_cards
+from mtgdm.cards.user_tags import UserTag, all_tags, set_tags
 from mtgdm.collection.usage import CardUsage, card_usage
 
 router = APIRouter(tags=["cards"])
@@ -41,6 +43,7 @@ def cards(
     mv: Annotated[list[int], Query(description="Mana values; 7 means 7+")] = [],
     type: Annotated[list[str], Query(description="Type line must contain each value")] = [],
     tag: Annotated[list[str], Query(description="Scryfall function tags (ramp, draw, removal, ...), each required")] = [],
+    user_tag: Annotated[list[str], Query(description="The user's own tags, each required")] = [],
     rarity: Annotated[list[str], Query()] = [],
     set: Annotated[list[str], Query(description="Scryfall set codes")] = [],
     format: Annotated[str | None, Query(description="Only cards legal in this format")] = None,
@@ -60,7 +63,7 @@ def cards(
     query = CardQuery(
         q=q, text=text, colors=colors, color_mode=color_mode, identity=identity, mv=mv, types=type, rarity=rarity,
         sets=set, format=format, game=game, owned=owned, deck=deck, not_in_deck=not_in_deck, include_extras=include_extras,
-        include_proxies=include_proxies, tags=tag, unique=unique,
+        include_proxies=include_proxies, tags=tag, user_tags=user_tag, unique=unique,
         order=order, page=page, page_size=page_size,
     )
     try:
@@ -117,6 +120,25 @@ def similar(
     if result is None:
         raise HTTPException(status_code=404, detail="Card not found")
     return result
+
+
+class UserTagsUpdate(BaseModel):
+    tags: list[str]
+
+
+@router.put("/cards/{card_id}/user-tags")
+def update_user_tags(db: Db, card_id: str, body: UserTagsUpdate) -> list[str]:
+    """Replace the user's own tags on a card (every printing of it); returns them as stored."""
+    result = set_tags(db, card_id, body.tags)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Card not found")
+    return result
+
+
+@router.get("/user-tags")
+def user_tags(db: Db) -> list[UserTag]:
+    """The user's own tags in use, with their numbers of cards."""
+    return all_tags(db)
 
 
 @router.get("/sets")

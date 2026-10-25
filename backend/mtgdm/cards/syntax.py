@@ -32,6 +32,7 @@ KEYS = {
     "f": "format", "format": "format", "legal": "format",
     "name": "name",
     "otag": "tag", "oracletag": "tag", "function": "tag",
+    "tag": "usertag", "mytag": "usertag",
 }
 # Keys whose result depends on the printing, not only on the card.
 PRINTING_KEYS = {"rarity", "set"}
@@ -92,6 +93,8 @@ def _clause(key: str, op: str, value: str, formats: frozenset[str]) -> tuple[str
     v = value.lower()
     if key == "type":
         return "c.type_line LIKE ?", [f"%{value}%"]
+    if key == "usertag":  # the user's own tags (mtgdm.cards.user_tags); the column ignores case
+        return "c.oracle_id IN (SELECT oracle_id FROM user_tags WHERE tag = ?)", [value]
     if key == "oracle":
         return "c.oracle_text LIKE ?", [f"%{value}%"]
     if key == "name":

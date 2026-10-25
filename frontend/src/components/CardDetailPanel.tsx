@@ -5,6 +5,7 @@ import { CopyButton } from './CopyButton'
 import { ManaCost } from './ManaCost'
 import { OwnedCopies } from './OwnedCopies'
 import { locale, t } from '../i18n'
+import { editUserTags } from '../userTags'
 
 const RARITY_LABEL: Record<string, string> = {
   common: 'Common',
@@ -148,6 +149,25 @@ export function CardDetailPanel({ cardId, onClose, onChoosePrinting, onCollectio
           <dd>{shown?.artist ?? card.artist ?? '—'}</dd>
           <dt>{t.card.availableOn}</dt>
           <dd>{card.games.join(', ')}</dd>
+          <dt>{t.userTags.label}</dt>
+          <dd className="user-tags">
+            {(card.user_tags ?? []).map((tag) => (
+              <span key={tag} className="user-tag">
+                {tag}
+              </span>
+            ))}
+            <button
+              className="link-button small"
+              onClick={() =>
+                editUserTags(card).then(
+                  (tags) => tags && setCard({ ...card, user_tags: tags }),
+                  (e: Error) => window.alert(e.message),
+                )
+              }
+            >
+              {t.userTags.edit}
+            </button>
+          </dd>
           {card.prices.eur && (
             <>
               <dt>{t.card.price}</dt>
