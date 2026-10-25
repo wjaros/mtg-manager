@@ -50,12 +50,17 @@ def test_merge_commits_and_version_bumps(tmp_path, monkeypatch):
     git(tmp_path, "switch", "-q", "master")
     git(tmp_path, "merge", "-q", "--no-ff", "feature", "-m",
         "Merge pull request #9 from me/feature\n\nSimilar cards")
-    # Squashed with the title pasted into the message again; then a version bump.
+    # Squashed with the title pasted into the message again; with GitHub's default squash message
+    # (the branch's commits, master merged into it among them); then a version bump.
     git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Windows fix (#10)\n\nWindows fix\n\nUnblock the DLLs.")
-    git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Release 0.2.0 (#11)")
+    git(tmp_path, "commit", "-q", "--allow-empty", "-m",
+        "Deck search (#11)\n\n* Deck search\n\nCmd+F in the deck:\n- by name\n\n"
+        "Co-Authored-By: Someone <x@example.com>\n\n* Merge branch 'master' into deck-search")
+    git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Release 0.2.0 (#12)")
     monkeypatch.chdir(tmp_path)
 
     assert release_notes.commits("v0.1.0") == [
+        ("Deck search (#11)", "Cmd+F in the deck:\n- by name"),
         ("Windows fix (#10)", "Unblock the DLLs."),
         ("Faster tags (#7)", "One bulk file."),
         ("Similar cards (#9)", "Right click on a card."),

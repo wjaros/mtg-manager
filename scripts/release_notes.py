@@ -28,6 +28,7 @@ SEPARATOR = "\x1e"  # between commits in the git log output
 MAX_COMMITS = 30    # first release (no previous tag): the latest commits only
 MERGE = re.compile(r"^Merge pull request #(\d+) from ")
 RELEASE = re.compile(r"^Release \d+\.\d+\.\d+\b")  # a version bump, not a change
+BRANCH_SYNC = re.compile(r"\* Merge (remote-tracking )?branch .+")  # one line: master merged into a branch
 
 
 def commits(previous: str, head: str = "HEAD") -> list[tuple[str, str]]:
@@ -60,12 +61,13 @@ def _log(*args: str) -> list[tuple[str, list[str], str, str]]:
         sha, *parents = lines[0].split()
         title = lines[1].strip()
         body = [line for line in lines[2:] if not TRAILER.match(line)]
-        description = unwrap("\n".join(body).strip())
-        # A squash message pasted with its title repeats it as the first paragraph.
-        first, _, rest = description.partition("\n\n")
-        if first == re.sub(r" \(#\d+\)$", "", title):
-            description = rest.strip()
-        result.append((sha, parents, title, description))
+        # GitHub's default squash message lists the branch's commits as "* title" paragraphs, merges of
+        # master into the branch among them; a squash message pasted with its title repeats it.
+        paragraphs = [p.strip() for p in unwrap("\n".join(body)).split("\n\n")]
+        paragraphs = [p for p in paragraphs if p and not BRANCH_SYNC.fullmatch(p)]
+        if paragraphs and paragraphs[0].removeprefix("* ") == re.sub(r" \(#\d+\)$", "", title):
+            paragraphs = paragraphs[1:]
+        result.append((sha, parents, title, "\n\n".join(paragraphs)))
     return result
 
 
