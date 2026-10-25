@@ -61,9 +61,10 @@ Cloudflare check, the API host is not).
 - Errors are JSON `{"error_code", "errors", "extra": {"message"}, "request_id"}`: 401
   unauthorized, 404 not_found, 422 missing_parameter.
 - Rate limit errors are `{"error": "Too many requests: ..."}`.
-- Webhooks (order created / updated / deleted, signed with HMAC-SHA256 of the body using the
-  app's `shared_secret`) need a public HTTPS endpoint. A desktop app has none, so it would poll
-  instead.
+- **Webhooks** fire when a product or an order is created, modified or deleted. They are signed
+  with HMAC-SHA256 of the body using the app's `shared_secret`. Changes made through the API itself
+  don't trigger them. They need a public HTTPS endpoint; a desktop app has none, so it would poll
+  instead (e.g. `GET /orders` from the last order id seen).
 
 ## Prices
 
