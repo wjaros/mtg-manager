@@ -1,6 +1,7 @@
 # Idea: suggest similar cards
 
-Status: idea; a prototype query was tried on the real database (2026-10-25).
+Status: done (context menu → Similar cards, `mtgdm/cards/similar.py`). Below: the design and
+what the prototype showed (2026-10-25).
 
 ## What I want
 
