@@ -29,6 +29,7 @@ export const pl = {
     retry: 'Spróbuj ponownie',
     error: (message: string) => `Błąd: ${message}`,
     clipboardUnavailable: 'Schowek niedostępny',
+    copyName: 'Kopiuj nazwę',
     noLocation: 'bez lokalizacji',
   },
   nav: {

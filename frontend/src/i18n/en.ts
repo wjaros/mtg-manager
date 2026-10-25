@@ -24,6 +24,7 @@ export const en: Messages = {
     clear: 'Clear',
     retry: 'Try again',
     error: (message: string) => `Error: ${message}`,
+    copyName: 'Copy name',
     clipboardUnavailable: 'Clipboard unavailable',
     noLocation: 'no location',
   },
