@@ -59,6 +59,12 @@ having both decks at once. Copy the list into a CardMarket wants list or downloa
 
 ![Missing cards](docs/screenshots/missing.webp)
 
+**Shopping list.** *Collection → To buy* gathers what to buy across decks: a deck's missing cards
+(one click in its *Missing* tab) and any card you right-click in the search or a deck. Copies you
+add to the collection afterwards count as bought and drop off the list. Copy it into a Cardmarket
+wants list and let its Shopping Wizard find the sellers (e.g. the fewest shipments), or download
+it as CSV.
+
 **Scanning.** Drop photos of single cards, flatbed scans of whole pages (up to 9 cards, e.g. a binder
 page) or PDFs. Cards are found, straightened and recognized by name, collector line and art. You
 review the result and choose finish, condition and location before anything reaches the collection.

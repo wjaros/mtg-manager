@@ -2,14 +2,16 @@ import { useState, type ReactNode } from 'react'
 import { ProxyDialog } from '../components/ProxyDialog'
 import { usePrintQueue } from '../printQueue'
 import { t } from '../i18n'
+import { useWants } from '../wants'
 
-export type CollectionTab = 'cards' | 'items' | 'locations' | 'proxies'
+export type CollectionTab = 'cards' | 'items' | 'locations' | 'proxies' | 'wants'
 
 const TABS: [CollectionTab, string][] = [
   ['cards', t.collection.tabCards],
   ['items', t.collection.tabItems],
   ['locations', t.collection.tabLocations],
   ['proxies', t.collection.tabProxies],
+  ['wants', t.collection.tabWants],
 ]
 
 /** Collection header with tabs; the active tab's view fills the rest of the page. */
@@ -24,6 +26,7 @@ export function CollectionPage({
 }) {
   const [printing, setPrinting] = useState(false)
   const queued = usePrintQueue().reduce((n, q) => n + q.qty, 0)
+  const { copies: wanted } = useWants()
   return (
     <div className="collection-page">
       <header className="collection-page-header">
@@ -32,6 +35,7 @@ export function CollectionPage({
           {TABS.map(([id, label]) => (
             <button key={id} role="tab" className={tab === id ? 'on' : ''} onClick={() => onTab(id)}>
               {label}
+              {id === 'wants' && !!wanted && ` (${wanted})`}
             </button>
           ))}
         </div>

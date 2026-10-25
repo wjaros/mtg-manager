@@ -50,6 +50,10 @@ export type MissingEntry = Schemas['MissingEntry']
 export type CollectionItemUpdate = Schemas['CollectionItemUpdate']
 export type LocationKind = Location['kind']
 export type MissingFormat = 'cardmarket' | 'text' | 'csv'
+export type Want = Schemas['Want']
+export type WantList = Schemas['WantList']
+export type DeckWantsResult = Schemas['DeckWantsResult']
+export type WantsFormat = 'cardmarket' | 'csv'
 export type BackupImportResult = Schemas['ImportResult']
 export type Scan = Schemas['Scan']
 export type ScanItem = Schemas['ScanItem']
@@ -246,6 +250,23 @@ export const api = {
       if (!r.ok) throw new ApiError(r.status, r.statusText)
       return r.text()
     }),
+  wants: () => request<WantList>('/api/wants'),
+  addWant: (cardId: string, quantity = 1) =>
+    request<WantList>('/api/wants', jsonBody('POST', { card_id: cardId, quantity })),
+  reduceWant: (oracleId: string, quantity = 1) =>
+    request<WantList>(`/api/wants/${oracleId}/reduce?quantity=${quantity}`, { method: 'POST' }),
+  removeWant: (oracleId: string) => request<WantList>(`/api/wants/${oracleId}`, { method: 'DELETE' }),
+  clearWants: () => request<WantList>('/api/wants', { method: 'DELETE' }),
+  deckWants: (deckId: number, excludeOtherDecks: boolean, includeProxied: boolean) =>
+    request<DeckWantsResult>(
+      `/api/decks/${deckId}/wants?exclude_other_decks=${excludeOtherDecks}&include_proxied=${includeProxied}`,
+      { method: 'POST' },
+    ),
+  wantsExport: (format: WantsFormat) =>
+    fetch(wantsExportUrl(format)).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+      return r.text()
+    }),
   deckToCollection: (deckId: number, replace = false) =>
     request<DeckToCollectionResult>(`/api/decks/${deckId}/collection?replace=${replace}`, { method: 'POST' }),
 
@@ -344,6 +365,10 @@ export function missingExportUrl(
   includeProxied = true,
 ): string {
   return `/api/decks/${deckId}/missing/export?format=${format}&exclude_other_decks=${excludeOtherDecks}&include_proxied=${includeProxied}`
+}
+
+export function wantsExportUrl(format: WantsFormat): string {
+  return `/api/wants/export?format=${format}`
 }
 
 export function collectionExportUrl(

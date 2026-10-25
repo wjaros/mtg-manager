@@ -13,6 +13,7 @@ from mtgdm.api import (
     scans,
     sync,
     updates,
+    wants,
 )
 
 api_router = APIRouter(prefix="/api")
@@ -28,3 +29,4 @@ api_router.include_router(printing.router)
 api_router.include_router(scans.router)
 api_router.include_router(sync.router)
 api_router.include_router(updates.router)
+api_router.include_router(wants.router)
