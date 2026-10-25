@@ -8,6 +8,8 @@ print proxies of the cards you're missing, and export decks to MTG Arena, Moxfie
 phone-friendly PDF. Everything runs on your computer; card data comes from
 [Scryfall](https://scryfall.com) and works offline once downloaded.
 
+**User guide** with screenshots: [English](docs/en/index.md) · [Polski](docs/pl/index.md)
+
 ![Deckbuilder](docs/screenshots/deckbuilder.webp)
 
 ## Features

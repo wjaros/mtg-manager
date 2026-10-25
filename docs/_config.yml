@@ -1,0 +1,7 @@
+# GitHub Pages (Jekyll) for the user documentation: Settings → Pages → branch master, folder /docs.
+# Plain Markdown, no build step; the same files read well on github.com.
+title: MTG Deck Manager
+description: Dokumentacja / Documentation
+theme: jekyll-theme-cayman
+exclude:
+  - ideas  # developers' notes, not user documentation

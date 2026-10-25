@@ -74,6 +74,9 @@ language from the request's Accept-Language (the frontend sends its own; default
 - License: GPL-3.0-or-later (LICENSE). Dependencies must be GPLv3-compatible (MIT, BSD, Apache-2.0, MPL-2.0 are;
   GPL-2.0-only is not). Third-party licenses in THIRD_PARTY_NOTICES.md (update it with new dependencies)
   bundled resource paths live in `mtgdm/config.py` (FROZEN branch) and must match the spec
+- `docs/` – user guide in Polish (`docs/pl/`) and English (`docs/en/`), one page per area, same file names in both,
+  screenshots in `docs/images/{pl,en}/` (1440×900 WebP, taken on a copy of the data); Jekyll-ready for GitHub Pages
+  (`docs/_config.yml`, `docs/ideas/` excluded). Update both languages when a feature changes; anchors ASCII only
 - `seeds/` – example decklists (precons and products), offered in the Import view; `seeds/collection/` – lists of
   products that are not decks (imported into the collection: Import → Kolekcja → Lista kart). A trailing `# note` on a
   list line becomes the collection item's note (e.g. "printing unverified")
