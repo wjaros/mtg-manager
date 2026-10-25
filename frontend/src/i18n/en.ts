@@ -267,6 +267,21 @@ export const en: Messages = {
     notInCardData: 'not in the card data',
     credit: 'Combos from',
   },
+  similar: {
+    menu: 'Similar cards',
+    title: (name: string) => `Similar to ${name}`,
+    colors: 'Colors',
+    colorsTitle: 'Cards within the chosen colors (colorless always)',
+    deckColors: "Deck's colors",
+    cardColors: "Card's colors",
+    hint: 'Alike rules text, shared functions (Scryfall Tagger tags) and mana value. Click a card to open it.',
+    hintDeck:
+      "Alike rules text, shared functions (Scryfall Tagger tags) and mana value, legal in the deck's format. Click a card to add it to the deck; right-click for more.",
+    searching: 'Searching…',
+    none: 'No similar cards in the chosen colors.',
+    inCollection: (n: number) => `In the collection (${n})`,
+    others: (n: number) => `Others (${n})`,
+  },
   panels: {
     boardCommander: 'Commander',
     boardMain: 'Deck',

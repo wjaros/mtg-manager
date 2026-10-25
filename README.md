@@ -28,6 +28,8 @@ Pioneer and freeform decks:
 - statistics: curve, colours, types, categories, card functions (ramp, draw, removal, board wipes…
   from Scryfall's tags) and the price of what's missing;
 - search by function like on Scryfall (`otag:ramp`) or with the *Function* filter.
+- *Similar cards* (right click on a card): cards doing the same job, by rules text, Scryfall's tags
+  and mana value, those you own first; in the card's colours, more can be switched on.
 
 Hovering a card shows how many copies the deck has, how many you own and where they are (e.g. in
 another deck's box). Singleton duplicates are greyed out.

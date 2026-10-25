@@ -21,6 +21,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
     to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)
   - `mtgdm/cards/` – search (FTS5 + filters), card detail, printings; `syntax.py` – Scryfall-style query syntax
+    `similar.py` – similar cards on the fly (FTS5 phrase query on the rules text + rarity-weighted shared Tagger tags +
+    mana value; owned ones ranked apart), context menu → Similar cards
   - `mtgdm/scan/` – card scanning: `detect.py` (find + straighten; single card or up to 9 on a page), `ocr/` (Apple Vision on macOS, RapidOCR),
     `reader.py` (OCR lines -> name / number / set / artist / year), `match.py` (set+number, fuzzy name, image hash),
     `pipeline.py` (auto/single/page, manual grid), `service.py` (scans as records, PDF pages, review, commit),

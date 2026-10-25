@@ -3,6 +3,7 @@ import { api, type CardSummary, type CollectionStats } from '../api/client'
 import { CardDetailPanel } from '../components/CardDetailPanel'
 import { CardGrid, MIN_CARD_WIDTH } from '../components/CardGrid'
 import { ContextMenu, type MenuState } from '../components/ContextMenu'
+import { SimilarCardsPanel } from '../components/SimilarCardsPanel'
 import { printQueue, usePrintQueue } from '../printQueue'
 import { ZoomControl } from '../components/ZoomControl'
 import { useZoom } from '../hooks/useZoom'
@@ -30,6 +31,8 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
   // Picking cards for proxy printing: a click toggles the card instead of opening it.
   const [picking, setPicking] = useState(false)
   const [menu, setMenu] = useState<MenuState | null>(null)
+  const [similarTo, setSimilarTo] = useState<CardSummary | null>(null)
+  const closeSimilar = useCallback(() => setSimilarTo(null), [])
   const queue = usePrintQueue()
   const marked = useCallback((card: CardSummary) => queue.some((q) => q.card_id === card.id), [queue])
 
@@ -94,6 +97,7 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
                 printQueue.has(card.id)
                   ? { label: t.print.unqueue, onClick: () => printQueue.remove(card.id) }
                   : { label: t.print.queue, onClick: () => printQueue.add(card) },
+                { label: t.similar.menu, onClick: () => setSimilarTo(card) },
                 { label: t.builder.details, onClick: () => setSelected(card.id) },
               ],
             })
@@ -104,6 +108,16 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
         />
       </div>
       {menu && <ContextMenu menu={menu} onClose={() => setMenu(null)} />}
+      {similarTo && (
+        <SimilarCardsPanel
+          card={similarTo}
+          onPick={(card) => {
+            setSimilarTo(null)
+            setSelected(card.id)
+          }}
+          onClose={closeSimilar}
+        />
+      )}
       {selected && (
         <CardDetailPanel
           key={selected}

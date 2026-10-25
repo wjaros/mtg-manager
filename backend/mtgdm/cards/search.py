@@ -247,7 +247,7 @@ def _filters(q: CardQuery, syntax: ParsedSyntax) -> tuple[list[str], list[Any]]:
             raise InvalidQuery(f"unknown colors: {''.join(sorted(bad))}")
         chosen = [c for c in COLORS if c in letters]
         if q.color_mode == "identity":
-            _identity_filter(chosen, where, params)
+            identity_filter(chosen, where, params)
         else:
             for color in chosen:
                 where.append("EXISTS (SELECT 1 FROM json_each(c.colors) WHERE value = ?)")
@@ -260,7 +260,7 @@ def _filters(q: CardQuery, syntax: ParsedSyntax) -> tuple[list[str], list[Any]]:
         letters = q.identity.upper()
         if bad := set(letters) - set(COLORS + "C"):
             raise InvalidQuery(f"unknown colors: {''.join(sorted(bad))}")
-        _identity_filter([c for c in COLORS if c in letters], where, params)
+        identity_filter([c for c in COLORS if c in letters], where, params)
 
     if q.mv:
         parts = []
@@ -333,7 +333,7 @@ def _filters(q: CardQuery, syntax: ParsedSyntax) -> tuple[list[str], list[Any]]:
     return where, params
 
 
-def _identity_filter(colors: list[str], where: list[str], params: list[Any]) -> None:
+def identity_filter(colors: list[str], where: list[str], params: list[Any]) -> None:
     """Card's color identity must fit inside `colors` (colorless always fits)."""
     # NOT IN (NULL) would match nothing, so an empty choice uses a never-matching value.
     placeholders = ", ".join("?" * len(colors)) or "''"

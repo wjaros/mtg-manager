@@ -215,6 +215,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cards/{card_id}/similar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Similar
+         * @description Cards doing a similar job (alike rules text, shared Scryfall Tagger tags, close mana value): the best
+         *     ones in the collection and the best others.
+         */
+        get: operations["similar_api_cards__card_id__similar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sets": {
         parameters: {
             query?: never;
@@ -3212,6 +3233,21 @@ export interface components {
             /** Has Icon */
             has_icon: boolean;
         };
+        /** SimilarCard */
+        SimilarCard: {
+            card: components["schemas"]["CardSummary"];
+            /** Score */
+            score: number;
+        };
+        /** SimilarCards */
+        SimilarCards: {
+            /** Colors */
+            colors: string[];
+            /** Owned */
+            owned: components["schemas"]["SimilarCard"][];
+            /** Others */
+            others: components["schemas"]["SimilarCard"][];
+        };
         /** SkipVersion */
         SkipVersion: {
             /** Version */
@@ -3701,6 +3737,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CardSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    similar_api_cards__card_id__similar_get: {
+        parameters: {
+            query?: {
+                /** @description Color identity to search in (C: colorless); default: the card's */
+                colors?: string | null;
+                /** @description Deck being built: only its format's cards, not those in it */
+                deck?: number | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimilarCards"];
                 };
             };
             /** @description Validation Error */
