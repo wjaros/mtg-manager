@@ -35,3 +35,28 @@ def test_notes_from_commit_messages(tmp_path, monkeypatch):
     assert notes.rstrip().endswith("https://github.com/me/repo/compare/v0.1.0...v0.2.0")
     # First release: no previous tag, no comparison link.
     assert "Full changelog" not in release_notes.render("", "v0.1.0", "me/repo", release_notes.commits(""))
+
+
+def test_merge_commits_and_version_bumps(tmp_path, monkeypatch):
+    git(tmp_path, "init", "-q", "-b", "master")
+    git(tmp_path, "config", "user.email", "t@example.com")
+    git(tmp_path, "config", "user.name", "T")
+    git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Old release")
+    git(tmp_path, "tag", "v0.1.0")
+    # A pull request merged with a merge commit: its own commits carry the descriptions.
+    git(tmp_path, "switch", "-q", "-c", "feature")
+    git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Similar cards\n\nRight click on a card.")
+    git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Faster tags (#7)\n\nOne bulk file.")
+    git(tmp_path, "switch", "-q", "master")
+    git(tmp_path, "merge", "-q", "--no-ff", "feature", "-m",
+        "Merge pull request #9 from me/feature\n\nSimilar cards")
+    # Squashed with the title pasted into the message again; then a version bump.
+    git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Windows fix (#10)\n\nWindows fix\n\nUnblock the DLLs.")
+    git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Release 0.2.0 (#11)")
+    monkeypatch.chdir(tmp_path)
+
+    assert release_notes.commits("v0.1.0") == [
+        ("Windows fix (#10)", "Unblock the DLLs."),
+        ("Faster tags (#7)", "One bulk file."),
+        ("Similar cards (#9)", "Right click on a card."),
+    ]
