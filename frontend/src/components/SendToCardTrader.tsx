@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { api, type CardTraderWishlistRequest, type WishlistResult } from '../api/client'
 import { t } from '../i18n'
+import { wants } from '../wants'
 
-/** "Send to CardTrader": the cards to buy as a private wishlist there (any printing). CardTrader
-silently drops cards it doesn't recognize, so those are listed. Without a token: a link to Settings. */
+/** "Send to CardTrader": the shopping list (a deck's missing cards put on it first) as the one private
+CardTrader wishlist, any printing. CardTrader silently drops cards it doesn't recognize, so those are
+listed. Without a token: a link to Settings. */
 export function SendToCardTrader({ request }: { request: CardTraderWishlistRequest }) {
   const [connected, setConnected] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
@@ -31,6 +33,7 @@ export function SendToCardTrader({ request }: { request: CardTraderWishlistReque
     setError(null)
     try {
       setResult(await api.cardtraderWishlist(request))
+      wants.refresh() // a deck's missing cards went on the shopping list
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -46,6 +49,7 @@ export function SendToCardTrader({ request }: { request: CardTraderWishlistReque
       {result && (
         <span className="small">
           {t.cardtrader.sent(result.name, result.copies)}
+          {(result.added ?? 0) > 0 && ` ${t.cardtrader.added(result.added ?? 0)}`}
           {result.not_found.length > 0 && (
             <span className="status error"> {t.cardtrader.notFound(result.not_found.join(', '))}</span>
           )}

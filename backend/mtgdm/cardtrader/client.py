@@ -48,6 +48,9 @@ class CardTraderClient:
     def wishlist(self, wishlist_id: int) -> dict[str, Any]:
         return self._request("GET", f"/wishlists/{wishlist_id}")
 
+    def delete_wishlist(self, wishlist_id: int) -> None:
+        self._request("DELETE", f"/wishlists/{wishlist_id}")
+
     def _request(self, method: str, path: str, json: Any = None) -> Any:
         for attempt in range(MAX_RETRIES + 1):
             resp = self._http.request(method, API_BASE + path, json=json, headers=self._auth)
@@ -56,7 +59,7 @@ class CardTraderClient:
                 continue
             if resp.is_error:
                 raise CardTraderError(resp.status_code, _message(resp))
-            return resp.json()
+            return resp.json() if resp.content else None
         raise AssertionError("unreachable")
 
 

@@ -285,8 +285,7 @@ MESSAGES: dict[str, dict[Lang, str]] = {
         "en": "Couldn't reach CardTrader (offline?): {error}",
     },
     "cardtrader_nothing": {"pl": "Nie ma nic do kupienia.", "en": "There's nothing to buy."},
-    "cardtrader_deck_wishlist": {"pl": "{deck} – braki", "en": "{deck} – missing"},
-    "cardtrader_wants_wishlist": {"pl": "Lista zakupów {date}", "en": "Shopping list {date}"},
+    "cardtrader_wishlist": {"pl": "MTG Deck Manager – do kupienia", "en": "MTG Deck Manager – to buy"},
     "combos_failed": {
         "pl": "Nie udało się pobrać combo z Commander Spellbook (brak internetu?): {error}",
         "en": "Couldn't get combos from Commander Spellbook (offline?): {error}",

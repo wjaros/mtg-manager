@@ -188,7 +188,7 @@ export const en: Messages = {
   },
   cardtrader: {
     intro:
-      "Send a deck's missing cards and the shopping list to CardTrader as a private wishlist (any printing). Your API token is in your CardTrader profile settings; it stays on this computer and is never part of a backup.",
+      "The shopping list as one private CardTrader wishlist (any printing); a deck's missing cards go on the shopping list first. Each send replaces the wishlist, so take cards off the shopping list here. Your API token is in your CardTrader profile settings; it stays on this computer and is never part of a backup.",
     tokenPlaceholder: 'CardTrader API token',
     connect: 'Connect',
     checking: 'Checking…',
@@ -197,9 +197,11 @@ export const en: Messages = {
     disconnect: 'Disconnect',
     send: 'Send to CardTrader',
     sending: 'Sending…',
-    sendTitle: 'Create a private CardTrader wishlist of these cards (any printing)',
+    sendTitle:
+      "Update the CardTrader wishlist to the shopping list (a deck's missing cards go on it first). Changes made on CardTrader are overwritten.",
     needsToken: 'Add your CardTrader token in Settings first',
-    sent: (name: string, copies: number) => `Created the wishlist "${name}" (${copies} cards).`,
+    sent: (name: string, copies: number) => `Wishlist "${name}" updated: ${copies} cards from the shopping list.`,
+    added: (n: number) => `The deck's missing cards added to the shopping list: ${n}.`,
     notFound: (names: string) => `CardTrader didn't recognize: ${names} – add them there by hand.`,
   },
   wants: {

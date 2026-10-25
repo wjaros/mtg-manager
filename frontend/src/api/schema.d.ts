@@ -362,8 +362,8 @@ export interface paths {
         put?: never;
         /**
          * Post Wishlist
-         * @description Send cards to buy to CardTrader as a private wishlist (any printing); the result lists the
-         *     cards CardTrader didn't recognize.
+         * @description Make the one CardTrader wishlist (private, any printing) the shopping list, a deck's missing
+         *     cards put on it first; the result lists the cards CardTrader didn't recognize.
          */
         post: operations["post_wishlist_api_cardtrader_wishlists_post"];
         delete?: never;
@@ -3715,6 +3715,11 @@ export interface components {
             copies: number;
             /** Not Found */
             not_found: string[];
+            /**
+             * Added
+             * @default 0
+             */
+            added?: number;
         };
     };
     responses: never;

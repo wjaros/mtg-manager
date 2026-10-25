@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from datetime import date
 from typing import Literal, TypeVar
 
 import httpx
@@ -12,14 +11,13 @@ from mtgdm.cardtrader.wishlists import (
     CardTraderStatus,
     NothingToSend,
     WishlistResult,
-    deck_lines,
     forget_token,
     save_token,
-    send_wishlist,
     status,
+    sync_wishlist,
     token,
-    wants_lines,
 )
+from mtgdm.collection.wants import add_deck_missing
 from mtgdm.decks.service import DeckNotFound
 from mtgdm.i18n import tr
 
@@ -33,7 +31,7 @@ class TokenBody(BaseModel):
 
 
 class WishlistRequest(BaseModel):
-    source: Literal["deck", "wants"]  # a deck's missing cards, or the shopping list
+    source: Literal["deck", "wants"]  # a deck's missing cards put on the shopping list first, or the list alone
     deck_id: int | None = None
     exclude_other_decks: bool = False
     include_proxied: bool = True
@@ -74,23 +72,22 @@ def delete_token(db: Db) -> None:
 
 @router.post("/cardtrader/wishlists")
 def post_wishlist(db: Db, request: Request, body: WishlistRequest) -> WishlistResult:
-    """Send cards to buy to CardTrader as a private wishlist (any printing); the result lists the
-    cards CardTrader didn't recognize."""
+    """Make the one CardTrader wishlist (private, any printing) the shopping list, a deck's missing
+    cards put on it first; the result lists the cards CardTrader didn't recognize."""
     value = token(db)
     if not value:
         raise HTTPException(status_code=400, detail=tr("cardtrader_no_token"))
+    added = 0
     if body.source == "deck":
         if body.deck_id is None:
             raise HTTPException(status_code=422, detail="deck_id is required")
         try:
-            deck, lines = deck_lines(db, body.deck_id, body.exclude_other_decks, body.include_proxied)
+            added = add_deck_missing(db, body.deck_id, body.exclude_other_decks, body.include_proxied)
         except DeckNotFound as exc:
             raise HTTPException(status_code=404, detail="Deck not found") from exc
-        name = tr("cardtrader_deck_wishlist", deck=deck)
-    else:
-        lines = wants_lines(db)
-        name = tr("cardtrader_wants_wishlist", date=date.today().isoformat())
     try:
-        return _call(lambda: send_wishlist(_client(request, value), name, lines))
+        result = _call(lambda: sync_wishlist(db, _client(request, value), tr("cardtrader_wishlist")))
     except NothingToSend as exc:
         raise HTTPException(status_code=400, detail=tr("cardtrader_nothing")) from exc
+    result.added = added
+    return result

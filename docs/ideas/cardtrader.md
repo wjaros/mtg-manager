@@ -1,7 +1,8 @@
 # Idea: CardTrader integration
 
-Status: step 1 done (2026-10-25): wishlists from a deck's missing cards and the shopping list
-(`mtgdm/cardtrader/`, Settings › CardTrader). The facts below come from CardTrader's API reference (pasted from
+Status: step 1 done (2026-10-25): the shopping list as one CardTrader wishlist, a deck's missing
+cards put on the list first (`mtgdm/cardtrader/`, Settings › CardTrader). There is no endpoint to
+edit a wishlist, so a sync creates a new one and then deletes the last. The facts below come from CardTrader's API reference (pasted from
 https://www.cardtrader.com/en/docs/api/full/reference on 2026-10-25; the page itself is behind a
 Cloudflare check, the API host is not).
 

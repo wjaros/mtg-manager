@@ -192,7 +192,7 @@ export const pl = {
   },
   cardtrader: {
     intro:
-      'Braki talii i listę zakupów można wysłać do CardTrader jako prywatną wishlistę (dowolne wydanie). Token API znajdziesz w ustawieniach profilu CardTrader; zostaje tylko na tym komputerze, nie trafia do kopii zapasowej.',
+      'Lista zakupów jako jedna prywatna wishlista w CardTrader (dowolne wydanie); braki talii trafiają najpierw na listę zakupów. Każda wysyłka zastępuje wishlistę, więc karty usuwaj z listy zakupów w aplikacji. Token API znajdziesz w ustawieniach profilu CardTrader; zostaje tylko na tym komputerze, nie trafia do kopii zapasowej.',
     tokenPlaceholder: 'Token API CardTrader',
     connect: 'Połącz',
     checking: 'Sprawdzam…',
@@ -201,9 +201,11 @@ export const pl = {
     disconnect: 'Odłącz',
     send: 'Wyślij do CardTrader',
     sending: 'Wysyłam…',
-    sendTitle: 'Utwórz w CardTrader prywatną wishlistę z tych kart (dowolne wydanie)',
+    sendTitle:
+      'Zaktualizuj wishlistę w CardTrader do listy zakupów (braki talii trafią na nią najpierw). Zmiany zrobione na CardTrader zostaną nadpisane.',
     needsToken: 'Najpierw dodaj token CardTrader w Ustawieniach',
-    sent: (name: string, copies: number) => `Utworzono wishlistę „${name}” (${copies} kart).`,
+    sent: (name: string, copies: number) => `Wishlista „${name}” zaktualizowana: ${copies} kart z listy zakupów.`,
+    added: (n: number) => `Braki talii dodane do listy zakupów: ${n}.`,
     notFound: (names: string) => `CardTrader nie rozpoznał: ${names} – dodaj je tam ręcznie.`,
   },
   wants: {

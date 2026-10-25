@@ -1,23 +1,27 @@
-"""Cards to buy sent to CardTrader as a (private) wishlist: a deck's missing cards or the shopping
-list, any printing. CardTrader silently leaves out lines it doesn't recognize, so the wishlist is read
-back (where cards are named by slug: "teferi-who-slows-the-sunset") and the cards it lacks are
-reported. The token is kept in the local database only (meta), never in backups."""
+"""The shopping list as one private CardTrader wishlist, any printing. CardTrader's API can't edit a
+wishlist, so each sync creates a new one and then deletes the previous one (its id kept in meta):
+changes made to it on CardTrader are overwritten, cards are taken off the shopping list instead.
+CardTrader silently leaves out lines it doesn't recognize, so the wishlist is read back (where cards
+are named by slug: "teferi-who-slows-the-sunset") and the cards it lacks are reported. The token is
+kept in the local database only (meta), never in backups."""
 
+import logging
 import re
 import sqlite3
 import unicodedata
 
 from pydantic import BaseModel
 
-from mtgdm.cardtrader.client import CardTraderClient
-from mtgdm.collection.missing import missing_report
+from mtgdm.cardtrader.client import CardTraderClient, CardTraderError
 from mtgdm.collection.wants import want_list
 from mtgdm.decks.export import arena_name
-from mtgdm.decks.service import DeckNotFound
 from mtgdm.scryfall.bulk import get_meta, set_meta
+
+log = logging.getLogger(__name__)
 
 TOKEN_KEY = "cardtrader_token"
 APP_KEY = "cardtrader_app"  # the name of the token's app, shown in the settings
+WISHLIST_KEY = "cardtrader_wishlist_id"  # the wishlist the last sync created
 NAME_LENGTH = 100
 
 
@@ -32,6 +36,7 @@ class WishlistResult(BaseModel):
     cards: int           # cards sent
     copies: int          # copies sent
     not_found: list[str]  # cards CardTrader didn't recognize, so not on the wishlist
+    added: int = 0       # copies a deck's missing cards put on the shopping list first
 
 
 class NothingToSend(Exception):
@@ -57,25 +62,40 @@ def save_token(conn: sqlite3.Connection, client: CardTraderClient, value: str) -
 
 def forget_token(conn: sqlite3.Connection) -> None:
     with conn:
-        conn.execute("DELETE FROM meta WHERE key IN (?, ?)", (TOKEN_KEY, APP_KEY))
-
-
-def deck_lines(conn: sqlite3.Connection, deck_id: int, exclude_other_decks: bool = False,
-               include_proxied: bool = True) -> tuple[str, list[tuple[int, str, str]]]:
-    """The deck's name and its missing cards as (copies, MTGA name, full name) lines."""
-    deck = conn.execute("SELECT name FROM decks WHERE id = ?", (deck_id,)).fetchone()
-    if deck is None:
-        raise DeckNotFound(deck_id)
-    lines = []
-    for e in missing_report(conn, deck_id, exclude_other_decks).entries:
-        copies = e.missing if include_proxied else e.missing - e.proxied
-        if copies > 0:
-            lines.append((copies, arena_name(e.name, e.card.layout), e.name))
-    return deck["name"], lines
+        conn.execute("DELETE FROM meta WHERE key IN (?, ?, ?)", (TOKEN_KEY, APP_KEY, WISHLIST_KEY))
 
 
 def wants_lines(conn: sqlite3.Connection) -> list[tuple[int, str, str]]:
+    """The shopping list as (copies, MTGA name, full name) lines."""
     return [(w.quantity, arena_name(w.name, w.card.layout), w.name) for w in want_list(conn).entries if w.quantity > 0]
+
+
+def sync_wishlist(conn: sqlite3.Connection, client: CardTraderClient, name: str) -> WishlistResult:
+    """Replace the wishlist with the shopping list; the new one is made first, so a failure leaves the
+    previous one. An empty shopping list removes it (and raises NothingToSend)."""
+    lines = wants_lines(conn)
+    previous = get_meta(conn, WISHLIST_KEY)
+    if not lines:
+        if previous:
+            _delete(client, int(previous))
+            with conn:
+                conn.execute("DELETE FROM meta WHERE key = ?", (WISHLIST_KEY,))
+        raise NothingToSend
+    result = send_wishlist(client, name, lines)
+    with conn:
+        set_meta(conn, WISHLIST_KEY, str(result.id))
+    if previous and int(previous) != result.id:
+        _delete(client, int(previous))
+    return result
+
+
+def _delete(client: CardTraderClient, wishlist_id: int) -> None:
+    """Already deleted on CardTrader is fine; another failure leaves an old wishlist behind, no more."""
+    try:
+        client.delete_wishlist(wishlist_id)
+    except CardTraderError as exc:
+        if exc.status != 404:
+            log.warning("could not delete CardTrader wishlist %s: %s", wishlist_id, exc)
 
 
 def send_wishlist(client: CardTraderClient, name: str, lines: list[tuple[int, str, str]]) -> WishlistResult:

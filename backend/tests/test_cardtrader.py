@@ -25,6 +25,7 @@ class FakeCardTrader:
 
     def __init__(self):
         self.wishlists: dict[int, dict] = {}
+        self.created = 0
         self.texts: list[str] = []
         self.fail_with: int | None = None
 
@@ -46,11 +47,18 @@ class FakeCardTrader:
                 quantity, name = line.split(" ", 1)
                 if name != UNKNOWN:
                     items.append({"quantity": int(quantity), "meta_name": slug(name), "expansion_code": None})
-            wishlist_id = len(self.wishlists) + 1
+            self.created += 1
+            wishlist_id = self.created
             self.wishlists[wishlist_id] = {"id": wishlist_id, "name": deck["name"], "game_id": 1, "items": items}
             return httpx.Response(200, json={k: v for k, v in self.wishlists[wishlist_id].items() if k != "items"})
         if path.startswith("/wishlists/"):
-            return httpx.Response(200, json=self.wishlists[int(path.rsplit("/", 1)[1])])
+            wishlist_id = int(path.rsplit("/", 1)[1])
+            if wishlist_id not in self.wishlists:
+                return httpx.Response(404, json={"error_code": "not_found", "extra": {"message": "Not found"}})
+            if request.method == "DELETE":
+                del self.wishlists[wishlist_id]
+                return httpx.Response(204)
+            return httpx.Response(200, json=self.wishlists[wishlist_id])
         return httpx.Response(404, json={"errors": {"request": ["Not Found"]}})
 
 
@@ -83,7 +91,7 @@ def test_token(client):
     assert client.get("/api/cardtrader").json()["connected"] is False
 
 
-def test_shopping_list_as_a_wishlist(client, cardtrader):
+def test_one_wishlist_mirrors_the_shopping_list(client, cardtrader):
     body = {"source": "wants"}
     resp = client.post("/api/cardtrader/wishlists", json=body, headers={"Accept-Language": "en"})
     assert resp.status_code == 400 and "token" in resp.json()["detail"]
@@ -94,25 +102,38 @@ def test_shopping_list_as_a_wishlist(client, cardtrader):
                            ("Fire // Ice", 3)):
         client.post("/api/wants", json={"card_id": CARDS[name]["id"], "quantity": quantity})
     result = client.post("/api/cardtrader/wishlists", json=body, headers={"Accept-Language": "pl"}).json()
-    assert result["name"].startswith("Lista zakupów ")
-    assert (result["cards"], result["copies"]) == (4, 7)
+    assert result["name"] == "MTG Deck Manager – do kupienia"
+    assert (result["cards"], result["copies"], result["added"]) == (4, 7, 0)
     assert result["not_found"] == [UNKNOWN]  # left out by CardTrader: reported, not lost
     # MTGA names: a split card in full, other multi-face cards by their front face.
     assert sorted(cardtrader.texts[0].splitlines()) == [
         "1 Delver of Secrets", "1 Lightning Bolt", "2 Sol Ring", "3 Fire // Ice"]
 
+    # Again: a new wishlist replaces the last one (CardTrader can't edit one), so there is one.
+    client.delete(f"/api/wants/{CARDS[UNKNOWN]['oracle_id']}")
+    second = client.post("/api/cardtrader/wishlists", json=body).json()
+    assert list(cardtrader.wishlists) == [second["id"]] and second["cards"] == 3
 
-def test_deck_missing_cards_as_a_wishlist(client, cardtrader):
+    # Deleted on CardTrader meanwhile: fine. An empty list removes the wishlist.
+    del cardtrader.wishlists[second["id"]]
+    third = client.post("/api/cardtrader/wishlists", json=body).json()
+    client.delete("/api/wants")
+    assert client.post("/api/cardtrader/wishlists", json=body).status_code == 400
+    assert third["id"] not in cardtrader.wishlists and cardtrader.wishlists == {}
+
+
+def test_deck_missing_cards_go_on_the_shopping_list_first(client, cardtrader):
     connect(client)
+    client.post("/api/wants", json={"card_id": CARDS["Lightning Strike"]["id"]})
     deck = client.post("/api/decks", json={"name": "Izzet", "format": "freeform", "platform": "paper"}).json()
     for name, quantity in (("Fire // Ice", 2), ("Sol Ring", 1)):
         client.post(f"/api/decks/{deck['id']}/cards", json={"card_id": CARDS[name]["id"], "quantity": quantity})
     client.post("/api/collection", json={"card_id": CARDS["Sol Ring"]["id"]})  # owned: not missing
 
-    result = client.post("/api/cardtrader/wishlists", json={"source": "deck", "deck_id": deck["id"]},
-                         headers={"Accept-Language": "en"}).json()
-    assert result["name"] == "Izzet – missing" and result["not_found"] == []
-    assert cardtrader.texts[-1] == "2 Fire // Ice"
+    result = client.post("/api/cardtrader/wishlists", json={"source": "deck", "deck_id": deck["id"]}).json()
+    assert result["added"] == 2 and result["not_found"] == []
+    assert sorted(cardtrader.texts[-1].splitlines()) == ["1 Lightning Strike", "2 Fire // Ice"]  # the whole list
+    assert {w["name"] for w in client.get("/api/wants").json()["entries"]} == {"Lightning Strike", "Fire // Ice"}
     assert client.post("/api/cardtrader/wishlists", json={"source": "deck", "deck_id": 999}).status_code == 404
     assert client.post("/api/cardtrader/wishlists", json={"source": "deck"}).status_code == 422
 
