@@ -1526,6 +1526,87 @@ nav {
   margin-left: auto;
 }
 
+/* ---------- Deck comparison ---------- */
+
+.compare-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.compare-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+}
+
+.compare-table tr.compare-only-a {
+  background: rgb(224 102 102 / 0.08);
+}
+
+.compare-table tr.compare-only-b {
+  background: rgb(79 191 127 / 0.08);
+}
+
+.compare-table tr.compare-differ {
+  background: rgb(224 176 79 / 0.08);
+}
+
+.compare-table tr.compare-same {
+  color: var(--text-muted);
+}
+
+.compare-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.compare-name {
+  cursor: default;
+}
+
+.diff-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.diff-row:hover {
+  background: var(--bg-hover);
+}
+
+.diff-lines {
+  flex: 1;
+  min-width: 0;
+}
+
+.diff-line {
+  padding: 0.1rem 0.4rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
+.diff-line.removed {
+  background: rgb(224 102 102 / 0.12);
+}
+
+.diff-line.added {
+  background: rgb(79 191 127 / 0.12);
+}
+
+.diff-line.same {
+  color: var(--text-muted);
+}
+
+.diff-sign {
+  display: inline-block;
+  width: 1.2em;
+}
+
 /* ---------- Similar cards ---------- */
 
 .similar-panel {

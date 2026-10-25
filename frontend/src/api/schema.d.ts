@@ -837,6 +837,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/decks/{deck_id}/compare/{other_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare
+         * @description Two decks card by card (by name): copies in each, price, and what could go from one into the other.
+         */
+        get: operations["compare_api_decks__deck_id__compare__other_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/decks/{deck_id}/stats": {
         parameters: {
             query?: never;
@@ -1876,6 +1896,22 @@ export interface components {
             /** Flavor Text */
             flavor_text?: string | null;
         };
+        /**
+         * CardFit
+         * @description A card as seen from one deck.
+         */
+        CardFit: {
+            /** Legal */
+            legal: boolean;
+            /** In Identity */
+            in_identity: boolean;
+            /** On Platform */
+            on_platform: boolean;
+            /** Addable */
+            addable: number;
+            /** Card Id */
+            card_id: string | null;
+        };
         /** CardPage */
         CardPage: {
             /** Total */
@@ -2256,6 +2292,22 @@ export interface components {
             /** Items */
             items: number;
         };
+        /** CompareRow */
+        CompareRow: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            card: components["schemas"]["CardSummary"];
+            /** A */
+            a: number;
+            /** B */
+            b: number;
+            /** Price Eur */
+            price_eur: number | null;
+            fit_a: components["schemas"]["CardFit"];
+            fit_b: components["schemas"]["CardFit"];
+        };
         /** CurveBucket */
         CurveBucket: {
             /** Mv */
@@ -2376,6 +2428,15 @@ export interface components {
             /** Almost */
             almost: components["schemas"]["Combo"][];
         };
+        /** DeckComparison */
+        DeckComparison: {
+            a: components["schemas"]["DeckSide"];
+            b: components["schemas"]["DeckSide"];
+            /** Rows */
+            rows: components["schemas"]["CompareRow"][];
+            /** Prices As Of */
+            prices_as_of: string | null;
+        };
         /** DeckCounts */
         DeckCounts: {
             /** Main */
@@ -2462,6 +2523,19 @@ export interface components {
              * @default 1
              */
             quantity?: number;
+        };
+        /** DeckSide */
+        DeckSide: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Format */
+            format: string;
+            /** Platform */
+            platform: string;
+            /** Color Identity */
+            color_identity: string[] | null;
         };
         /** DeckStats */
         DeckStats: {
@@ -5442,6 +5516,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ValidationResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_api_decks__deck_id__compare__other_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+                other_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckComparison"];
                 };
             };
             /** @description Validation Error */

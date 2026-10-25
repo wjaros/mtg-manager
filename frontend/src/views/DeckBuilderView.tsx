@@ -21,6 +21,7 @@ import { DeckList } from '../components/DeckList'
 import { DeckStatsPanel } from '../components/DeckStatsPanel'
 import { DeckSwitcher } from '../components/DeckSwitcher'
 import { DeckCombosPanel } from '../components/DeckCombosPanel'
+import { DeckComparePanel } from '../components/DeckComparePanel'
 import { ExportDialog } from '../components/ExportDialog'
 import { ProxyDialog } from '../components/ProxyDialog'
 import { SimilarCardsPanel } from '../components/SimilarCardsPanel'
@@ -49,7 +50,7 @@ import { useDebounced } from '../hooks/useDebounced'
 import { useDeck } from '../hooks/useDeck'
 import { formatNumber, locale, t } from '../i18n'
 
-export type DeckTab = 'pool' | 'stats' | 'combos' | 'missing' | 'history'
+export type DeckTab = 'pool' | 'stats' | 'combos' | 'missing' | 'history' | 'compare'
 
 // How the height is shared between the pool (top) and the mana columns (bottom): the pool alone,
 // both, or the deck's columns over the whole height. Remembered per browser.
@@ -484,6 +485,9 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
             {t.builder.tabHistory}
             {deck.unsaved_changes > 0 && <span className="unsaved-dot"> ●</span>}
           </button>
+          <button className={tab === 'compare' ? 'on' : ''} onClick={() => setTab('compare')} role="tab">
+            {t.builder.tabCompare}
+          </button>
         </div>
         {tab === 'history' ? (
           <div className="stats-scroll">
@@ -508,6 +512,10 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
               onAdd={(cardId) => actions.add(cardId)}
               onHover={deckPreview.show}
             />
+          </div>
+        ) : tab === 'compare' ? (
+          <div className="stats-scroll">
+            <DeckComparePanel deck={deck} revision={revision} onAddHere={(cardId, quantity) => actions.add(cardId, 'main', quantity)} />
           </div>
         ) : tab === 'missing' && deck.platform === 'paper' ? (
           <div className="stats-scroll">

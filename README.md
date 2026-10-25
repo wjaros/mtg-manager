@@ -37,6 +37,8 @@ Pioneer and freeform decks:
 - search by function like on Scryfall (`otag:ramp`) or with the *Function* filter.
 - *Similar cards* (right click on a card): cards doing the same job, by rules text, Scryfall's tags
   and mana value, those you own first; in the card's colours, more can be switched on.
+- *Compare* two decks (e.g. the paper deck and its Arena version): a table or a diff sorted by price,
+  with what each deck could take from the other (legal in its format, colours, on Arena).
 
 Hovering a card shows how many copies the deck has, how many you own and where they are (e.g. in
 another deck's box). Singleton duplicates are greyed out.
