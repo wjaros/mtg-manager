@@ -86,6 +86,8 @@ language from the request's Accept-Language (the frontend sends its own; default
 - `collection_items.kind`: 'real' copies are owned; 'proxy' copies stand in for a card in a deck's box and must never
   count as owned (search owned filters, stats, missing, exports, validation): filter `kind = 'real'` in new queries.
 - `cards` is kept narrow (searched by full scans); bulky JSON lives in `card_details` (1:1).
+- One card per search result shows the printing owned in most copies (`owned_printings` in `cards/search.py`),
+  not on Arena or with printing filters.
 - `oracle_cards` = one row per card with `default_card_id` / `arena_card_id` (both prefer regular booster printings in a plain frame), rebuilt after each sync.
 - Scryfall bulk is gzipped JSONL now (`jsonl_download_uri`); there are no `A-` (Alchemy rebalanced) cards in it.
 - Scryfall `arena_code` can collide with another set's `code` (me1 → `med`): resolve set codes by `code` first.
