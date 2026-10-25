@@ -88,7 +88,7 @@ blueprint ids: `GET /blueprints/export?expansion_id=` per expansion, which carri
      `scryfall_id`, with condition, language and foil;
    - remember the imported order ids, so nothing is added twice;
    - the shopping list then counts them as bought. CT0 box items could show what's on its way.
-3. **Sell list:**
+3. **Sell list** (`sell-list.md`):
    - export the copies marked for sale as a CSV keyed by `scryfall_id`, for CardTrader's
      import; later, upload it through the API;
    - seller orders could then take sold copies out of the collection.

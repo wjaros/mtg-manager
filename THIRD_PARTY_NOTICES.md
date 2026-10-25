@@ -27,6 +27,9 @@ ship inside the app in the `licenses` folder (collected at build time by
 - **Combos**: [Commander Spellbook](https://commanderspellbook.com), asked through its public API when
   a deck's Combos tab opens (nothing is bundled or stored on disk); each combo links back to its page.
   Commander Spellbook's code is MIT-licensed. This project is not affiliated with Commander Spellbook.
+- **CardTrader**: [CardTrader](https://www.cardtrader.com)'s API, used only with the user's own API
+  token to keep their shopping list as a CardTrader wishlist (nothing is bundled; the token stays on
+  their computer). This project is not affiliated with or endorsed by CardTrader.
 - **Test fixtures** (`backend/tests/fixtures/`): a small subset of Scryfall card data and card
   images, and of MTGJSON deck files, used only to test the app offline.
 
