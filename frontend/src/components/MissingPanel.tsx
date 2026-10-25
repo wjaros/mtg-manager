@@ -10,6 +10,7 @@ import {
 import { copyText } from '../clipboard'
 import { locale, t } from '../i18n'
 import { wants } from '../wants'
+import { SendToCardTrader } from './SendToCardTrader'
 
 interface Props {
   deckId: number
@@ -120,6 +121,9 @@ export function MissingPanel({ deckId, revision, onHover }: Props) {
             <button className="button" onClick={addToWants} title={t.wants.deckAddTitle}>
               {t.wants.deckAdd}
             </button>
+            <SendToCardTrader
+              request={{ source: 'deck', deck_id: deckId, exclude_other_decks: excludeOtherDecks, include_proxied: includeProxied }}
+            />
             {note && <span className="muted small">{note}</span>}
           </div>
           {report.entries.some((e) => (e.proxied ?? 0) > 0) && (

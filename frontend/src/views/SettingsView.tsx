@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, type Health, type SyncCheck, type SyncProgress, type SyncStatus } from '../api/client'
 import { UpdateSettings } from '../components/AppUpdate'
+import { CardTraderSettings } from '../components/CardTraderSettings'
 import { CloudBackupSettings } from '../components/CloudBackupSettings'
 import { PrintingPanel } from '../components/PrintingPanel'
 import { formatNumber, lang, LANGUAGES, locale, setLang, t, type Lang } from '../i18n'
@@ -171,6 +172,8 @@ export function SettingsView({ status, onStatusChange }: Props) {
       <BackupPanel />
 
       <PrintingPanel />
+
+      <CardTraderSettings />
 
       <section className="panel">
         <h2>{t.settings.app}</h2>

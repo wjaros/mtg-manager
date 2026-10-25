@@ -4,6 +4,7 @@ import { copyText } from '../clipboard'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { locale, t } from '../i18n'
 import { wants } from '../wants'
+import { SendToCardTrader } from '../components/SendToCardTrader'
 
 /** Cardmarket's search for a card (any printing); a double-faced card by its front face. */
 function cardmarketUrl(name: string): string {
@@ -87,6 +88,7 @@ export function WantsView() {
             <a className="button" href={wantsExportUrl('csv')} download>
               {t.panels.downloadCsv}
             </a>
+            <SendToCardTrader request={{ source: 'wants' }} />
             <button
               className="button"
               onClick={() => window.confirm(t.wants.confirmClear) && run(api.clearWants)}

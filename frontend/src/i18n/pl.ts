@@ -190,6 +190,22 @@ export const pl = {
     platform: 'Platforma',
     create: 'Utwórz',
   },
+  cardtrader: {
+    intro:
+      'Braki talii i listę zakupów można wysłać do CardTrader jako prywatną wishlistę (dowolne wydanie). Token API znajdziesz w ustawieniach profilu CardTrader; zostaje tylko na tym komputerze, nie trafia do kopii zapasowej.',
+    tokenPlaceholder: 'Token API CardTrader',
+    connect: 'Połącz',
+    checking: 'Sprawdzam…',
+    connected: 'Połączono z CardTrader.',
+    connectedAs: (app: string | null) => (app ? `Połączono z CardTrader (aplikacja: ${app})` : 'Połączono z CardTrader'),
+    disconnect: 'Odłącz',
+    send: 'Wyślij do CardTrader',
+    sending: 'Wysyłam…',
+    sendTitle: 'Utwórz w CardTrader prywatną wishlistę z tych kart (dowolne wydanie)',
+    needsToken: 'Najpierw dodaj token CardTrader w Ustawieniach',
+    sent: (name: string, copies: number) => `Utworzono wishlistę „${name}” (${copies} kart).`,
+    notFound: (names: string) => `CardTrader nie rozpoznał: ${names} – dodaj je tam ręcznie.`,
+  },
   wants: {
     intro:
       'Karty do kupienia: dodane z menu kontekstowego (prawy klik na karcie) albo z braków talii. Każde wydanie się nada. Egzemplarze dopisane do kolekcji po dodaniu karty liczą się jako kupione i znikają z listy (proxy się nie liczą).',

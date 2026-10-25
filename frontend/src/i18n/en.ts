@@ -186,6 +186,22 @@ export const en: Messages = {
     platform: 'Platform',
     create: 'Create',
   },
+  cardtrader: {
+    intro:
+      "Send a deck's missing cards and the shopping list to CardTrader as a private wishlist (any printing). Your API token is in your CardTrader profile settings; it stays on this computer and is never part of a backup.",
+    tokenPlaceholder: 'CardTrader API token',
+    connect: 'Connect',
+    checking: 'Checking…',
+    connected: 'Connected to CardTrader.',
+    connectedAs: (app: string | null) => (app ? `Connected to CardTrader (app: ${app})` : 'Connected to CardTrader'),
+    disconnect: 'Disconnect',
+    send: 'Send to CardTrader',
+    sending: 'Sending…',
+    sendTitle: 'Create a private CardTrader wishlist of these cards (any printing)',
+    needsToken: 'Add your CardTrader token in Settings first',
+    sent: (name: string, copies: number) => `Created the wishlist "${name}" (${copies} cards).`,
+    notFound: (names: string) => `CardTrader didn't recognize: ${names} – add them there by hand.`,
+  },
   wants: {
     intro:
       'Cards to buy: added from the context menu (right-click a card) or from a deck\'s missing cards. Any printing will do. Copies added to the collection after a card was put here count as bought and leave the list (proxies don\'t count).',

@@ -65,6 +65,11 @@ add to the collection afterwards count as bought and drop off the list. Copy it 
 wants list and let its Shopping Wizard find the sellers (e.g. the fewest shipments), or download
 it as CSV.
 
+**CardTrader.** With your CardTrader API token (from your CardTrader profile settings, added in
+*Settings → CardTrader*), *Send to CardTrader* turns a deck's missing cards or the shopping list
+into a private CardTrader wishlist (any printing). Cards CardTrader doesn't recognize are listed, so
+you can add them there by hand. The token stays on your computer and is never part of a backup.
+
 **Scanning.** Drop photos of single cards, flatbed scans of whole pages (up to 9 cards, e.g. a binder
 page) or PDFs. Cards are found, straightened and recognized by name, collector line and art. You
 review the result and choose finish, condition and location before anything reaches the collection.

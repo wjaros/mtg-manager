@@ -54,7 +54,8 @@ def _export_arena(conn: sqlite3.Connection, deck) -> ExportResult:
                 set=replacement["set_label"], number=replacement["collector_number"],
             ))
             printing = replacement
-        line = f"{_arena_name(printing)} ({printing['set_label']}) {printing['collector_number']}"
+        card_name = arena_name(printing["name"], printing["layout"])
+        line = f"{card_name} ({printing['set_label']}) {printing['collector_number']}"
         # Two printings may map to the same Arena printing: merge their quantities.
         board_lines = sections.setdefault(entry.board, {})
         board_lines[line] = board_lines.get(line, 0) + entry.quantity
@@ -99,8 +100,7 @@ def _printing(conn: sqlite3.Connection, card_id: str) -> dict:
     return {**dict(row), "games": json.loads(row["games"] or "[]")}
 
 
-def _arena_name(printing: dict) -> str:
-    name = printing["name"]
-    if printing["layout"] in FULL_NAME_LAYOUTS:
+def arena_name(name: str, layout: str | None) -> str:
+    if layout in FULL_NAME_LAYOUTS:
         return name
     return name.split(" // ")[0]

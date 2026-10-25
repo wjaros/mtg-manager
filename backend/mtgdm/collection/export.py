@@ -6,7 +6,7 @@ import io
 import sqlite3
 from typing import Literal
 
-from mtgdm.decks.export import _arena_name
+from mtgdm.decks.export import arena_name
 
 ExportFormat = Literal["arena", "csv"]
 
@@ -45,7 +45,7 @@ def _arena(rows: list[sqlite3.Row]) -> str:
     lines: dict[str, str] = {}
     for r in rows:
         counts[r["card_id"]] = counts.get(r["card_id"], 0) + r["quantity"]
-        lines[r["card_id"]] = f"{_arena_name(dict(r))} ({r['set_code'].upper()}) {r['collector_number']}"
+        lines[r["card_id"]] = f"{arena_name(r['name'], r['layout'])} ({r['set_code'].upper()}) {r['collector_number']}"
     return "".join(f"{counts[card_id]} {line}\n" for card_id, line in lines.items())
 
 

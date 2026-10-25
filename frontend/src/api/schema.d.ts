@@ -310,6 +310,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cardtrader": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Status
+         * @description Whether a CardTrader token is set (the token itself is never sent back).
+         */
+        get: operations["get_status_api_cardtrader_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cardtrader/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Token
+         * @description Keep the user's CardTrader API token once CardTrader accepts it.
+         */
+        put: operations["put_token_api_cardtrader_token_put"];
+        post?: never;
+        /** Delete Token */
+        delete: operations["delete_token_api_cardtrader_token_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cardtrader/wishlists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Wishlist
+         * @description Send cards to buy to CardTrader as a private wishlist (any printing); the result lists the
+         *     cards CardTrader didn't recognize.
+         */
+        post: operations["post_wishlist_api_cardtrader_wishlists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/collection": {
         parameters: {
             query?: never;
@@ -1854,6 +1916,13 @@ export interface components {
             owned: number;
             /** Owned Printing */
             owned_printing: number;
+        };
+        /** CardTraderStatus */
+        CardTraderStatus: {
+            /** Connected */
+            connected: boolean;
+            /** App Name */
+            app_name?: string | null;
         };
         /** CardUsage */
         CardUsage: {
@@ -3464,6 +3533,11 @@ export interface components {
             /** Db Size Bytes */
             db_size_bytes: number;
         };
+        /** TokenBody */
+        TokenBody: {
+            /** Token */
+            token: string;
+        };
         /** UpdateInfo */
         UpdateInfo: {
             /** Enabled */
@@ -3608,6 +3682,39 @@ export interface components {
             deck_name: string | null;
             /** Quantity */
             quantity: number;
+        };
+        /** WishlistRequest */
+        WishlistRequest: {
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "deck" | "wants";
+            /** Deck Id */
+            deck_id?: number | null;
+            /**
+             * Exclude Other Decks
+             * @default false
+             */
+            exclude_other_decks?: boolean;
+            /**
+             * Include Proxied
+             * @default true
+             */
+            include_proxied?: boolean;
+        };
+        /** WishlistResult */
+        WishlistResult: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Cards */
+            cards: number;
+            /** Copies */
+            copies: number;
+            /** Not Found */
+            not_found: string[];
         };
     };
     responses: never;
@@ -4098,6 +4205,110 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_status_api_cardtrader_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardTraderStatus"];
+                };
+            };
+        };
+    };
+    put_token_api_cardtrader_token_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardTraderStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_token_api_cardtrader_token_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    post_wishlist_api_cardtrader_wishlists_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WishlistRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WishlistResult"];
+                };
             };
             /** @description Validation Error */
             422: {

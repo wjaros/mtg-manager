@@ -271,6 +271,22 @@ MESSAGES: dict[str, dict[Lang, str]] = {
         "en": "Can't write to that folder: {error}",
     },
     "precon_not_found": {"pl": "Nie ma takiej talii.", "en": "No such deck."},
+    "cardtrader_bad_token": {
+        "pl": "CardTrader nie przyjął tokenu – sprawdź go w ustawieniach profilu CardTrader.",
+        "en": "CardTrader didn't accept the token – check it in your CardTrader profile settings.",
+    },
+    "cardtrader_no_token": {
+        "pl": "Najpierw dodaj token CardTrader w Ustawieniach.",
+        "en": "Add your CardTrader token in Settings first.",
+    },
+    "cardtrader_failed": {"pl": "CardTrader zwrócił błąd: {error}", "en": "CardTrader returned an error: {error}"},
+    "cardtrader_offline": {
+        "pl": "Nie udało się połączyć z CardTrader (brak internetu?): {error}",
+        "en": "Couldn't reach CardTrader (offline?): {error}",
+    },
+    "cardtrader_nothing": {"pl": "Nie ma nic do kupienia.", "en": "There's nothing to buy."},
+    "cardtrader_deck_wishlist": {"pl": "{deck} – braki", "en": "{deck} – missing"},
+    "cardtrader_wants_wishlist": {"pl": "Lista zakupów {date}", "en": "Shopping list {date}"},
     "combos_failed": {
         "pl": "Nie udało się pobrać combo z Commander Spellbook (brak internetu?): {error}",
         "en": "Couldn't get combos from Commander Spellbook (offline?): {error}",

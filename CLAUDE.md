@@ -17,6 +17,9 @@ language from the request's Accept-Language (the frontend sends its own; default
     `precons.py` syncs DeckList.json + Commander decks as the last sync stage (failure doesn't fail the sync),
     others on demand; a precon becomes import text with exact printings; `browse_precons` (owned / value per
     Commander precon) and `precons_for_missing` (precons covering a deck's missing cards, basics left out)
+  - `mtgdm/cardtrader/` – CardTrader API with the user's own token (in `meta`, never in backups): a deck's missing
+    cards or the shopping list as a private wishlist (MTGA text, read back: unrecognized cards are reported);
+    API facts in `docs/ideas/cardtrader.md`
   - `mtgdm/spellbook/` – Commander Spellbook `find-my-combos` (own UA, ≥1 s between requests, 429 back-off; answers
     cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
     to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)
