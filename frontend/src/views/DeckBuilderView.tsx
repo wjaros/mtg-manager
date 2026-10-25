@@ -23,6 +23,7 @@ import { DeckSwitcher } from '../components/DeckSwitcher'
 import { DeckCombosPanel } from '../components/DeckCombosPanel'
 import { ExportDialog } from '../components/ExportDialog'
 import { ProxyDialog } from '../components/ProxyDialog'
+import { SimilarCardsPanel } from '../components/SimilarCardsPanel'
 import { Filters } from '../components/Filters'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { ManaColumns } from '../components/ManaColumns'
@@ -110,6 +111,8 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
     poolZoom < LARGE_ZOOM,
   )
   const closeMenu = useCallback(() => setMenu(null), [])
+  const [similarTo, setSimilarTo] = useState<CardSummary | null>(null)
+  const closeSimilar = useCallback(() => setSimilarTo(null), [])
   const closeDetail = useCallback(() => setDetail(null), [])
 
   const debounced = useDebounced(filters, 250)
@@ -269,6 +272,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
     } else {
       items.push({ label: t.builder.addToSideboard, onClick: () => actions.add(card.id, 'sideboard') })
     }
+    items.push({ label: t.similar.menu, onClick: () => setSimilarTo(card) })
     items.push({ label: t.builder.details, onClick: () => setDetail({ cardId: card.id }) })
     setMenu({ x: e.clientX, y: e.clientY, title: card.name, items })
   }
@@ -297,6 +301,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
       },
     })
     items.push({ label: t.builder.details, onClick: () => setDetail({ cardId: card.id, entry }) })
+    items.push({ label: t.similar.menu, onClick: () => setSimilarTo(card) })
     if (deck?.platform === 'paper' && board !== 'maybe') {
       items.push({
         label: t.builder.addProxy,
@@ -626,6 +631,21 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
             setPrinting(false)
             setHoldingsVersion((n) => n + 1) // proxies may have been marked
           }}
+        />
+      )}
+      {similarTo && (
+        <SimilarCardsPanel
+          card={similarTo}
+          deckId={deck.id}
+          deckColors={deck.color_identity}
+          onPick={addFromPool}
+          onContextMenu={poolMenu}
+          hoverInfo={(cardId) => (
+            <CardUsageInfo cardId={cardId} deckId={deck.id} revision={usageRevision} paper={deck.platform === 'paper'} />
+          )}
+          badge={badge}
+          dimmed={dimmed}
+          onClose={closeSimilar}
         />
       )}
       {detail && (

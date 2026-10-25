@@ -22,6 +22,7 @@ from mtgdm.cards.search import (
     list_sets,
     search_cards,
 )
+from mtgdm.cards.similar import DeckNotFound, SimilarCards, similar_cards
 from mtgdm.collection.usage import CardUsage, card_usage
 
 router = APIRouter(tags=["cards"])
@@ -90,6 +91,29 @@ def usage(
 @router.get("/cards/{card_id}/printings")
 def printings(db: Db, card_id: str) -> list[CardSummary]:
     result = get_printings(db, card_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Card not found")
+    return result
+
+
+@router.get("/cards/{card_id}/similar")
+def similar(
+    db: Db,
+    card_id: str,
+    colors: Annotated[
+        str | None,
+        Query(pattern="^[WUBRGCwubrgc]*$", description="Color identity to search in (C: colorless); default: the card's"),
+    ] = None,
+    deck: Annotated[int | None, Query(description="Deck being built: only its format's cards, not those in it")] = None,
+    limit: Annotated[int, Query(ge=1, le=200)] = 60,
+) -> SimilarCards:
+    """Cards doing a similar job (alike rules text, shared Scryfall Tagger tags, close mana value): the best
+    ones in the collection and the best others."""
+    try:
+        chosen = None if colors is None else [c for c in colors.upper() if c != "C"]
+        result = similar_cards(db, card_id, chosen, deck, limit)
+    except DeckNotFound as exc:
+        raise HTTPException(status_code=404, detail="Deck not found") from exc
     if result is None:
         raise HTTPException(status_code=404, detail="Card not found")
     return result

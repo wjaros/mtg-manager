@@ -271,6 +271,21 @@ export const pl = {
     notInCardData: 'brak w danych kart',
     credit: 'Combo z',
   },
+  similar: {
+    menu: 'Podobne karty',
+    title: (name: string) => `Podobne do: ${name}`,
+    colors: 'Kolory',
+    colorsTitle: 'Karty mieszczące się w zaznaczonych kolorach (bezbarwne zawsze)',
+    deckColors: 'Kolory talii',
+    cardColors: 'Kolory karty',
+    hint: 'Podobny tekst reguł, wspólne funkcje (tagi ze Scryfall Tagger) i koszt many. Kliknij kartę, żeby ją otworzyć.',
+    hintDeck:
+      'Podobny tekst reguł, wspólne funkcje (tagi ze Scryfall Tagger) i koszt many, legalne w formacie talii. Kliknij kartę, żeby dodać ją do talii; prawy przycisk: więcej.',
+    searching: 'Szukam…',
+    none: 'Brak podobnych kart w wybranych kolorach.',
+    inCollection: (n: number) => `W kolekcji (${n})`,
+    others: (n: number) => `Pozostałe (${n})`,
+  },
   panels: {
     boardCommander: 'Dowódca',
     boardMain: 'Talia',
