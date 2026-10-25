@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, setIconUrl, type CardDetail, type CardSummary } from '../api/client'
 import { CardImage } from './CardImage'
+import { CopyButton } from './CopyButton'
 import { ManaCost } from './ManaCost'
 import { OwnedCopies } from './OwnedCopies'
 import { locale, t } from '../i18n'
@@ -119,7 +120,9 @@ export function CardDetailPanel({ cardId, onClose, onChoosePrinting, onCollectio
 
       <div className="detail-body">
         <h2 className="detail-title">
-          <span>{shown?.name ?? card.name}</span>
+          <span>
+            {shown?.name ?? card.name} <CopyButton text={card.name} title={t.common.copyName} />
+          </span>
           <ManaCost cost={shown ? shown.mana_cost : card.mana_cost} />
         </h2>
         {card.printed_name && <p className="muted">{card.printed_name}</p>}

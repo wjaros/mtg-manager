@@ -1666,6 +1666,8 @@ export interface components {
             page_size: number;
             /** Items */
             items: components["schemas"]["CardSummary"][];
+            /** Type Hint */
+            type_hint?: string | null;
         };
         /**
          * CardSummary

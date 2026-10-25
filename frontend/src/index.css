@@ -618,6 +618,22 @@ nav {
   background: rgb(15 18 24 / 0.85);
 }
 
+.copy-button {
+  padding: 0 0.2rem;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  vertical-align: middle;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.copy-button:hover {
+  color: var(--accent);
+  opacity: 1;
+}
+
 .detail-title {
   display: flex;
   justify-content: space-between;
