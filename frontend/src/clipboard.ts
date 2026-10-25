@@ -19,3 +19,8 @@ export async function copyText(text: string): Promise<void> {
   area.remove()
   if (!ok) throw new Error(t.common.clipboardUnavailable)
 }
+
+/** Copy from a menu, which has nothing on screen to show the result: only a failure is reported. */
+export function copyFromMenu(text: string): void {
+  copyText(text).catch((e: Error) => window.alert(e.message))
+}

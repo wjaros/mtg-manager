@@ -24,6 +24,7 @@ import { DeckCombosPanel } from '../components/DeckCombosPanel'
 import { ExportDialog } from '../components/ExportDialog'
 import { ProxyDialog } from '../components/ProxyDialog'
 import { SimilarCardsPanel } from '../components/SimilarCardsPanel'
+import { copyFromMenu } from '../clipboard'
 import { editUserTagsFromMenu } from '../userTags'
 import { Filters } from '../components/Filters'
 import { useHoverPreview } from '../hooks/useHoverPreview'
@@ -274,6 +275,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
       items.push({ label: t.builder.addToSideboard, onClick: () => actions.add(card.id, 'sideboard') })
     }
     items.push({ label: t.similar.menu, onClick: () => setSimilarTo(card) })
+    items.push({ label: t.common.copyName, onClick: () => copyFromMenu(card.name) })
     items.push({ label: t.userTags.menu, onClick: () => editUserTagsFromMenu(card) })
     items.push({ label: t.builder.details, onClick: () => setDetail({ cardId: card.id }) })
     setMenu({ x: e.clientX, y: e.clientY, title: card.name, items })
@@ -304,6 +306,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
     })
     items.push({ label: t.builder.details, onClick: () => setDetail({ cardId: card.id, entry }) })
     items.push({ label: t.similar.menu, onClick: () => setSimilarTo(card) })
+    items.push({ label: t.common.copyName, onClick: () => copyFromMenu(card.name) })
     items.push({ label: t.userTags.menu, onClick: () => editUserTagsFromMenu(card) })
     if (deck?.platform === 'paper' && board !== 'maybe') {
       items.push({
@@ -529,6 +532,15 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
               <span className="muted small">
                 {pool.total === null ? t.collection.searching : t.builder.poolCount(formatNumber(pool.total))}
               </span>
+              {pool.typeHint && (
+                <button
+                  className="link-button small"
+                  title={t.filters.typeHintTitle}
+                  onClick={() => setFilters({ ...filters, q: pool.typeHint! })}
+                >
+                  {t.filters.typeHint(pool.typeHint)}
+                </button>
+              )}
               <ZoomControl zoom={poolZoom} onChange={setPoolZoom} />
             </div>
             <CardGrid

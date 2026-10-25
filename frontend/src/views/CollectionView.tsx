@@ -4,6 +4,7 @@ import { CardDetailPanel } from '../components/CardDetailPanel'
 import { CardGrid, MIN_CARD_WIDTH } from '../components/CardGrid'
 import { ContextMenu, type MenuState } from '../components/ContextMenu'
 import { SimilarCardsPanel } from '../components/SimilarCardsPanel'
+import { copyFromMenu } from '../clipboard'
 import { editUserTagsFromMenu } from '../userTags'
 import { printQueue, usePrintQueue } from '../printQueue'
 import { ZoomControl } from '../components/ZoomControl'
@@ -25,7 +26,7 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
   const debounced = useDebounced(filters, 250)
   const query = useMemo(() => toQuery(debounced), [debounced])
   const [version, setVersion] = useState(0)
-  const { total, error, cardAt, ensureRange } = useCardPages(query, version)
+  const { total, error, typeHint, cardAt, ensureRange } = useCardPages(query, version)
   const [selected, setSelected] = useState<string | null>(null)
   const [stats, setStats] = useState<CollectionStats | null>(null)
   const closeDetail = useCallback(() => setSelected(null), [])
@@ -69,6 +70,11 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
           <span className="muted result-count">
             {total === null ? t.collection.searching : t.collection.resultCount(formatNumber(total), filters.unique === 'prints')}
           </span>
+          {typeHint && (
+            <button className="link-button small" title={t.filters.typeHintTitle} onClick={() => setFilters({ ...filters, q: typeHint })}>
+              {t.filters.typeHint(typeHint)}
+            </button>
+          )}
           {stats && (
             <span className="muted result-count collection-stats">
               {t.collection.stats(formatNumber(stats.cards), formatNumber(stats.copies))}
@@ -99,6 +105,7 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
                   ? { label: t.print.unqueue, onClick: () => printQueue.remove(card.id) }
                   : { label: t.print.queue, onClick: () => printQueue.add(card) },
                 { label: t.similar.menu, onClick: () => setSimilarTo(card) },
+                { label: t.common.copyName, onClick: () => copyFromMenu(card.name) },
                 // A tag: search shows the change at once.
                 { label: t.userTags.menu, onClick: () => editUserTagsFromMenu(card, () => setVersion((v) => v + 1)) },
                 { label: t.builder.details, onClick: () => setSelected(card.id) },

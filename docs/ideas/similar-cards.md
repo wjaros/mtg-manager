@@ -50,3 +50,24 @@ Prototype results:
 
 - The weights. Tagger tags: shared fine tags count more than shared broad ones (depth in the
   hierarchy); "cycle-…" tags say little about function.
+
+## Tuning after first use (2026-10-25)
+
+Molten Note's "in the collection" list was mostly noise (Faithless Looting, Karametra's Blessing,
+a signpost uncommon of the same set). Causes and fixes:
+
+- **Non-functional tags:** cycles (a third of all Tagger tags), draft signposts, names and memes
+  are rare, so they weighed the most. Their families are now ignored, by root tag id.
+- **Related tags:** a tag now counts with its ancestors, so `burn-creature` and
+  `removal-exile` share `removal-creature` and `removal`.
+- **Mana value:** it added points with no other likeness; now it only scales the relevance from
+  tags and text.
+- **Thresholds:** relevance under 0.15 is dropped. Owned cards need a score of 0.15 and 30% of
+  the best one found.
+- **Text reference:** text was scored against the best match of each list, so the best owned
+  match always looked perfect. Both lists now share one reference.
+- **Keywords and costs:** one-word lines (keywords: "Flying") are search terms. Pairs of mana
+  symbols from costs ("{R}{W}") are not.
+
+Open: vanilla creatures (no text, no tags) get nothing. Power and toughness could cover them.
+
