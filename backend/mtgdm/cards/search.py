@@ -92,6 +92,7 @@ def search_cards(conn: sqlite3.Connection, query: CardQuery) -> CardPage:
     # Sorting full rows (images, faces) would drag ~4 KB per card through the sort.
     order_sql = _ORDER_SQL[query.order]
     keys = "c.id, c.name, c.cmc, c.released_at"
+    own_art = False  # show the printing owned instead of the representative one
     if query.unique == "prints":
         total = conn.execute(f"SELECT COUNT(*) FROM cards c WHERE {where_sql}", params).fetchone()[0]
         ids_sql = f"SELECT {keys} FROM cards c WHERE {where_sql}"
@@ -102,6 +103,8 @@ def search_cards(conn: sqlite3.Connection, query: CardQuery) -> CardPage:
         rep = "o.arena_card_id" if query.game == "arena" else "o.default_card_id"
         ids_sql = f"SELECT {keys} FROM oracle_cards o JOIN cards c ON c.id = {rep} WHERE {where_sql}"
         total = conn.execute(f"SELECT COUNT(*) FROM ({ids_sql})", params).fetchone()[0]
+        # Paper copies mean nothing on Arena; printing-level filters (other branch) choose the printing.
+        own_art = query.game != "arena"
     else:
         # Printing-level filters: among matching printings of each card prefer the default one.
         total = conn.execute(
@@ -122,7 +125,30 @@ def search_cards(conn: sqlite3.Connection, query: CardQuery) -> CardPage:
     ids = [r[0] for r in conn.execute(
         f"SELECT id FROM ({ids_sql}) ORDER BY {order_sql} LIMIT ? OFFSET ?", params + paging
     )]
+    if own_art:
+        ids = owned_printings(conn, ids)
     return CardPage(total=total, page=page, page_size=page_size, items=card_summaries(conn, ids))
+
+
+def owned_printings(conn: sqlite3.Connection, ids: list[str]) -> list[str]:
+    """Each printing replaced by the printing of the same card owned in most copies (real ones; on a
+    tie the newest collection entry, so moving copies around doesn't change it), so the collection
+    shows the art you have; unowned cards stay."""
+    if not ids:
+        return ids
+    placeholders = ", ".join("?" * len(ids))
+    owned: dict[str, str] = {}
+    for oracle_id, card_id in conn.execute(
+        f"""
+        SELECT x.oracle_id, ci.card_id FROM collection_items ci JOIN cards x ON x.id = ci.card_id
+        WHERE ci.kind = 'real' AND x.oracle_id IN (SELECT oracle_id FROM cards WHERE id IN ({placeholders}))
+        GROUP BY ci.card_id ORDER BY SUM(ci.quantity) DESC, MAX(ci.id) DESC
+        """,
+        ids,
+    ):
+        owned.setdefault(oracle_id, card_id)
+    oracle_of = {r[0]: r[1] for r in conn.execute(f"SELECT id, oracle_id FROM cards WHERE id IN ({placeholders})", ids)}
+    return [owned.get(oracle_of.get(i), i) for i in ids]
 
 
 def card_summaries(conn: sqlite3.Connection, ids: list[str]) -> list[CardSummary]:

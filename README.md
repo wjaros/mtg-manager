@@ -16,7 +16,8 @@ phone-friendly PDF. Everything runs on your computer; card data comes from
 (`t:angel mv<=3 id:wr`). Physical copies with printing, finish, language, condition and location
 (binders, boxes, deck boxes). Open any card and you see where each of your copies lies, e.g. "1×
 DOM #31 · NM · Giada, Font of Hope" means it sits in that deck's box, so you know where to take it from.
-Filter the search to the cards you own or to the ones you're missing.
+Filter the search to the cards you own or to the ones you're missing. A card you own shows the
+printing you have the most copies of, here and in the deckbuilder's pool (paper decks).
 
 ![Collection](docs/screenshots/collection.webp)
 
