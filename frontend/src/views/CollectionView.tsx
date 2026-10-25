@@ -24,7 +24,7 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
   const debounced = useDebounced(filters, 250)
   const query = useMemo(() => toQuery(debounced), [debounced])
   const [version, setVersion] = useState(0)
-  const { total, error, cardAt, ensureRange } = useCardPages(query, version)
+  const { total, error, typeHint, cardAt, ensureRange } = useCardPages(query, version)
   const [selected, setSelected] = useState<string | null>(null)
   const [stats, setStats] = useState<CollectionStats | null>(null)
   const closeDetail = useCallback(() => setSelected(null), [])
@@ -68,6 +68,11 @@ export function CollectionView({ hasData, onOpenSettings }: Props) {
           <span className="muted result-count">
             {total === null ? t.collection.searching : t.collection.resultCount(formatNumber(total), filters.unique === 'prints')}
           </span>
+          {typeHint && (
+            <button className="link-button small" title={t.filters.typeHintTitle} onClick={() => setFilters({ ...filters, q: typeHint })}>
+              {t.filters.typeHint(typeHint)}
+            </button>
+          )}
           {stats && (
             <span className="muted result-count collection-stats">
               {t.collection.stats(formatNumber(stats.cards), formatNumber(stats.copies))}

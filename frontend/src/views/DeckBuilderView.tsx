@@ -526,6 +526,15 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
               <span className="muted small">
                 {pool.total === null ? t.collection.searching : t.builder.poolCount(formatNumber(pool.total))}
               </span>
+              {pool.typeHint && (
+                <button
+                  className="link-button small"
+                  title={t.filters.typeHintTitle}
+                  onClick={() => setFilters({ ...filters, q: pool.typeHint! })}
+                >
+                  {t.filters.typeHint(pool.typeHint)}
+                </button>
+              )}
               <ZoomControl zoom={poolZoom} onChange={setPoolZoom} />
             </div>
             <CardGrid

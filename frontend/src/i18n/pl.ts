@@ -98,6 +98,8 @@ export const pl = {
     removeAllTitle: 'Usuń wszystkie egzemplarze z tej pozycji',
   },
   filters: {
+    typeHint: (query: string) => `Szukasz typu? Spróbuj ${query}`,
+    typeHintTitle: 'Słowa bez klucza szukają w nazwach kart; t: szuka w linii typu',
     white: 'Biały',
     blue: 'Niebieski',
     black: 'Czarny',

@@ -94,6 +94,8 @@ export const en: Messages = {
     removeAllTitle: 'Remove all copies of this entry',
   },
   filters: {
+    typeHint: (query: string) => `Looking for a type? Try ${query}`,
+    typeHintTitle: 'Words without a key search card names; t: searches the type line',
     white: 'White',
     blue: 'Blue',
     black: 'Black',
