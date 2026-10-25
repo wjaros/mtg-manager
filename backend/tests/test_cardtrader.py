@@ -27,6 +27,8 @@ class FakeCardTrader:
         self.wishlists: dict[int, dict] = {}
         self.created = 0
         self.texts: list[str] = []
+        self.item_requests: list[list[dict]] = []
+        self.keeps_language = True
         self.fail_with: int | None = None
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
@@ -41,12 +43,18 @@ class FakeCardTrader:
         if path == "/wishlists" and request.method == "POST":
             deck = json.loads(request.content)["deck"]
             assert deck["game_id"] == 1 and deck["public"] is False
-            self.texts.append(deck["deck_items_from_text_deck"])
             items = []
-            for line in deck["deck_items_from_text_deck"].splitlines():
-                quantity, name = line.split(" ", 1)
-                if name != UNKNOWN:
-                    items.append({"quantity": int(quantity), "meta_name": slug(name), "expansion_code": None})
+            if "deck_items_attributes" in deck:
+                self.item_requests.append(deck["deck_items_attributes"])
+                for item in deck["deck_items_attributes"]:
+                    language = item.get("language") if self.keeps_language else None
+                    items.append({"quantity": item["quantity"], "meta_name": item["meta_name"], "language": language})
+            else:
+                self.texts.append(deck["deck_items_from_text_deck"])
+                for line in deck["deck_items_from_text_deck"].splitlines():
+                    quantity, name = line.split(" ", 1)
+                    if name != UNKNOWN:
+                        items.append({"quantity": int(quantity), "meta_name": slug(name), "language": None})
             self.created += 1
             wishlist_id = self.created
             self.wishlists[wishlist_id] = {"id": wishlist_id, "name": deck["name"], "game_id": 1, "items": items}
@@ -76,11 +84,11 @@ def client(card_settings, cardtrader):
 
 def connect(client):
     assert client.put("/api/cardtrader/token", json={"token": f"  {TOKEN} "}).json() == {
-        "connected": True, "app_name": "MTGDM"}
+        "connected": True, "app_name": "MTGDM", "language": None}
 
 
 def test_token(client):
-    assert client.get("/api/cardtrader").json() == {"connected": False, "app_name": None}
+    assert client.get("/api/cardtrader").json() == {"connected": False, "app_name": None, "language": None}
     resp = client.put("/api/cardtrader/token", json={"token": "wrong"}, headers={"Accept-Language": "en"})
     assert resp.status_code == 400 and "didn't accept the token" in resp.json()["detail"]
     assert client.get("/api/cardtrader").json()["connected"] is False
@@ -136,6 +144,33 @@ def test_deck_missing_cards_go_on_the_shopping_list_first(client, cardtrader):
     assert {w["name"] for w in client.get("/api/wants").json()["entries"]} == {"Lightning Strike", "Fire // Ice"}
     assert client.post("/api/cardtrader/wishlists", json={"source": "deck", "deck_id": 999}).status_code == 404
     assert client.post("/api/cardtrader/wishlists", json={"source": "deck"}).status_code == 422
+
+
+def test_cards_in_one_language(client, cardtrader):
+    connect(client)
+    assert client.put("/api/cardtrader/language", json={"language": "ja"}).status_code == 422  # CardTrader: jp
+    assert client.put("/api/cardtrader/language", json={"language": "en"}).json()["language"] == "en"
+    for name, quantity in (("Karametra's Blessing", 1), (UNKNOWN, 1),
+                           ("Delver of Secrets // Insectile Aberration", 2)):
+        client.post("/api/wants", json={"card_id": CARDS[name]["id"], "quantity": quantity})
+
+    result = client.post("/api/cardtrader/wishlists", json={"source": "wants"}).json()
+    # CardTrader's own names from a temporary wishlist (gone at once), then items in the language.
+    assert sorted(cardtrader.item_requests[-1], key=lambda i: i["meta_name"]) == [
+        {"meta_name": "delver-of-secrets", "quantity": 2, "language": "en"},
+        {"meta_name": "karametra-s-blessing", "quantity": 1, "language": "en"},
+    ]
+    assert list(cardtrader.wishlists) == [result["id"]]
+    assert result["not_found"] == [UNKNOWN] and result["language"] == "en" and not result["language_ignored"]
+
+    cardtrader.keeps_language = False  # e.g. a language code CardTrader doesn't know
+    assert client.post("/api/cardtrader/wishlists", json={"source": "wants"}).json()["language_ignored"]
+
+    client.delete("/api/wants")
+    client.post("/api/wants", json={"card_id": CARDS[UNKNOWN]["id"]})
+    resp = client.post("/api/cardtrader/wishlists", json={"source": "wants"}, headers={"Accept-Language": "en"})
+    assert resp.status_code == 400 and "recognized none" in resp.json()["detail"]
+    assert client.put("/api/cardtrader/language", json={"language": None}).json()["language"] is None
 
 
 def test_cardtrader_errors_are_reported(client, cardtrader):

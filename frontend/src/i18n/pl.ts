@@ -207,6 +207,21 @@ export const pl = {
     sent: (name: string, copies: number) => `Wishlista „${name}” zaktualizowana: ${copies} kart z listy zakupów.`,
     added: (n: number) => `Braki talii dodane do listy zakupów: ${n}.`,
     notFound: (names: string) => `CardTrader nie rozpoznał: ${names} – dodaj je tam ręcznie.`,
+    language: 'Język kart na wishliście',
+    anyLanguage: 'dowolny',
+    languages: {
+      en: 'angielski',
+      de: 'niemiecki',
+      fr: 'francuski',
+      it: 'włoski',
+      es: 'hiszpański',
+      pt: 'portugalski',
+      jp: 'japoński',
+      ko: 'koreański',
+      ru: 'rosyjski',
+    } as Record<string, string>,
+    inLanguage: (language: string) => `Język kart: ${language}.`,
+    languageIgnored: 'CardTrader nie zapisał języka kart – wishlista przyjmie każdy język.',
   },
   wants: {
     intro:

@@ -45,6 +45,12 @@ class CardTraderClient:
             "game_id": MAGIC, "name": name, "public": public, "deck_items_from_text_deck": text_deck,
         }})
 
+    def create_wishlist_items(self, name: str, items: list[dict[str, Any]], public: bool = False) -> dict[str, Any]:
+        """A wishlist from items: CardTrader's name of the card (`meta_name`), quantity, language, ..."""
+        return self._request("POST", "/wishlists", json={"deck": {
+            "game_id": MAGIC, "name": name, "public": public, "deck_items_attributes": items,
+        }})
+
     def wishlist(self, wishlist_id: int) -> dict[str, Any]:
         return self._request("GET", f"/wishlists/{wishlist_id}")
 

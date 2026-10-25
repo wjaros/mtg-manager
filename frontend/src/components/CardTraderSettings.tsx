@@ -27,6 +27,15 @@ export function CardTraderSettings() {
     }
   }
 
+  const changeLanguage = async (language: string | null) => {
+    setMessage(null)
+    try {
+      setState(await api.setCardTraderLanguage(language))
+    } catch (e) {
+      setMessage({ ok: false, text: (e as Error).message })
+    }
+  }
+
   const disconnect = async () => {
     setMessage(null)
     try {
@@ -42,12 +51,29 @@ export function CardTraderSettings() {
       <h2>CardTrader</h2>
       <p className="muted small">{t.cardtrader.intro}</p>
       {state?.connected ? (
-        <div className="actions">
-          <span>{t.cardtrader.connectedAs(state.app_name ?? null)}</span>
-          <button className="button" onClick={disconnect}>
-            {t.cardtrader.disconnect}
-          </button>
-        </div>
+        <>
+          <div className="actions">
+            <span>{t.cardtrader.connectedAs(state.app_name ?? null)}</span>
+            <button className="button" onClick={disconnect}>
+              {t.cardtrader.disconnect}
+            </button>
+          </div>
+          <label className="checkbox">
+            {t.cardtrader.language}
+            <select
+              className="select small"
+              value={state.language ?? ''}
+              onChange={(e) => changeLanguage(e.target.value || null)}
+            >
+              <option value="">{t.cardtrader.anyLanguage}</option>
+              {Object.entries(t.cardtrader.languages).map(([code, label]) => (
+                <option key={code} value={code}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </>
       ) : (
         <div className="actions">
           <input

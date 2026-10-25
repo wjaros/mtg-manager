@@ -2,7 +2,11 @@
 
 Status: step 1 done (2026-10-25): the shopping list as one CardTrader wishlist, a deck's missing
 cards put on the list first (`mtgdm/cardtrader/`, Settings › CardTrader). There is no endpoint to
-edit a wishlist, so a sync creates a new one and then deletes the last. The facts below come from CardTrader's API reference (pasted from
+edit a wishlist, so a sync creates a new one and then deletes the last. With a card language chosen
+(Settings), a temporary wishlist made from the text gives CardTrader's names (slugs) of the cards,
+and the wishlist is then made of items (`meta_name`, `quantity`, `language`), read back to check the
+language was kept. Language codes are CardTrader's (`jp` in their example, not `ja`); whether each
+one is accepted shows on the first send. The facts below come from CardTrader's API reference (pasted from
 https://www.cardtrader.com/en/docs/api/full/reference on 2026-10-25; the page itself is behind a
 Cloudflare check, the API host is not).
 

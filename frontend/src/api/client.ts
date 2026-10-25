@@ -180,6 +180,8 @@ export const api = {
   cardtrader: () => request<CardTraderStatus>('/api/cardtrader'),
   setCardTraderToken: (token: string) =>
     request<CardTraderStatus>('/api/cardtrader/token', jsonBody('PUT', { token })),
+  setCardTraderLanguage: (language: string | null) =>
+    request<CardTraderStatus>('/api/cardtrader/language', jsonBody('PUT', { language })),
   forgetCardTraderToken: () =>
     fetch('/api/cardtrader/token', { method: 'DELETE' }).then((r) => {
       if (!r.ok) throw new ApiError(r.status, r.statusText)

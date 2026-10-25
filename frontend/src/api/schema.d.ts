@@ -351,6 +351,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cardtrader/language": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Language
+         * @description The language of the cards on the wishlist from the next send on; None: any.
+         */
+        put: operations["put_language_api_cardtrader_language_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cardtrader/wishlists": {
         parameters: {
             query?: never;
@@ -1923,6 +1943,8 @@ export interface components {
             connected: boolean;
             /** App Name */
             app_name?: string | null;
+            /** Language */
+            language?: string | null;
         };
         /** CardUsage */
         CardUsage: {
@@ -2887,6 +2909,11 @@ export interface components {
              */
             card_ids?: string[];
         };
+        /** LanguageBody */
+        LanguageBody: {
+            /** Language */
+            language?: string | null;
+        };
         /** Location */
         Location: {
             /** Id */
@@ -3720,6 +3747,13 @@ export interface components {
              * @default 0
              */
             added?: number;
+            /** Language */
+            language?: string | null;
+            /**
+             * Language Ignored
+             * @default false
+             */
+            language_ignored?: boolean;
         };
     };
     responses: never;
@@ -4290,6 +4324,39 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    put_language_api_cardtrader_language_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LanguageBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardTraderStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };

@@ -50,6 +50,8 @@ export function SendToCardTrader({ request }: { request: CardTraderWishlistReque
         <span className="small">
           {t.cardtrader.sent(result.name, result.copies)}
           {(result.added ?? 0) > 0 && ` ${t.cardtrader.added(result.added ?? 0)}`}
+          {result.language && !result.language_ignored && ` ${t.cardtrader.inLanguage(t.cardtrader.languages[result.language] ?? result.language)}`}
+          {result.language_ignored && <span className="status error"> {t.cardtrader.languageIgnored}</span>}
           {result.not_found.length > 0 && (
             <span className="status error"> {t.cardtrader.notFound(result.not_found.join(', '))}</span>
           )}

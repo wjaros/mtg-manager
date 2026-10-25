@@ -8,11 +8,14 @@ from pydantic import BaseModel, Field
 from mtgdm.api.deps import Db
 from mtgdm.cardtrader.client import CardTraderClient, CardTraderError
 from mtgdm.cardtrader.wishlists import (
+    LANGUAGES,
     CardTraderStatus,
+    NothingRecognized,
     NothingToSend,
     WishlistResult,
     forget_token,
     save_token,
+    set_language,
     status,
     sync_wishlist,
     token,
@@ -28,6 +31,10 @@ T = TypeVar("T")
 
 class TokenBody(BaseModel):
     token: str = Field(min_length=1, max_length=4000)
+
+
+class LanguageBody(BaseModel):
+    language: str | None = None  # CardTrader's code (en, de, ..., jp); None: any
 
 
 class WishlistRequest(BaseModel):
@@ -70,6 +77,14 @@ def delete_token(db: Db) -> None:
     forget_token(db)
 
 
+@router.put("/cardtrader/language")
+def put_language(db: Db, body: LanguageBody) -> CardTraderStatus:
+    """The language of the cards on the wishlist from the next send on; None: any."""
+    if body.language is not None and body.language not in LANGUAGES:
+        raise HTTPException(status_code=422, detail=f"language must be one of {', '.join(LANGUAGES)}")
+    return set_language(db, body.language)
+
+
 @router.post("/cardtrader/wishlists")
 def post_wishlist(db: Db, request: Request, body: WishlistRequest) -> WishlistResult:
     """Make the one CardTrader wishlist (private, any printing) the shopping list, a deck's missing
@@ -89,5 +104,7 @@ def post_wishlist(db: Db, request: Request, body: WishlistRequest) -> WishlistRe
         result = _call(lambda: sync_wishlist(db, _client(request, value), tr("cardtrader_wishlist")))
     except NothingToSend as exc:
         raise HTTPException(status_code=400, detail=tr("cardtrader_nothing")) from exc
+    except NothingRecognized as exc:
+        raise HTTPException(status_code=400, detail=tr("cardtrader_none_recognized")) from exc
     result.added = added
     return result

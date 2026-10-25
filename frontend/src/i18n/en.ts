@@ -203,6 +203,21 @@ export const en: Messages = {
     sent: (name: string, copies: number) => `Wishlist "${name}" updated: ${copies} cards from the shopping list.`,
     added: (n: number) => `The deck's missing cards added to the shopping list: ${n}.`,
     notFound: (names: string) => `CardTrader didn't recognize: ${names} – add them there by hand.`,
+    language: 'Language of the cards on the wishlist',
+    anyLanguage: 'any',
+    languages: {
+      en: 'English',
+      de: 'German',
+      fr: 'French',
+      it: 'Italian',
+      es: 'Spanish',
+      pt: 'Portuguese',
+      jp: 'Japanese',
+      ko: 'Korean',
+      ru: 'Russian',
+    } as Record<string, string>,
+    inLanguage: (language: string) => `Card language: ${language}.`,
+    languageIgnored: "CardTrader didn't keep the card language – the wishlist takes any language.",
   },
   wants: {
     intro:
