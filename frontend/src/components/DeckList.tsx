@@ -1,20 +1,28 @@
 import type { MouseEvent } from 'react'
-import type { Board, DeckCard, DeckChange, Holding } from '../api/client'
-import { changeKey, changeKind, changeLabel, changesByKey, groupByType, holdState, holdTitle, matchesCardQuery } from '../decks'
+import type { DeckCard, DeckChange, Holding } from '../api/client'
+import {
+  BOARD_SECTIONS,
+  changeKey,
+  changeKind,
+  changeLabel,
+  changesByKey,
+  groupCards,
+  holdState,
+  holdTitle,
+  matchesCardQuery,
+  sortCards,
+  type DeckGrouping,
+  type DeckSort,
+} from '../decks'
 import { setCardDrag } from '../dnd'
 import { ManaCost } from './ManaCost'
 import { t } from '../i18n'
 
-const BOARD_SECTIONS: { board: Board; label: string }[] = [
-  { board: 'commander', label: t.panels.boardCommander },
-  { board: 'companion', label: 'Companion' },
-  { board: 'main', label: t.panels.boardMain },
-  { board: 'sideboard', label: 'Sideboard' },
-  { board: 'maybe', label: 'Maybeboard' },
-]
-
 interface Props {
   cards: DeckCard[]
+  /** How the main deck is grouped and each group (and the other parts of the deck) sorted. */
+  grouping?: DeckGrouping
+  sort?: DeckSort
   /** Card ids flagged by validation errors. */
   violations: Set<string>
   /** Unsaved changes: highlighted rows; removed cards are shown struck through. */
@@ -31,9 +39,11 @@ interface Props {
   query?: string
 }
 
-/** Text list of the deck grouped by board, then by card type (main board). */
+/** Text list of the deck grouped by board, then (main board) by card type or the chosen grouping. */
 export function DeckList({
   cards,
+  grouping = 'type',
+  sort = 'mv',
   violations,
   changes = [],
   holdings,
@@ -62,9 +72,11 @@ export function DeckList({
       {BOARD_SECTIONS.map(({ board, label }) => {
         const entries = [...cards, ...ghosts.keys()].filter((c) => c.board === board && matchesCardQuery(c.card, query))
         if (!entries.length) return null
-        const groups = (board === 'main' ? groupByType(entries) : [{ type: board, label, cards: entries, count: 0 }]).map(
-          (g) => ({ ...g, count: counted(g.cards) }),
-        )
+        const groups = (
+          board === 'main'
+            ? groupCards(entries, grouping, sort)
+            : [{ key: board, label, cards: sortCards(entries, sort), count: 0 }]
+        ).map((g) => ({ ...g, count: counted(g.cards) }))
         const total = counted(entries)
         return (
           <section key={board} className="deck-section">
@@ -74,7 +86,7 @@ export function DeckList({
               </h3>
             )}
             {groups.map((group) => (
-              <div key={group.type} className="deck-group">
+              <div key={group.key} className="deck-group">
                 {board === 'main' && (
                   <h3 className="deck-group-title">
                     {group.label} <span className="muted">{group.count}</span>

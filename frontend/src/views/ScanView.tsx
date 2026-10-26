@@ -13,6 +13,7 @@ import { PageScanHeader } from '../components/PageScanHeader'
 import { useDebounced } from '../hooks/useDebounced'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { t } from '../i18n'
+import { getPref, setPref } from '../prefs'
 
 const ENGINE_KEY = 'mtgdm.ocrEngine'
 const AUTO_ACCEPT = 0.9
@@ -21,11 +22,7 @@ const CONDITIONS = ['M', 'NM', 'EX', 'GD', 'LP', 'PL', 'PO'] as const
 const LANGUAGES = ['en', 'pl', 'de', 'fr', 'it', 'es', 'pt', 'ja', 'ko', 'ru', 'zhs', 'zht']
 
 function readStoredEngine(): string | null {
-  try {
-    return localStorage.getItem(ENGINE_KEY)
-  } catch {
-    return null
-  }
+  return getPref(ENGINE_KEY)
 }
 
 export function ScanView() {
@@ -54,11 +51,7 @@ export function ScanView() {
 
   const chooseEngine = (value: string) => {
     setEngine(value)
-    try {
-      localStorage.setItem(ENGINE_KEY, value)
-    } catch {
-      // not persisted
-    }
+    void setPref(ENGINE_KEY, value)
   }
 
   const uploadFiles = async (files: File[]) => {

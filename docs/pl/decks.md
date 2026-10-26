@@ -43,10 +43,32 @@ Pula to wyszukiwarka z tymi samymi filtrami co [Kolekcja](collection.md#wyszukiw
 Po najechaniu na kartę widać, ile kopii jest w talii, ile masz w kolekcji i gdzie leżą (np. w
 pudełku innej talii). Duplikaty w formatach singleton są przygaszone.
 
-### Lista talii i kolumny many
+### Lista talii, stosy i spoiler
 
 Z prawej jest lista talii w sekcjach (dowódca, stworzenia, czary…). Wyszukasz w niej kartę przez
-Cmd+F / Ctrl+F. Na dole są kolumny według kosztu many.
+Cmd+F / Ctrl+F. Pod polem wyszukiwania wybierzesz grupowanie listy (typ, mana value, kolor,
+rzadkość, kategoria albo bez grupowania) i sortowanie w grupach (nazwa albo mana value).
+
+Na dole są obrazki kart talii, w jednym z dwóch widoków (przełącznik na krawędzi panelu):
+- **Stosy:** karty nachodzą na siebie, jedna kolumna na grupę; domyślnie według mana value, jak na
+  Arenie;
+- **Spoiler:** całe karty w siatce, sekcja na grupę.
+
+Obrazki mają własne grupowanie, sortowanie i rozmiar kart (− 100% +), niezależne od listy. Dowódca,
+companion, sideboard i maybeboard są w osobnych kolumnach i sekcjach. Granicę między pulą a talią
+przesuniesz, przeciągając górną krawędź talii; przy samej krawędzi zostaje sama pula albo sama
+talia, a dwuklik przywraca domyślny podział. **▴ Talia** i **▾ Kolekcja** przełączają te układy
+jednym kliknięciem. Klik w obrazek zdejmuje jedną kopię, a prawy przycisk otwiera menu karty.
+Aplikacja pamięta te ustawienia.
+
+Najechana karta pokazuje się powiększona obok siebie i w panelu przy talii, z wydaniem, liczbą
+kopii, stanem w kolekcji i ceną. W stosach karta zostaje na miejscu (dostaje tylko obwódkę), więc
+nie zasłania kart pod nią. Panel trzyma ostatnią kartę, na którą najechałeś (na początku dowódcę),
+także z listy po prawej. Kartę dwustronną odwraca ⟲, a **Szczegóły i wydania** otwierają jej
+szczegóły. W pasku nad talią wybierzesz **Podgląd: obok + panel**, **Podgląd: panel** (bez
+powiększenia przy karcie) albo **Podgląd: obok karty** (bez panelu).
+
+![Talia jako spoiler, z panelem podglądu](../images/pl/deck-spoiler.webp)
 
 W talii papierowej kolor liczby przy karcie mówi, gdzie są jej egzemplarze:
 - **brak:** nie masz wystarczająco kopii;
@@ -55,7 +77,8 @@ W talii papierowej kolor liczby przy karcie mówi, gdzie są jej egzemplarze:
 
 Prawy przycisk na karcie w talii przenosi ją między częściami talii (główna, maybeboard, sideboard,
 dowódca, companion) i nadaje jej **Kategorię**: rolę w tej talii, np. „Rampa”. Kategorie liczą się
-w statystykach.
+w statystykach, a grupowanie według kategorii zbiera karty o tej samej roli (karty bez kategorii
+trafiają do grupy swojego typu).
 
 ### Walidacja
 

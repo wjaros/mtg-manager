@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+  type MouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import {
   api,
   type CardQuery,
@@ -29,13 +38,16 @@ import { copyFromMenu } from '../clipboard'
 import { editUserTagsFromMenu } from '../userTags'
 import { Filters } from '../components/Filters'
 import { useHoverPreview } from '../hooks/useHoverPreview'
-import { ManaColumns } from '../components/ManaColumns'
+import { DeckPreview } from '../components/DeckPreview'
+import { DeckVisual } from '../components/DeckVisual'
+import { DeckViewOptions } from '../components/DeckViewOptions'
 import { MissingPanel } from '../components/MissingPanel'
 import { ManaCost } from '../components/ManaCost'
 import { ValidationPanel } from '../components/ValidationPanel'
 import {
   canBeCommander,
   COMMANDER_FORMATS,
+  DECK_VISUAL_MODES,
   matchesCardQuery,
   coverage,
   deckSizeTarget,
@@ -48,26 +60,44 @@ import { EMPTY_FILTERS, toQuery, type FilterState } from '../filters'
 import { useCardPages } from '../hooks/useCardPages'
 import { useDebounced } from '../hooks/useDebounced'
 import { useDeck } from '../hooks/useDeck'
+import { useDeckView } from '../hooks/useDeckView'
+import { useStoredChoice } from '../hooks/useStoredChoice'
+import { getPref, setPref } from '../prefs'
 import { formatNumber, locale, t } from '../i18n'
 
 export type DeckTab = 'pool' | 'stats' | 'combos' | 'missing' | 'history' | 'compare'
 
-// How the height is shared between the pool (top) and the mana columns (bottom): the pool alone,
-// both, or the deck's columns over the whole height. Remembered per browser.
+// How the height is shared between the pool (top) and the deck's cards (bottom): the pool alone,
+// both, or the deck's cards over the whole height next to the list. Remembered.
 const LAYOUTS = ['pool', 'split', 'deck'] as const
-type Layout = (typeof LAYOUTS)[number]
 const LAYOUT_KEY = 'mtgdm.deckbuilderLayout'
+// Split: the deck's share of the height below the header, dragged by the handle on its top edge.
+const SPLIT_KEY = 'mtgdm.deckbuilderSplit'
+const DEFAULT_SPLIT = 0.35
+// Dragged closer to an edge than this, it snaps to the pool alone or the deck alone; keys move it by a step.
+const SPLIT_SNAP = 0.06
+const SPLIT_STEP = 0.1
+
+function savedSplit(): number {
+  const saved = Number(getPref(SPLIT_KEY))
+  return saved >= SPLIT_SNAP && saved <= 1 - SPLIT_SNAP ? saved : DEFAULT_SPLIT
+}
+
+function splitRows(share: number): string {
+  return `auto minmax(0, ${1 - share}fr) minmax(0, ${share}fr)`
+}
 // At the largest zoom cards are big enough to read: hovering shows no enlarged copy.
 const LARGE_ZOOM = 2
-
-function savedLayout(): Layout {
-  try {
-    const saved = localStorage.getItem(LAYOUT_KEY)
-    return LAYOUTS.find((l) => l === saved) ?? 'split'
-  } catch {
-    return 'split'
-  }
+// The hovered deck card: enlarged beside it and large in a panel next to the deck's cards, or one of them.
+const PREVIEW_MODES = ['both', 'dock', 'cursor'] as const
+type PreviewMode = (typeof PREVIEW_MODES)[number]
+const PREVIEW_LABEL: Record<PreviewMode, string> = {
+  both: t.deckView.previewBoth,
+  dock: t.deckView.previewDock,
+  cursor: t.deckView.previewCursor,
 }
+// Hovered this long before the panel shows it: cards swept over on the way don't swap it.
+const DOCK_HOVER_MS = 80
 
 interface Props {
   deckId: number
@@ -85,18 +115,66 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
   const [hideAdded, setHideAdded] = useState(false)
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [detail, setDetail] = useState<{ cardId: string; entry?: DeckCard } | null>(null)
-  const [layout, setLayout] = useState<Layout>(savedLayout)
+  const [layout, setLayout] = useStoredChoice(LAYOUT_KEY, LAYOUTS, 'split')
   const [poolZoom, setPoolZoom] = useZoom('pool')
   const [columnsZoom, setColumnsZoom] = useZoom('columns')
-  const moveLayout = (step: 1 | -1) => {
-    const next = LAYOUTS[Math.min(LAYOUTS.length - 1, Math.max(0, LAYOUTS.indexOf(layout) + step))]
-    setLayout(next)
-    try {
-      localStorage.setItem(LAYOUT_KEY, next)
-    } catch {
-      // private mode: the layout just isn't remembered
+  const moveLayout = (step: 1 | -1) =>
+    setLayout(LAYOUTS[Math.min(LAYOUTS.length - 1, Math.max(0, LAYOUTS.indexOf(layout) + step))])
+  const [split, setSplit] = useState(savedSplit)
+  // While the handle is dragged the view shows the split (rows set directly, no re-render per move).
+  const [resizing, setResizing] = useState(false)
+  const shownLayout = resizing ? 'split' : layout
+  const deckShown = shownLayout !== 'pool'
+  const share = layout === 'pool' ? 0 : layout === 'deck' ? 1 : split
+  const viewRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+  const settleSplit = (next: number) => {
+    if (next < SPLIT_SNAP) setLayout('pool')
+    else if (next > 1 - SPLIT_SNAP) setLayout('deck')
+    else {
+      setLayout('split')
+      setSplit(next)
+      void setPref(SPLIT_KEY, next.toFixed(3))
     }
   }
+  const startResize = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return
+    e.preventDefault()
+    const handle = e.currentTarget
+    handle.setPointerCapture(e.pointerId)
+    setResizing(true)
+    let next = share
+    const move = (ev: PointerEvent) => {
+      const view = viewRef.current
+      const header = headerRef.current
+      if (!view || !header) return
+      const top = header.getBoundingClientRect().bottom
+      const bottom = view.getBoundingClientRect().bottom
+      next = Math.min(1, Math.max(0, (bottom - ev.clientY) / (bottom - top)))
+      view.style.gridTemplateRows = splitRows(next)
+    }
+    const end = () => {
+      handle.removeEventListener('pointermove', move)
+      handle.removeEventListener('pointerup', end)
+      handle.removeEventListener('pointercancel', end)
+      setResizing(false)
+      settleSplit(next)
+    }
+    handle.addEventListener('pointermove', move)
+    handle.addEventListener('pointerup', end)
+    handle.addEventListener('pointercancel', end)
+  }
+  // The deck's cards as images (stacks by mana value, like Arena) and the text list (by type).
+  const [visualMode, setVisualMode] = useStoredChoice('mtgdm.deckView.mode', DECK_VISUAL_MODES, 'stacks')
+  const visualView = useDeckView('visual', 'mv', 'name')
+  const listView = useDeckView('list', 'type', 'mv')
+  const [previewMode, setPreviewMode] = useStoredChoice('mtgdm.deckView.preview', PREVIEW_MODES, 'both')
+  const docked = previewMode !== 'cursor' && deckShown
+  // Without the panel on screen (the pool alone) the card is always enlarged beside it.
+  const enlargeBeside = previewMode !== 'dock' || !docked
+  const [dockEntry, setDockEntry] = useState<DeckCard | null>(null)
+  const dockTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(dockTimer.current), [])
   const [exporting, setExporting] = useState(false)
   const [printing, setPrinting] = useState(false)
   const [dropZone, setDropZone] = useState<'pool' | 'deck' | null>(null)
@@ -114,6 +192,13 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
       ),
     poolZoom < LARGE_ZOOM,
   )
+  // Deck cards (list and images): enlarged beside the card and/or in the panel, which keeps the last one.
+  const hoverDeckCard = (entry: DeckCard | null, e?: MouseEvent, enlarge = true) => {
+    deckPreview.show(enlargeBeside && enlarge && entry ? entry.card : null, e)
+    if (!docked) return
+    window.clearTimeout(dockTimer.current)
+    if (entry) dockTimer.current = window.setTimeout(() => setDockEntry(entry), DOCK_HOVER_MS)
+  }
   const closeMenu = useCallback(() => setMenu(null), [])
   const [similarTo, setSimilarTo] = useState<CardSummary | null>(null)
   const closeSimilar = useCallback(() => setSimilarTo(null), [])
@@ -235,6 +320,14 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
   const violations = new Set(validation?.issues.filter((i) => i.severity === 'error').flatMap((i) => i.card_ids ?? []) ?? [])
   const errorCount = validation?.issues.filter((i) => i.severity === 'error').length ?? 0
   const hasCommander = deck.commander_card_id !== null
+  // The panel's card: the last one hovered while it's in the deck, else the commander or the first card.
+  const dockCard = docked
+    ? ((dockEntry && deck.cards.find((c) => c.card.id === dockEntry.card.id && c.board === dockEntry.board)) ??
+      deck.cards.find((c) => c.board === 'commander') ??
+      deck.cards.find((c) => c.board === 'main') ??
+      deck.cards[0] ??
+      null)
+    : null
 
   const addFromPool = (card: { id: string; name: string; type_line?: string | null }) => {
     // Singleton formats: adding a second copy of a non-basic is almost always a misclick.
@@ -362,8 +455,12 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
   }
 
   return (
-    <div className={`view deckbuilder layout-${layout}`}>
-      <header className="deckbuilder-header">
+    <div
+      ref={viewRef}
+      className={`view deckbuilder layout-${shownLayout} ${resizing ? 'resizing' : ''}`}
+      style={shownLayout === 'split' ? { gridTemplateRows: splitRows(share) } : undefined}
+    >
+      <header className="deckbuilder-header" ref={headerRef}>
         <button className="link-button" onClick={onBack}>
           {t.builder.back}
         </button>
@@ -601,6 +698,9 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
                 )}
               </span>
             )}
+            <div className="deck-view-options">
+              <DeckViewOptions view={listView} />
+            </div>
           </div>
         )}
         {deck.cards.length === 0 ? (
@@ -609,6 +709,8 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
           <DeckList
             query={deckQuery}
             cards={deck.cards}
+            grouping={listView.grouping}
+            sort={listView.sort}
             violations={violations}
             changes={deck.changes.cards}
             holdings={paper ? holdings : null}
@@ -616,14 +718,69 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
             onAdd={(entry) => actions.add(entry.card.id, entry.board)}
             onRemove={(entry) => actions.remove(entry.card.id, entry.board, 1)}
             onMenu={entryMenu}
-            onHover={(entry, e) => deckPreview.show(entry?.card ?? null, e)}
+            onHover={hoverDeckCard}
           />
         )}
       </aside>
 
       <section className={`deckbuilder-columns ${dropZone === 'deck' ? 'drop-target' : ''}`} {...deckDrop}>
+        <div
+          className="split-handle"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label={t.builder.splitHandle}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(share * 100)}
+          tabIndex={0}
+          title={t.builder.splitHandleTitle}
+          onPointerDown={startResize}
+          onDoubleClick={() => settleSplit(DEFAULT_SPLIT)}
+          onKeyDown={(e) => {
+            const step = e.key === 'ArrowUp' ? SPLIT_STEP : e.key === 'ArrowDown' ? -SPLIT_STEP : 0
+            if (!step) return
+            e.preventDefault()
+            settleSplit(Math.min(1, Math.max(0, share + step)))
+          }}
+        />
         <div className="columns-toggle">
-          {layout !== 'pool' && <ZoomControl zoom={columnsZoom} onChange={setColumnsZoom} />}
+          {deckShown && (
+            <>
+              <span className="columns-mode" role="group" aria-label={t.deckView.mode}>
+                <button
+                  className={visualMode === 'stacks' ? 'on' : ''}
+                  aria-pressed={visualMode === 'stacks'}
+                  onClick={() => setVisualMode('stacks')}
+                  title={t.deckView.stacksTitle}
+                >
+                  {t.deckView.stacks}
+                </button>
+                <button
+                  className={visualMode === 'spoiler' ? 'on' : ''}
+                  aria-pressed={visualMode === 'spoiler'}
+                  onClick={() => setVisualMode('spoiler')}
+                  title={t.deckView.spoilerTitle}
+                >
+                  {t.deckView.spoiler}
+                </button>
+              </span>
+              <select
+                className="columns-select"
+                value={previewMode}
+                onChange={(e) => setPreviewMode(e.target.value as PreviewMode)}
+                aria-label={t.deckView.preview}
+                title={t.deckView.previewTitle}
+              >
+                {PREVIEW_MODES.map((m) => (
+                  <option key={m} value={m}>
+                    {PREVIEW_LABEL[m]}
+                  </option>
+                ))}
+              </select>
+              <DeckViewOptions view={visualView} className="columns-select" />
+              <ZoomControl zoom={columnsZoom} onChange={setColumnsZoom} />
+            </>
+          )}
           <button onClick={() => moveLayout(1)} disabled={layout === 'deck'} title={t.builder.expandDeckTitle}>
             {t.builder.expandDeck}
           </button>
@@ -631,17 +788,30 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
             {t.builder.expandPool}
           </button>
         </div>
-        {layout !== 'pool' && (
-          <ManaColumns
-            zoom={columnsZoom}
-            query={deckQuery}
-            cards={deck.cards}
-            changes={deck.changes.cards}
-            holdings={paper ? holdings : null}
-            onRemove={(entry) => actions.remove(entry.card.id, entry.board, 1)}
-            onMenu={entryMenu}
-            onHover={(entry, e) => deckPreview.show(columnsZoom < LARGE_ZOOM ? (entry?.card ?? null) : null, e)}
-          />
+        {deckShown && (
+          <div className="deck-visual-row">
+            {dockCard && (
+              <DeckPreview
+                key={dockCard.card.id}
+                entry={dockCard}
+                holding={paper && dockCard.card.oracle_id ? holdings?.get(dockCard.card.oracle_id) : undefined}
+                onDetails={(entry) => setDetail({ cardId: entry.card.id, entry })}
+              />
+            )}
+            <DeckVisual
+              mode={visualMode}
+              grouping={visualView.grouping}
+              sort={visualView.sort}
+              zoom={columnsZoom}
+              query={deckQuery}
+              cards={deck.cards}
+              changes={deck.changes.cards}
+              holdings={paper ? holdings : null}
+              onRemove={(entry) => actions.remove(entry.card.id, entry.board, 1)}
+              onMenu={entryMenu}
+              onHover={(entry, e) => hoverDeckCard(entry, e, columnsZoom < LARGE_ZOOM)}
+            />
+          </div>
         )}
       </section>
 
