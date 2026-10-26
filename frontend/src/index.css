@@ -1526,6 +1526,177 @@ nav {
   margin-left: auto;
 }
 
+/* ---------- Deck comparison ---------- */
+
+.compare-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.compare-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+}
+
+.compare-table tr.compare-only-a {
+  background: rgb(224 102 102 / 0.08);
+}
+
+.compare-table tr.compare-only-b {
+  background: rgb(79 191 127 / 0.08);
+}
+
+.compare-table tr.compare-differ {
+  background: rgb(224 176 79 / 0.08);
+}
+
+.compare-table tr.compare-same {
+  color: var(--text-muted);
+}
+
+.compare-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.compare-name {
+  cursor: default;
+}
+
+.compare-group {
+  margin-top: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+tr.compare-group td {
+  padding-top: 0.6rem;
+}
+
+.compare-side {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.875rem;
+}
+
+.side-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.5rem minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.side-head {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.side-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.side-cell .compare-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.compare-only-a > .side-cell:first-child,
+.compare-differ > .side-cell:first-child {
+  background: rgb(224 102 102 / 0.1);
+}
+
+.compare-only-b > .side-cell:last-child,
+.compare-differ > .side-cell:last-child {
+  background: rgb(79 191 127 / 0.1);
+}
+
+.compare-same > .side-cell {
+  color: var(--text-muted);
+}
+
+.side-cell.empty {
+  border: 1px dashed var(--border);
+  background: none;
+}
+
+.side-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.side-middle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.side-row:not(.side-head):hover > .side-cell:not(.empty) {
+  outline: 1px solid var(--border);
+}
+
+.diff-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.diff-row:hover {
+  background: var(--bg-hover);
+}
+
+.diff-lines {
+  flex: 1;
+  min-width: 0;
+}
+
+.diff-line {
+  padding: 0.1rem 0.4rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
+.diff-line.removed {
+  background: rgb(224 102 102 / 0.12);
+}
+
+.diff-line.added {
+  background: rgb(79 191 127 / 0.12);
+}
+
+.diff-line.same {
+  color: var(--text-muted);
+}
+
+.diff-line .mana-cost {
+  margin-left: 0.5rem;
+}
+
+.diff-sign {
+  display: inline-block;
+  width: 1.2em;
+}
+
 /* ---------- Similar cards ---------- */
 
 .similar-panel {
@@ -2814,6 +2985,31 @@ label.button.disabled {
 
 .card-button.dimmed:hover {
   opacity: 0.8;
+}
+
+.card-button.not-legal {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+}
+
+.card-button.not-legal:hover {
+  opacity: 0.9;
+}
+
+.card-legal-badge {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 8%;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  background: rgb(15 18 24 / 0.9);
+  border: 1px solid var(--error);
+  color: var(--error);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
 }
 
 .usage-info {

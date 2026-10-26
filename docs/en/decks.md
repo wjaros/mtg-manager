@@ -27,7 +27,7 @@ creates an empty deck. Load a decklist or a precon in [Import](import-export.md)
 - **Proxies:** [proxy printing](proxies.md);
 - **Export:** [deck export](import-export.md#export).
 
-**Tabs:** **Card pool**, **Statistics**, **Combos**, **Missing**, **History**.
+**Tabs:** **Card pool**, **Statistics**, **Combos**, **Missing**, **History**, **Compare**.
 
 ### Card pool
 
@@ -93,6 +93,46 @@ highlighted: added cards in green, removed ones struck through in red, swapped p
 You can compare versions, restore one or discard unsaved changes.
 
 ![History](../images/en/history.webp)
+
+## Comparing decks
+
+The **Compare** tab puts this deck (A) next to another one (B), e.g. the paper Quintorius and its
+Arena version. Pick deck B from the list; the app suggests a deck with the same commander. Cards are
+compared by name (any printing); the commander, main deck and companion count.
+
+- **Side by side:** A on the left, B on the right, each card on one row with its mana cost and
+  price; the deck without it shows an empty slot (or why the card doesn't fit there). Colors: what
+  the other deck lacks, red on A's side, green on B's.
+- **Table:** card, mana cost, copies in A and in B, price. Colors: only in A (red), only in B
+  (green), different count (yellow).
+- **Diff:** line under line, like comparing files: `− 2 Card` for A, `+ 1 Card` for B.
+- **Sorting:** mana value ascending (the default) or descending, with a heading for each value;
+  price, most expensive or cheapest first; name. Cards with the same mana value (or price) go by
+  name, **A→Z** or **Z→A**.
+- **Show shared cards** adds the cards both decks have alike.
+- A summary above the list counts the cards only in A, only in B, with a different count and shared,
+  with both decks' estimated value.
+
+![Comparing decks: side by side](../images/en/compare-side.webp)
+
+Hovering a card's name shows its preview and a short note for both decks: how many copies the deck
+has, whether the card can be added, and if not, why (not legal in the format, outside the
+commander's colors, not on Arena).
+
+**→** and **←** (**→ B** and **← A** in the table and diff) add the missing copies to the other
+deck, but only when the card can go there: legal in its format, within its commander's colors and,
+for an Arena deck, on Arena. Singleton formats get one copy at most. An Arena deck gets Arena's
+printing, a paper deck the printing you own the most copies of (or the default one).
+
+When a card can't go into the other deck (e.g. not legal in Brawl), right-click its name for
+**Similar cards for A** or **for B**: [similar cards](collection.md#similar-cards) legal in that
+deck's format and, for an Arena deck, on Arena. The list starts with the card's colors that fit
+the deck's commander (or, when none do, the commander's colors). A click adds the card to that deck
+(one copy in singleton formats).
+
+![Comparing decks: table by price](../images/en/compare.webp)
+
+![Comparing decks: diff](../images/en/compare-diff.webp)
 
 ## Missing
 

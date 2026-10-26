@@ -41,6 +41,9 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/decks/` – deck storage (`deck_cards` is the source of truth; decks.commander/partner/companion_card_id are derived),
     `textformat.py` (Arena list parser), `matcher.py` (line → printing, warnings instead of silent fallbacks), `export.py`,
     `validation.py` (format rules → issues), `stats.py`, `pdf.py` (deck PDF, one card per page, Pillow)
+    `compare.py` – two decks card by card (by oracle id; commander, main, companion): copies, price, and per deck
+    whether a card fits (format legality, commander identity, Arena) and how many copies it could take (copy limits:
+    `validation.allowed_copies`), with the printing to add; deckbuilder tab Compare
     `versions.py` – deck history: `deck_cards` is the working copy (saved on every change), `deck_versions` holds
     snapshots; changes vs the latest snapshot = "unsaved" (diffed per card name + board, so a printing swap isn't a removal)
   - `mtgdm/collection/` – physical copies (`collection_items`) and locations; "I own this deck" puts a deck into its box location;

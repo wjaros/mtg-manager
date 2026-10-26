@@ -83,8 +83,12 @@ Prawy przycisk na karcie otwiera menu:
 Karty, które już masz, są na górze w sekcji **W kolekcji**, a pod nimi **Pozostałe**. Domyślnie
 widać tylko karty w kolorach wybranej karty; przełączniki W U B R G dodają kolejne kolory.
 
-W deckbuilderze lista bierze pod uwagę format talii i pomija karty, które już w niej są. Kliknięcie
-dodaje kartę do talii. Przycisk **Kolory talii** zaznacza kolory dowódcy.
+W deckbuilderze lista bierze pod uwagę format talii i pomija karty, które już w niej są. Po
+odznaczeniu **Tylko legalne w formacie talii** widać wszystkie podobne karty, a te, których talia nie
+może zagrać (format, a dla talii z Areny dostępność na Arenie), są wyszarzone z dopiskiem
+„Nielegalna w talii”; wybór jest zapamiętywany. Kliknięcie dodaje kartę do talii. Przycisk
+**Kolory talii** zaznacza kolory dowódcy. W
+[porównaniu talii](decks.md) (zakładka **Porównaj**) wybierasz, do której z dwóch talii szukać.
 
 ![Podobne karty](../images/pl/similar-cards.webp)
 

@@ -6,6 +6,9 @@ export type Health = Schemas['Health']
 export type CardSummary = Schemas['CardSummary']
 export type CardDetail = Schemas['CardDetail']
 export type CardPage = Schemas['CardPage']
+export type DeckComparison = Schemas['DeckComparison']
+export type CompareRow = Schemas['CompareRow']
+export type CardFit = Schemas['CardFit']
 export type CardTraderStatus = Schemas['CardTraderStatus']
 export type CardTraderWishlistRequest = Schemas['WishlistRequest']
 export type WishlistResult = Schemas['WishlistResult']
@@ -169,7 +172,7 @@ export const api = {
   userTags: () => request<UserTag[]>('/api/user-tags'),
   updateUserTags: (id: string, tags: string[]) =>
     request<string[]>(`/api/cards/${id}/user-tags`, jsonBody('PUT', { tags })),
-  similarCards: (id: string, params: { colors?: string; deck?: number }) =>
+  similarCards: (id: string, params: { colors?: string; deck?: number; legal_only?: boolean }) =>
     request<SimilarCards>(`/api/cards/${id}/similar?${toSearchParams(params)}`),
   sets: () => request<SetInfo[]>('/api/sets'),
 
@@ -188,6 +191,7 @@ export const api = {
     }),
   cardtraderWishlist: (body: CardTraderWishlistRequest) =>
     request<WishlistResult>('/api/cardtrader/wishlists', jsonBody('POST', body)),
+  compareDecks: (id: number, otherId: number) => request<DeckComparison>(`/api/decks/${id}/compare/${otherId}`),
   deleteDeck: (id: number) =>
     fetch(`/api/decks/${id}`, { method: 'DELETE' }).then((r) => {
       if (!r.ok) throw new ApiError(r.status, r.statusText)

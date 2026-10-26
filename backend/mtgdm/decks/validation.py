@@ -74,6 +74,16 @@ class Entry:
         return "Land" in self.front_type
 
 
+def allowed_copies(e: Entry, fmt: str) -> int | None:
+    """Copies of a card a deck of this format may have; None: any number (basic lands, "a deck can have
+    any number of cards named …", freeform)."""
+    if fmt == "freeform" or e.is_basic or _ANY_NUMBER_RE.search(e.oracle_text):
+        return None
+    if m := _UP_TO_RE.search(e.oracle_text):
+        return _NUMBER_WORDS.get(m.group(1).lower(), MAX_COPIES)
+    return 1 if fmt in COMMANDER_FORMATS else MAX_COPIES
+
+
 def validate_deck(conn: sqlite3.Connection, deck_id: int) -> ValidationResult:
     deck = conn.execute("SELECT format, platform FROM decks WHERE id = ?", (deck_id,)).fetchone()
     if deck is None:

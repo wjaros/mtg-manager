@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Query, Request, Response
 
 from mtgdm.api.deps import Db
 from mtgdm.decks import service, versions
+from mtgdm.decks.compare import DeckComparison, compare_decks
 from mtgdm.decks.export import export_deck
 from mtgdm.decks.models import (
     Board,
@@ -159,6 +160,15 @@ def export_pdf(db: Db, request: Request, deck_id: int) -> Response:
 def validate(db: Db, deck_id: int) -> ValidationResult:
     """Format rules (errors) and advice (warnings) for the deck."""
     return _handle(lambda: validate_deck(db, deck_id))
+
+
+@router.get("/{deck_id}/compare/{other_id}")
+def compare(db: Db, deck_id: int, other_id: int) -> DeckComparison:
+    """Two decks card by card (by name): copies in each, price, and what could go from one into the other."""
+    try:
+        return compare_decks(db, deck_id, other_id)
+    except DeckNotFound as exc:
+        raise HTTPException(status_code=404, detail="Deck not found") from exc
 
 
 @router.get("/{deck_id}/stats")

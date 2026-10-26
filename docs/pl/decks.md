@@ -27,7 +27,7 @@ tworzy pustą talię. Gotową listę albo precon wczytasz w [Imporcie](import-ex
 - **Proxy:** [drukowanie proxy](proxies.md);
 - **Eksport:** [eksport talii](import-export.md#eksport).
 
-**Zakładki:** **Pula kart**, **Statystyki**, **Combo**, **Braki**, **Historia**.
+**Zakładki:** **Pula kart**, **Statystyki**, **Combo**, **Braki**, **Historia**, **Porównaj**.
 
 ### Pula kart
 
@@ -93,6 +93,46 @@ podświetlone: dodane karty na zielono, usunięte przekreślone na czerwono, zmi
 żółto. Wersje można porównywać i przywracać, a niezapisane zmiany odrzucić.
 
 ![Historia](../images/pl/history.webp)
+
+## Porównanie talii
+
+Zakładka **Porównaj** zestawia tę talię (A) z inną (B), np. papierowego Quintoriusa z arenowym.
+Talię B wybierasz z listy; aplikacja sama podpowiada talię z tym samym dowódcą. Karty porównywane
+są po nazwie (dowolne wydanie); liczą się dowódca, talia główna i companion.
+
+- **Obok siebie:** A po lewej, B po prawej, każda karta w jednym wierszu, z kosztem many i ceną;
+  po stronie talii, która jej nie ma, puste miejsce (albo powód, dla którego karta tam nie pasuje).
+  Kolory: to, czego brakuje w drugiej talii, na czerwono po stronie A, na zielono po stronie B.
+- **Tabela:** karta, koszt many, liczba kopii w A i w B, cena. Kolory: tylko w A (czerwony), tylko
+  w B (zielony), różna liczba (żółty).
+- **Diff:** linia pod linią, jak w porównaniu plików: `− 2 Karta` dla A, `+ 1 Karta` dla B.
+- **Sortowanie:** mana value rosnąco (domyślnie) albo malejąco, z nagłówkiem dla każdej wartości;
+  cena od najdroższych albo od najtańszych; nazwa. Karty o tym samym koszcie (albo cenie) idą
+  alfabetycznie, **A→Z** albo **Z→A**.
+- **Pokaż wspólne** dodaje karty, które obie talie mają tak samo.
+- Nad listą jest podsumowanie: ile kart jest tylko w A, tylko w B, z różną liczbą, wspólnych, i
+  wartość orientacyjna obu talii.
+
+![Porównanie talii: obok siebie](../images/pl/compare-side.webp)
+
+Najechanie na nazwę karty pokazuje jej podgląd i krótką informację dla obu talii: ile kopii jest w
+talii, czy kartę można dodać, a jeśli nie, to dlaczego (nielegalna w formacie, poza kolorami
+dowódcy, brak na Arenie).
+
+**→** i **←** (w tabeli i diffie **→ B** i **← A**) dodają brakujące kopie do drugiej talii, ale
+tylko gdy karta może tam trafić: jest legalna w formacie, mieści się w kolorach dowódcy, a dla
+talii z Areny jest na Arenie. W formatach singleton dodawana jest najwyżej jedna kopia. Do talii z
+Areny trafia wydanie z Areny, do papierowej to, którego masz najwięcej kopii (albo domyślne).
+
+Gdy karta nie może trafić do drugiej talii (np. nielegalna w Brawl), prawy przycisk na jej nazwie
+daje **Podobne karty dla A** albo **dla B**: [podobne karty](collection.md#podobne-karty) legalne w
+formacie tamtej talii i, dla talii z Areny, na Arenie. Lista zaczyna od kolorów karty, które
+mieszczą się w kolorach dowódcy tej talii (a gdy żaden się nie mieści, od kolorów dowódcy).
+Kliknięcie dodaje kartę do tej talii (w formatach singleton jedną kopię).
+
+![Porównanie talii: tabela według ceny](../images/pl/compare.webp)
+
+![Porównanie talii: diff](../images/pl/compare-diff.webp)
 
 ## Braki
 
