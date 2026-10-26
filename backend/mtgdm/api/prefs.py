@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 from mtgdm import prefs
 from mtgdm.api.deps import Db
+from mtgdm.purchase import opener
 
 router = APIRouter(prefix="/prefs", tags=["prefs"])
 
@@ -12,6 +13,8 @@ class Prefs(BaseModel):
     scale: float
     # The window app: the scale zooms its web view. In a browser the browser's own zoom does that.
     native_zoom: bool
+    # The window app opens several search links at once in the system browser (POST /api/open-urls).
+    open_urls: bool = False
 
 
 class PrefUpdate(BaseModel):
@@ -24,7 +27,7 @@ class ScaleUpdate(BaseModel):
 
 
 def _prefs(db: Db) -> Prefs:
-    return Prefs(values=prefs.get_all(db), scale=prefs.get_scale(db), native_zoom=prefs.native_zoom())
+    return Prefs(values=prefs.get_all(db), scale=prefs.get_scale(db), native_zoom=prefs.native_zoom(), open_urls=opener.enabled())
 
 
 @router.get("")

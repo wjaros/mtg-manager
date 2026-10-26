@@ -2,7 +2,7 @@ from mtgdm import prefs
 
 
 def test_prefs_round_trip(client):
-    assert client.get("/api/prefs").json() == {"values": {}, "scale": 1.0, "native_zoom": False}
+    assert client.get("/api/prefs").json() == {"values": {}, "scale": 1.0, "native_zoom": False, "open_urls": False}
 
     assert client.put("/api/prefs", json={"key": "mtgdm.deckView.mode", "value": "spoiler"}).status_code == 204
     assert client.put("/api/prefs", json={"key": "mtgdm.lang", "value": "en"}).status_code == 204

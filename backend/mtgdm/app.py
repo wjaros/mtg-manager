@@ -71,6 +71,7 @@ def create_app(
     app.state.spellbook = spellbook or SpellbookClient()
     # CardTrader wishlists, with the user's own token (Settings › CardTrader).
     app.state.cardtrader = cardtrader or new_http()
+    app.state.quote_jobs = {}  # deck id -> CardTrader Zero offers being fetched (Where to buy)
     app.state.sync_manager = SyncManager(settings, app.state.scryfall)
     app.state.print_jobs = PrintJobs(settings.db_path, settings.print_dir, app.state.image_cache)
     app.state.recognizer = Recognizer(settings.db_path, lambda conn: _image_loader(app.state.image_cache, conn))

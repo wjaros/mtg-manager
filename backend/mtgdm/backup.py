@@ -16,6 +16,9 @@ from mtgdm.decks.service import _after_change
 from mtgdm.decks.versions import current_entries
 from mtgdm.i18n import tr
 from mtgdm.printing.profiles import CARD_H_KEY, CARD_W_KEY
+from mtgdm.purchase.settings import PurchaseSettings, get_settings, store_settings
+from mtgdm.purchase.shopping import backup_deck_shopping, restore_deck_shopping
+from mtgdm.purchase.sources import backup_sources, restore_sources
 from mtgdm.scryfall.bulk import get_meta, set_meta
 
 FORMAT = "mtgdm-backup"
@@ -93,6 +96,7 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
             "preferred_sets": json.loads(d["preferred_sets"]) if d["preferred_sets"] else [],
             "location_id": d["location_id"], "created_at": d["created_at"], "cards": cards, "versions": history,
             "wants": wants.get(d["id"], []),
+            "shopping": backup_deck_shopping(conn, d["id"]),
         })
     return {
         "format": FORMAT,
@@ -111,6 +115,9 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
         ],
         "print_settings": {k: get_meta(conn, k) for k in (CARD_W_KEY, CARD_H_KEY) if get_meta(conn, k)},
         "user_tags": backup_tags(conn),
+        # Where to buy: search sources and the basket settings (a deck's ticks and offers are with the deck).
+        "purchase_sources": backup_sources(conn),
+        "purchase_settings": get_settings(conn).model_dump(),
     }
 
 
@@ -127,9 +134,14 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
     try:
         with conn:
             if replace:
-                for table in ("wants", "deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "locations",
+                for table in ("wants", "offer_notes", "shopping_done", "cardtrader_quotes", "deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "locations",
                               "printer_profiles", "user_tags"):
                     conn.execute(f"DELETE FROM {table}")
+
+            # Before the decks: their offers name their source. A backup without sources keeps this machine's.
+            source_ids = {r[1]: r[0] for r in conn.execute("SELECT id, name FROM purchase_sources")}
+            if "purchase_sources" in data:
+                source_ids.update(restore_sources(conn, data["purchase_sources"], replace))
 
             location_ids: dict[Any, int] = {}
             for loc in data.get("locations", []):
@@ -181,6 +193,7 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
                 _after_change(conn, deck_id)
                 _restore_versions(conn, deck_id, deck.get("versions") or [], resolver)
                 result.missing_cards += restore_wants(conn, deck.get("wants") or [], deck_id)
+                restore_deck_shopping(conn, deck_id, deck.get("shopping") or {}, source_ids)
                 result.decks += 1
 
             result.missing_cards += restore_wants(conn, data.get("wants") or [], None)
@@ -199,6 +212,8 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
                 if key in (CARD_W_KEY, CARD_H_KEY):
                     set_meta(conn, key, str(float(value)))
             result.missing_cards += restore_tags(conn, data.get("user_tags") or [])
+            if data.get("purchase_settings"):
+                store_settings(conn, PurchaseSettings.model_validate(data["purchase_settings"]))
     except (KeyError, TypeError, ValueError, sqlite3.IntegrityError) as exc:
         raise BackupError(tr("backup_broken", error=exc)) from exc
     result.missing_cards = sorted(set(result.missing_cards))

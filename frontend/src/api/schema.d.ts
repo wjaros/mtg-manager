@@ -1398,6 +1398,362 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/purchase-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Purchase Settings */
+        get: operations["get_purchase_settings_api_purchase_settings_get"];
+        /**
+         * Put Purchase Settings
+         * @description Free-delivery threshold, currency, shipping and exchange rates (typed in by hand).
+         */
+        put: operations["put_purchase_settings_api_purchase_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sources */
+        get: operations["get_sources_api_purchase_sources_get"];
+        put?: never;
+        /** Post Source */
+        post: operations["post_source_api_purchase_sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/purchase-sources/{source_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Source */
+        delete: operations["remove_source_api_purchase_sources__source_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch Source
+         * @description Fields left out stay; the nullable ones (note, threshold, shipping) are cleared with null.
+         */
+        patch: operations["patch_source_api_purchase_sources__source_id__patch"];
+        trace?: never;
+    };
+    "/api/purchase-sources/{source_id}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Test Source
+         * @description The source's search for a sample card, to open and check.
+         */
+        get: operations["test_source_api_purchase_sources__source_id__test_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cards/{card_id}/purchase-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Card Links
+         * @description Searches for the card at every enabled source.
+         */
+        get: operations["get_card_links_api_cards__card_id__purchase_links_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/open-urls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Open Urls
+         * @description The window app: open the links in the system browser, one tab each. Not in a browser (404).
+         */
+        post: operations["post_open_urls_api_open_urls_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/shopping-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Shopping List
+         * @description The cards the deck lacks (proxied ones too: still to buy) with search links, done ticks and offers.
+         */
+        get: operations["get_shopping_list_api_decks__deck_id__shopping_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/shopping-list/{oracle_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Shopping Row */
+        patch: operations["patch_shopping_row_api_decks__deck_id__shopping_list__oracle_id__patch"];
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/shopping-list/done": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Done
+         * @description Untick every card (start the list over).
+         */
+        delete: operations["delete_done_api_decks__deck_id__shopping_list_done_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Offer
+         * @description Note an offer seen at a seller (price per copy, in the settings' currency).
+         */
+        post: operations["post_offer_api_decks__deck_id__offers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/offers/{offer_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove Offer */
+        delete: operations["remove_offer_api_offers__offer_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Offer */
+        patch: operations["patch_offer_api_offers__offer_id__patch"];
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/choices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Choices
+         * @description Choose offers (an accepted proposal, or one card moved to another seller).
+         */
+        put: operations["put_choices_api_decks__deck_id__choices_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/choices/cheapest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Cheapest
+         * @description Choose the cheapest offer for one card, or for every card without changing as cheap choices.
+         */
+        post: operations["post_cheapest_api_decks__deck_id__choices_cheapest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/basket": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Basket
+         * @description Chosen offers per seller with progress to free delivery and suggestions to reach it.
+         */
+        get: operations["get_basket_api_decks__deck_id__basket_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/basket/proposal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Proposal
+         * @description A basket minimising cards + shipping, for the user to accept (PUT choices) or discard.
+         */
+        get: operations["get_proposal_api_decks__deck_id__basket_proposal_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/basket/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Comparison
+         * @description The sellers' basket next to CardTrader Zero (offers fetched before) and a mix of both.
+         */
+        get: operations["get_comparison_api_decks__deck_id__basket_compare_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/cardtrader/quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Quote Job */
+        get: operations["get_quote_job_api_decks__deck_id__cardtrader_quotes_get"];
+        put?: never;
+        /**
+         * Post Quote Job
+         * @description Fetch the cheapest CardTrader Zero offers of the cards still to buy, in the background.
+         */
+        post: operations["post_quote_job_api_decks__deck_id__cardtrader_quotes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/decks/{deck_id}/cardtrader/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Cart
+         * @description Put these cards' CardTrader Zero offers into the user's CardTrader cart (never bought from here).
+         */
+        post: operations["post_cart_api_decks__deck_id__cardtrader_cart_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scan-engines": {
         parameters: {
             query?: never;
@@ -1800,6 +2156,46 @@ export interface components {
              */
             relative?: boolean;
         };
+        /** Basket */
+        Basket: {
+            /** Currency */
+            currency: string;
+            /** Sellers */
+            sellers: components["schemas"]["SellerBasket"][];
+            /** Unassigned */
+            unassigned: components["schemas"]["Unassigned"][];
+            summary: components["schemas"]["Totals"];
+        };
+        /** BasketCard */
+        BasketCard: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            /** Qty */
+            qty: number;
+            /** Offer Id */
+            offer_id: number;
+            /** Unit Price */
+            unit_price: number;
+            /** Price */
+            price: number;
+            /** Url */
+            url: string | null;
+            /** Short */
+            short: boolean;
+        };
+        /** BasketProposal */
+        BasketProposal: {
+            /** Choices */
+            choices: {
+                [key: string]: number;
+            };
+            /** Changes */
+            changes: components["schemas"]["ChoiceChange"][];
+            current: components["schemas"]["Totals"];
+            proposed: components["schemas"]["Totals"];
+        };
         /** Body_upload_api_scans_post */
         Body_upload_api_scans_post: {
             /**
@@ -2014,6 +2410,24 @@ export interface components {
             /** Owned Printing */
             owned_printing: number;
         };
+        /** CardTraderCard */
+        CardTraderCard: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            /** Qty */
+            qty: number;
+            /** Copies */
+            copies: number;
+            /** Price */
+            price: number | null;
+            /**
+             * Cheaper
+             * @default false
+             */
+            cheaper?: boolean;
+        };
         /** CardTraderStatus */
         CardTraderStatus: {
             /** Connected */
@@ -2042,6 +2456,40 @@ export interface components {
             locations: components["schemas"]["UsageLocation"][];
             /** Decks */
             decks: components["schemas"]["UsageDeck"][];
+        };
+        /** CartBody */
+        CartBody: {
+            /** Oracle Ids */
+            oracle_ids: string[];
+        };
+        /** CartResult */
+        CartResult: {
+            /** Added */
+            added: number;
+            /** Failed */
+            failed: string[];
+        };
+        /** ChoiceChange */
+        ChoiceChange: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            /** Offer Id */
+            offer_id: number;
+            /** From Seller */
+            from_seller: string | null;
+            /** To Seller */
+            to_seller: string;
+            /** Price */
+            price: number;
+        };
+        /** ChoicesBody */
+        ChoicesBody: {
+            /** Choices */
+            choices: {
+                [key: string]: number | null;
+            };
         };
         /** CloudBackupSettings */
         CloudBackupSettings: {
@@ -2348,6 +2796,24 @@ export interface components {
             price_eur: number | null;
             fit_a: components["schemas"]["CardFit"];
             fit_b: components["schemas"]["CardFit"];
+        };
+        /** Comparison */
+        Comparison: {
+            /** Currency */
+            currency: string;
+            /** Fetched At */
+            fetched_at: string | null;
+            /** Rate Missing */
+            rate_missing: string[];
+            /** Cardtrader Cards */
+            cardtrader_cards: components["schemas"]["CardTraderCard"][];
+            /** Not On Cardtrader */
+            not_on_cardtrader: string[];
+            sellers: components["schemas"]["Option"];
+            cardtrader: components["schemas"]["Option"] | null;
+            mixed: components["schemas"]["Option"] | null;
+            /** To Cardtrader */
+            to_cardtrader: string[];
         };
         /** CurveBucket */
         CurveBucket: {
@@ -2773,6 +3239,11 @@ export interface components {
             added: number;
             wants: components["schemas"]["WantList"];
         };
+        /** DoneBody */
+        DoneBody: {
+            /** Done */
+            done: boolean;
+        };
         /** Download */
         Download: {
             /** Name */
@@ -3146,6 +3617,84 @@ export interface components {
             /** Default */
             default: string;
         };
+        /** Offer */
+        Offer: {
+            /** Id */
+            id: number;
+            /** Oracle Id */
+            oracle_id: string;
+            /** Source Id */
+            source_id: number | null;
+            /** Seller Name */
+            seller_name: string;
+            /** Price */
+            price: number;
+            /** Qty Available */
+            qty_available: number | null;
+            /** Url */
+            url: string | null;
+            /** Note */
+            note: string | null;
+            /** Chosen */
+            chosen: boolean;
+        };
+        /** OfferBody */
+        OfferBody: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Price */
+            price: number;
+            /** Seller Name */
+            seller_name?: string | null;
+            /** Source Id */
+            source_id?: number | null;
+            /** Qty Available */
+            qty_available?: number | null;
+            /** Url */
+            url?: string | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Chosen
+             * @default false
+             */
+            chosen?: boolean;
+        };
+        /** OfferPatch */
+        OfferPatch: {
+            /** Price */
+            price?: number | null;
+            /** Seller Name */
+            seller_name?: string | null;
+            /** Source Id */
+            source_id?: number | null;
+            /** Qty Available */
+            qty_available?: number | null;
+            /** Url */
+            url?: string | null;
+            /** Note */
+            note?: string | null;
+        };
+        /** OpenUrls */
+        OpenUrls: {
+            /** Urls */
+            urls: string[];
+        };
+        /** Option */
+        Option: {
+            /** Cards */
+            cards: number;
+            /** Shipping */
+            shipping: number;
+            /** Shipping Unknown */
+            shipping_unknown: number;
+            /** Parcels */
+            parcels: number;
+            /** Total */
+            total: number;
+            /** Complete */
+            complete: boolean;
+        };
         /** PreconDecklist */
         PreconDecklist: {
             precon: components["schemas"]["PreconSummary"];
@@ -3212,6 +3761,11 @@ export interface components {
             scale: number;
             /** Native Zoom */
             native_zoom: boolean;
+            /**
+             * Open Urls
+             * @default false
+             */
+            open_urls?: boolean;
         };
         /** Price */
         Price: {
@@ -3456,6 +4010,102 @@ export interface components {
             /** Deck Id */
             deck_id?: number | null;
         };
+        /** PurchaseLink */
+        PurchaseLink: {
+            /** Source Id */
+            source_id: number;
+            /** Name */
+            name: string;
+            /** Url */
+            url: string;
+        };
+        /** PurchaseSettings */
+        PurchaseSettings: {
+            /**
+             * Free Delivery Threshold
+             * @default 49.9
+             */
+            free_delivery_threshold?: number;
+            /**
+             * Currency
+             * @default PLN
+             */
+            currency?: string;
+            /** Default Shipping Cost */
+            default_shipping_cost?: number | null;
+            /**
+             * Cardtrader Shipping
+             * @default 18
+             */
+            cardtrader_shipping?: number;
+            /**
+             * Cardtrader Shipping Currency
+             * @default USD
+             */
+            cardtrader_shipping_currency?: string;
+            /**
+             * Rates
+             * @default {}
+             */
+            rates?: {
+                [key: string]: number;
+            };
+        };
+        /** PurchaseSource */
+        PurchaseSource: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Url Template */
+            url_template: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Sort Order */
+            sort_order: number;
+            /**
+             * Query Mode
+             * @enum {string}
+             */
+            query_mode: "name" | "name_set";
+            /** Query Suffix */
+            query_suffix: string;
+            /** Note */
+            note: string | null;
+            /** Free Delivery Threshold */
+            free_delivery_threshold: number | null;
+            /** Shipping Cost */
+            shipping_cost: number | null;
+        };
+        /** QuoteJob */
+        QuoteJob: {
+            /** Deck Id */
+            deck_id: number;
+            /** Running */
+            running: boolean;
+            /**
+             * Done
+             * @default 0
+             */
+            done?: number;
+            /**
+             * Total
+             * @default 0
+             */
+            total?: number;
+            result?: components["schemas"]["QuoteResult"] | null;
+            /** Error */
+            error?: string | null;
+        };
+        /** QuoteResult */
+        QuoteResult: {
+            /** Cards */
+            cards: number;
+            /** Found */
+            found: number;
+            /** Requests */
+            requests: number;
+        };
         /** ReleaseNotes */
         ReleaseNotes: {
             /** Version */
@@ -3601,6 +4251,25 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** SellerBasket */
+        SellerBasket: {
+            /** Seller */
+            seller: string;
+            /** Cards */
+            cards: components["schemas"]["BasketCard"][];
+            /** Subtotal */
+            subtotal: number;
+            /** Threshold */
+            threshold: number;
+            /** Missing */
+            missing: number;
+            /** Reached */
+            reached: boolean;
+            /** Shipping */
+            shipping: number | null;
+            /** Suggestions */
+            suggestions: components["schemas"]["Suggestion"][];
+        };
         /** SetInfo */
         SetInfo: {
             /** Code */
@@ -3619,6 +4288,47 @@ export interface components {
             card_count: number;
             /** Has Icon */
             has_icon: boolean;
+        };
+        /** ShoppingList */
+        ShoppingList: {
+            /** Deck Id */
+            deck_id: number;
+            /** Deck Name */
+            deck_name: string;
+            /** Rows */
+            rows: components["schemas"]["ShoppingRow"][];
+            /** Sources */
+            sources: components["schemas"]["PurchaseSource"][];
+            /** Sellers */
+            sellers: string[];
+            settings: components["schemas"]["PurchaseSettings"];
+            /** Prices As Of */
+            prices_as_of: string | null;
+        };
+        /** ShoppingRow */
+        ShoppingRow: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            card: components["schemas"]["CardSummary"];
+            /** Qty */
+            qty: number;
+            /** Proxied */
+            proxied: number;
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "missing" | "proxy";
+            /** Done */
+            done: boolean;
+            /** Links */
+            links: components["schemas"]["PurchaseLink"][];
+            /** Offers */
+            offers: components["schemas"]["Offer"][];
+            /** Price Eur */
+            price_eur: number | null;
         };
         /** SimilarCard */
         SimilarCard: {
@@ -3641,6 +4351,80 @@ export interface components {
         SkipVersion: {
             /** Version */
             version: string;
+        };
+        /** SourceBody */
+        SourceBody: {
+            /** Name */
+            name: string;
+            /** Url Template */
+            url_template: string;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled?: boolean;
+            /** Sort Order */
+            sort_order?: number | null;
+            /**
+             * Query Mode
+             * @default name
+             * @enum {string}
+             */
+            query_mode?: "name" | "name_set";
+            /**
+             * Query Suffix
+             * @default
+             */
+            query_suffix?: string;
+            /** Note */
+            note?: string | null;
+            /** Free Delivery Threshold */
+            free_delivery_threshold?: number | null;
+            /** Shipping Cost */
+            shipping_cost?: number | null;
+        };
+        /** SourcePatch */
+        SourcePatch: {
+            /** Name */
+            name?: string | null;
+            /** Url Template */
+            url_template?: string | null;
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Query Mode */
+            query_mode?: ("name" | "name_set") | null;
+            /** Query Suffix */
+            query_suffix?: string | null;
+            /** Note */
+            note?: string | null;
+            /** Free Delivery Threshold */
+            free_delivery_threshold?: number | null;
+            /** Shipping Cost */
+            shipping_cost?: number | null;
+        };
+        /**
+         * Suggestion
+         * @description A card still needed that this seller offers too: moving it here helps reach the threshold.
+         */
+        Suggestion: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            /** Qty */
+            qty: number;
+            /** Offer Id */
+            offer_id: number;
+            /** Price */
+            price: number;
+            /** Current Price */
+            current_price: number | null;
+            /** Current Seller */
+            current_seller: string | null;
+            /** Diff */
+            diff: number | null;
         };
         /** SyncCheck */
         SyncCheck: {
@@ -3700,10 +4484,39 @@ export interface components {
             /** Db Size Bytes */
             db_size_bytes: number;
         };
+        /** TestUrl */
+        TestUrl: {
+            /** Url */
+            url: string;
+        };
         /** TokenBody */
         TokenBody: {
             /** Token */
             token: string;
+        };
+        /** Totals */
+        Totals: {
+            /** Cards */
+            cards: number;
+            /** Shipping */
+            shipping: number;
+            /** Shipping Unknown */
+            shipping_unknown: number;
+            /** Parcels */
+            parcels: number;
+            /** Total */
+            total: number;
+        };
+        /** Unassigned */
+        Unassigned: {
+            /** Oracle Id */
+            oracle_id: string;
+            /** Name */
+            name: string;
+            /** Qty */
+            qty: number;
+            /** Offers */
+            offers: number;
         };
         /** UpdateInfo */
         UpdateInfo: {
@@ -6582,6 +7395,726 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_purchase_settings_api_purchase_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseSettings"];
+                };
+            };
+        };
+    };
+    put_purchase_settings_api_purchase_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PurchaseSettings"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseSettings"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sources_api_purchase_sources_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseSource"][];
+                };
+            };
+        };
+    };
+    post_source_api_purchase_sources_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseSource"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_source_api_purchase_sources__source_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_source_api_purchase_sources__source_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourcePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseSource"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    test_source_api_purchase_sources__source_id__test_get: {
+        parameters: {
+            query?: {
+                card?: string;
+            };
+            header?: never;
+            path: {
+                source_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestUrl"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_card_links_api_cards__card_id__purchase_links_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                card_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseLink"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_open_urls_api_open_urls_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenUrls"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_shopping_list_api_decks__deck_id__shopping_list_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShoppingList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_shopping_row_api_decks__deck_id__shopping_list__oracle_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+                oracle_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoneBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShoppingList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_done_api_decks__deck_id__shopping_list_done_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShoppingList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_offer_api_decks__deck_id__offers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Offer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_offer_api_offers__offer_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_offer_api_offers__offer_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Offer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_choices_api_decks__deck_id__choices_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChoicesBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Basket"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_cheapest_api_decks__deck_id__choices_cheapest_post: {
+        parameters: {
+            query?: {
+                oracle_id?: string | null;
+            };
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Basket"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_basket_api_decks__deck_id__basket_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Basket"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_proposal_api_decks__deck_id__basket_proposal_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BasketProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_comparison_api_decks__deck_id__basket_compare_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comparison"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quote_job_api_decks__deck_id__cardtrader_quotes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_quote_job_api_decks__deck_id__cardtrader_quotes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_cart_api_decks__deck_id__cardtrader_cart_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deck_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CartResult"];
+                };
             };
             /** @description Validation Error */
             422: {

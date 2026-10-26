@@ -301,6 +301,30 @@ MESSAGES: dict[str, dict[Lang, str]] = {
     "print_profile_not_found": {"pl": "Nie ma takiego profilu drukarki.", "en": "No such printer profile."},
     "print_job_not_found": {"pl": "Nie ma takiego wydruku.", "en": "No such print job."},
     "print_nothing": {"pl": "Nie wybrano żadnej karty do druku.", "en": "No cards selected for printing."},
+    # where to buy
+    "template_https": {
+        "pl": "Adres wyszukiwania musi zaczynać się od https://.",
+        "en": "The search address must start with https://.",
+    },
+    "template_placeholder": {
+        "pl": "Adres wyszukiwania musi zawierać {{query}} w miejscu szukanej frazy.",
+        "en": "The search address must contain {{query}} where the search phrase goes.",
+    },
+    "purchase_source_not_found": {"pl": "Nie ma takiego źródła zakupów.", "en": "No such place to buy."},
+    "offer_not_found": {"pl": "Nie ma takiej oferty.", "en": "No such offer."},
+    "offer_bad_url": {
+        "pl": "Link do oferty musi zaczynać się od http:// lub https://.",
+        "en": "The offer link must start with http:// or https://.",
+    },
+    "offer_no_seller": {"pl": "Podaj sprzedawcę.", "en": "Enter the seller."},
+    "open_urls_app_only": {
+        "pl": "Otwieranie kart w przeglądarce działa tylko w aplikacji okienkowej.",
+        "en": "Opening tabs in the browser works only in the window app.",
+    },
+    "cardtrader_quotes_running": {
+        "pl": "Oferty CardTrader dla tej talii są już pobierane.",
+        "en": "CardTrader offers for this deck are already being fetched.",
+    },
     # app window (native dialogs, shown before the UI is up)
     "window_failed": {
         "pl": "Nie można otworzyć okna aplikacji.\n\n{error}\n\nSzczegóły w logu:\n{log}",

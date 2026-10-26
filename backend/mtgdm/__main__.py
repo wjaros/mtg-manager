@@ -17,6 +17,7 @@ from mtgdm.app import create_app
 from mtgdm.config import FROZEN, load_settings
 from mtgdm.db import connect
 from mtgdm.i18n import Lang, set_lang, tr
+from mtgdm.purchase import opener
 
 DEFAULT_PORT = 8765
 # Windows: require the Edge WebView2 runtime; older engines cannot run the UI.
@@ -96,6 +97,7 @@ def cmd_app() -> int:
     # The interface scale (Settings, Cmd/Ctrl +/−) zooms the web view: set before the page loads, then on changes.
     window.events.before_show += lambda: _set_page_zoom(window, _saved_scale(), gui_thread=True)
     prefs.set_window_zoom(lambda scale: _set_page_zoom(window, scale))
+    opener.set_enabled(True)  # "Open selected": search links in the system browser
     try:
         webview.start(gui=WINDOW_GUI)
     except Exception as exc:
@@ -104,6 +106,7 @@ def cmd_app() -> int:
         return 1
     finally:
         prefs.set_window_zoom(None)
+        opener.set_enabled(False)
         server.should_exit = True
         thread.join(timeout=5)
     return 0
