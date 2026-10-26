@@ -4005,3 +4005,205 @@ label.button.disabled {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Where to buy: "Buy" menus, shops in Settings, a deck's shopping list and basket planner */
+.buy-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.buy-menu .context-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.buy-menu-link {
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.buy-menu-link:hover {
+  background: var(--bg-hover);
+}
+
+.detail-buy {
+  margin-top: 0.5rem;
+}
+
+.source-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.source-editor.disabled .source-name,
+.source-editor.disabled .source-url {
+  color: var(--text-muted);
+}
+
+.source-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.8rem;
+}
+
+.source-name {
+  width: 12rem;
+}
+
+.source-url {
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+
+.input.narrow {
+  width: 6rem;
+}
+
+.basket-settings .form-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1rem;
+  align-items: center;
+}
+
+.basket-settings .form-grid label {
+  display: contents;
+}
+
+.basket-settings .form-grid p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.basket-settings .rates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+
+.basket-settings .rates label {
+  display: inline;
+}
+
+.shopping-table tr.done td {
+  color: var(--text-muted);
+}
+
+.shopping-table tr.done td:nth-child(3) {
+  text-decoration: line-through;
+}
+
+.offers-cell {
+  min-width: 16rem;
+}
+
+.offer-line {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.offer-line.chosen {
+  font-weight: 600;
+}
+
+.offer-actions {
+  display: inline-flex;
+  gap: 0.6rem;
+}
+
+.offer-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.offer-form .input {
+  min-width: 0;
+  flex: 1 1 8rem;
+}
+
+.offer-form .input.narrow {
+  flex: 0 0 6rem;
+}
+
+.remaining-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.4rem 0;
+}
+
+.basket-panel,
+.cardtrader-compare {
+  margin-top: 1.5rem;
+}
+
+.seller-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 0.8rem;
+}
+
+.seller-block {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+}
+
+.seller-block.reached {
+  border-color: color-mix(in srgb, var(--ok) 60%, transparent);
+}
+
+.seller-block.reached .progress-fill {
+  background: var(--ok);
+}
+
+.seller-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.3rem 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+.seller-cards,
+.seller-suggestions ul {
+  margin: 0.5rem 0;
+  padding-left: 1.1rem;
+}
+
+.basket-totals {
+  margin: 0.8rem 0;
+}
+
+.proposal {
+  margin-top: 0.8rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 8px;
+}
+
+.proposal h4 {
+  margin: 0 0 0.4rem;
+}
+
+.compare-options {
+  padding-left: 1.1rem;
+}
+
+.compare-options li {
+  margin-bottom: 0.4rem;
+}

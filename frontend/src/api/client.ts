@@ -85,6 +85,23 @@ export type PrintJobStatus = Schemas['PrintJobStatus']
 export type CalibrationResult = Schemas['CalibrationResult']
 export type Measurements = Schemas['Measurements']
 export type Paper = PrinterProfile['paper']
+export type PurchaseSource = Schemas['PurchaseSource']
+export type PurchaseSourceBody = Schemas['SourceBody']
+export type PurchaseSourcePatch = Schemas['SourcePatch']
+export type PurchaseLink = Schemas['PurchaseLink']
+export type PurchaseSettings = Schemas['PurchaseSettings']
+export type ShoppingList = Schemas['ShoppingList']
+export type ShoppingRow = Schemas['ShoppingRow']
+export type Offer = Schemas['Offer']
+export type OfferBody = Schemas['OfferBody']
+export type Basket = Schemas['Basket']
+export type SellerBasket = Schemas['SellerBasket']
+export type BasketProposal = Schemas['BasketProposal']
+export type BasketTotals = Schemas['Totals']
+export type Comparison = Schemas['Comparison']
+export type CompareOption = Schemas['Option']
+export type QuoteJob = Schemas['QuoteJob']
+export type CartResult = Schemas['CartResult']
 
 export type ImageSize = 'small' | 'normal' | 'large' | 'art_crop' | 'png'
 export type ColorMode = 'include' | 'exact' | 'identity'
@@ -355,6 +372,49 @@ export const api = {
   updates: (force = false) => request<UpdateInfo>(`/api/updates${force ? '?force=true' : ''}`),
   setUpdateChecks: (enabled: boolean) => request<UpdateInfo>('/api/updates/settings', jsonBody('PUT', { enabled })),
   skipUpdate: (version: string) => request<UpdateInfo>('/api/updates/skip', jsonBody('POST', { version })),
+
+  purchaseSettings: () => request<PurchaseSettings>('/api/purchase-settings'),
+  savePurchaseSettings: (body: PurchaseSettings) =>
+    request<PurchaseSettings>('/api/purchase-settings', jsonBody('PUT', body)),
+  purchaseSources: () => request<PurchaseSource[]>('/api/purchase-sources'),
+  createPurchaseSource: (body: PurchaseSourceBody) =>
+    request<PurchaseSource>('/api/purchase-sources', jsonBody('POST', body)),
+  updatePurchaseSource: (id: number, body: PurchaseSourcePatch) =>
+    request<PurchaseSource>(`/api/purchase-sources/${id}`, jsonBody('PATCH', body)),
+  deletePurchaseSource: (id: number) =>
+    fetch(`/api/purchase-sources/${id}`, { method: 'DELETE' }).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+    }),
+  testPurchaseSource: (id: number) => request<{ url: string }>(`/api/purchase-sources/${id}/test`),
+  cardPurchaseLinks: (cardId: string) => request<PurchaseLink[]>(`/api/cards/${cardId}/purchase-links`),
+  openUrls: (urls: string[]) =>
+    fetch('/api/open-urls', jsonBody('POST', { urls })).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+    }),
+  shoppingList: (deckId: number) => request<ShoppingList>(`/api/decks/${deckId}/shopping-list`),
+  setShoppingDone: (deckId: number, oracleId: string, done: boolean) =>
+    request<ShoppingList>(`/api/decks/${deckId}/shopping-list/${oracleId}`, jsonBody('PATCH', { done })),
+  resetShoppingDone: (deckId: number) =>
+    request<ShoppingList>(`/api/decks/${deckId}/shopping-list/done`, { method: 'DELETE' }),
+  addOffer: (deckId: number, body: OfferBody) => request<Offer>(`/api/decks/${deckId}/offers`, jsonBody('POST', body)),
+  deleteOffer: (offerId: number) =>
+    fetch(`/api/offers/${offerId}`, { method: 'DELETE' }).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+    }),
+  setChoices: (deckId: number, choices: Record<string, number | null>) =>
+    request<Basket>(`/api/decks/${deckId}/choices`, jsonBody('PUT', { choices })),
+  pickCheapest: (deckId: number, oracleId?: string) =>
+    request<Basket>(`/api/decks/${deckId}/choices/cheapest?${toSearchParams({ oracle_id: oracleId })}`, {
+      method: 'POST',
+    }),
+  basket: (deckId: number) => request<Basket>(`/api/decks/${deckId}/basket`),
+  basketProposal: (deckId: number) => request<BasketProposal>(`/api/decks/${deckId}/basket/proposal`),
+  basketCompare: (deckId: number) => request<Comparison>(`/api/decks/${deckId}/basket/compare`),
+  cardtraderQuotes: (deckId: number) => request<QuoteJob>(`/api/decks/${deckId}/cardtrader/quotes`),
+  startCardtraderQuotes: (deckId: number) =>
+    request<QuoteJob>(`/api/decks/${deckId}/cardtrader/quotes`, { method: 'POST' }),
+  cardtraderCart: (deckId: number, oracleIds: string[]) =>
+    request<CartResult>(`/api/decks/${deckId}/cardtrader/cart`, jsonBody('POST', { oracle_ids: oracleIds })),
 
   syncStatus: () => request<SyncStatus>('/api/sync/status'),
   syncCheck: () => request<SyncCheck>('/api/sync/check'),

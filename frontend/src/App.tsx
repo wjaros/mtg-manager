@@ -55,7 +55,7 @@ function NavIcon({ path }: { path: string }) {
 
 function routeFromHash(): Route {
   const hash = window.location.hash
-  const deck = hash.match(/^#\/decks\/(\d+)(?:\/(stats|combos|missing|history|compare))?$/)
+  const deck = hash.match(/^#\/decks\/(\d+)(?:\/(stats|combos|missing|shop|history|compare))?$/)
   if (deck) return { view: 'deck', deckId: Number(deck[1]), tab: (deck[2] as DeckTab | undefined) ?? 'pool' }
   if (hash === '#/decks') return { view: 'decks' }
   const items = hash.match(/^#\/collection\/items(?:\/(none|\d+))?$/)

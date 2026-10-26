@@ -16,6 +16,8 @@ const writes = new Map<string, Promise<void>>()
 /** Size of the whole interface; the window app zooms its web view (a browser has its own zoom). */
 export const UI_SCALES = [0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2]
 let scale = { scale: 1, native: false }
+// The window app opens several links at once in the system browser (the backend does it).
+let openUrls = false
 const scaleListeners = new Set<() => void>()
 
 export async function loadPrefs(): Promise<void> {
@@ -25,6 +27,7 @@ export async function loadPrefs(): Promise<void> {
     const prefs = (await resp.json()) as Prefs
     values = prefs.values
     scale = { scale: prefs.scale, native: prefs.native_zoom }
+    openUrls = prefs.open_urls ?? false
     backend = true
     if (!Object.keys(values).length) importBrowserStorage()
   } catch {
@@ -42,6 +45,11 @@ function importBrowserStorage(): void {
   } catch {
     // storage unavailable: nothing to bring along
   }
+}
+
+/** "Open selected" can open every link at once (the window app); a browser opens one per click. */
+export function canOpenUrls(): boolean {
+  return openUrls
 }
 
 export function getPref(key: string): string | null {

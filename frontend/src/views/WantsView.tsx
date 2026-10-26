@@ -4,6 +4,7 @@ import { copyText } from '../clipboard'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { locale, t } from '../i18n'
 import { wants } from '../wants'
+import { BuyMenu } from '../components/BuyMenu'
 import { SendToCardTrader } from '../components/SendToCardTrader'
 
 /** Cardmarket's search for a card (any printing); a double-faced card by its front face. */
@@ -161,6 +162,7 @@ function WantRow({
         <a href={cardmarketUrl(w.name)} target="_blank" rel="noreferrer" className="small">
           Cardmarket ↗
         </a>
+        <BuyMenu cardId={w.card.id} />
         <button className="link-button danger small" onClick={() => run(() => api.removeWant(w.oracle_id))}>
           {t.wants.remove}
         </button>

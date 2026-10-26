@@ -7,6 +7,7 @@ import {
   type PrintHistory,
   type ReplaceWithReal,
 } from '../api/client'
+import { BuyMenu } from '../components/BuyMenu'
 import { ProxyDialog } from '../components/ProxyDialog'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { locale, t } from '../i18n'
@@ -267,6 +268,7 @@ export function ProxiesView() {
                     )}
                   </td>
                   <td className="row-actions">
+                    {copies.length === 0 && <BuyMenu cardId={p.card.id} />}
                     <button className="link-button small" onClick={() => setReplacing(p)}>
                       {t.proxies.replace}
                     </button>

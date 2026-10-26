@@ -42,6 +42,7 @@ import { DeckPreview } from '../components/DeckPreview'
 import { DeckVisual } from '../components/DeckVisual'
 import { DeckViewOptions } from '../components/DeckViewOptions'
 import { MissingPanel } from '../components/MissingPanel'
+import { ShoppingPanel } from '../components/ShoppingPanel'
 import { ManaCost } from '../components/ManaCost'
 import { ValidationPanel } from '../components/ValidationPanel'
 import {
@@ -65,7 +66,7 @@ import { useStoredChoice } from '../hooks/useStoredChoice'
 import { getPref, setPref } from '../prefs'
 import { formatNumber, locale, t } from '../i18n'
 
-export type DeckTab = 'pool' | 'stats' | 'combos' | 'missing' | 'history' | 'compare'
+export type DeckTab = 'pool' | 'stats' | 'combos' | 'missing' | 'shop' | 'history' | 'compare'
 
 // How the height is shared between the pool (top) and the deck's cards (bottom): the pool alone,
 // both, or the deck's cards over the whole height next to the list. Remembered.
@@ -578,6 +579,11 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
               {t.builder.tabMissing}
             </button>
           )}
+          {deck.platform === 'paper' && (
+            <button className={tab === 'shop' ? 'on' : ''} onClick={() => setTab('shop')} role="tab">
+              {t.buy.tab}
+            </button>
+          )}
           <button className={tab === 'history' ? 'on' : ''} onClick={() => setTab('history')} role="tab">
             {t.builder.tabHistory}
             {deck.unsaved_changes > 0 && <span className="unsaved-dot"> ●</span>}
@@ -616,7 +622,16 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
           </div>
         ) : tab === 'missing' && deck.platform === 'paper' ? (
           <div className="stats-scroll">
-            <MissingPanel deckId={deck.id} revision={revision + (deck.location_id ?? '')} onHover={deckPreview.show} />
+            <MissingPanel
+              deckId={deck.id}
+              revision={revision + (deck.location_id ?? '')}
+              onHover={deckPreview.show}
+              onShop={() => setTab('shop')}
+            />
+          </div>
+        ) : tab === 'shop' && deck.platform === 'paper' ? (
+          <div className="stats-scroll">
+            <ShoppingPanel deckId={deck.id} revision={revision + (deck.location_id ?? '')} onHover={deckPreview.show} />
           </div>
         ) : (
           <>

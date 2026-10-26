@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, setIconUrl, type CardDetail, type CardSummary } from '../api/client'
+import { BuyMenu } from './BuyMenu'
 import { CardImage } from './CardImage'
 import { CopyButton } from './CopyButton'
 import { RARITY_LABEL } from '../decks'
@@ -192,6 +193,9 @@ export function CardDetailPanel({ cardId, onClose, onChoosePrinting, onCollectio
         )}
 
         <OwnedCopies card={card} onChange={onCollectionChange} />
+        <div className="actions detail-buy">
+          <BuyMenu cardId={card.id} className="button small" />
+        </div>
 
         <h3 className="printings-title">
           {t.card.printings} {printings && <span className="muted">({printings.length})</span>}

@@ -10,6 +10,7 @@ import {
 import { copyText } from '../clipboard'
 import { locale, t } from '../i18n'
 import { wants } from '../wants'
+import { BuyMenu } from './BuyMenu'
 import { SendToCardTrader } from './SendToCardTrader'
 
 interface Props {
@@ -17,10 +18,12 @@ interface Props {
   /** Changes whenever the deck's contents change, to refetch. */
   revision: string
   onHover: (card: { id: string; name: string; image_faces: number } | null, event?: MouseEvent) => void
+  /** Opens the deck's shopping list (links per shop, ticks, basket planner). */
+  onShop?: () => void
 }
 
 /** Cards the deck needs beyond the collection, with shopping-list exports. */
-export function MissingPanel({ deckId, revision, onHover }: Props) {
+export function MissingPanel({ deckId, revision, onHover, onShop }: Props) {
   const [excludeOtherDecks, setExcludeOtherDecks] = useState(false)
   // Exports: by default proxied cards are on the list too (a proxy is a card still to buy).
   const [includeProxied, setIncludeProxied] = useState(true)
@@ -109,7 +112,12 @@ export function MissingPanel({ deckId, revision, onHover }: Props) {
           </div>
 
           <div className="actions">
-            <button className="button primary" onClick={() => copy('cardmarket', 'CardMarket')}>
+            {onShop && (
+              <button className="button primary" onClick={onShop} title={t.buy.openTitle}>
+                {t.buy.open}
+              </button>
+            )}
+            <button className="button" onClick={() => copy('cardmarket', 'CardMarket')}>
               {t.panels.copyCardmarket}
             </button>
             <button className="button" onClick={() => copy('text', t.panels.withPrintings)}>
@@ -199,6 +207,7 @@ function MissingTable({
             <th>{t.panels.deckPrinting}</th>
             <th className="num">{t.panels.have}</th>
             <th className="num">{t.panels.price}</th>
+            <th />
           </tr>
         </thead>
         <tbody>
@@ -217,6 +226,9 @@ function MissingTable({
                 {e.owned !== e.available && <span className="muted"> ({e.owned})</span>}
               </td>
               <td className="num">{e.price_eur != null ? `€${(e.price_eur * qty).toFixed(2)}` : '—'}</td>
+              <td>
+                <BuyMenu cardId={e.card.id} />
+              </td>
             </tr>
           ))}
         </tbody>

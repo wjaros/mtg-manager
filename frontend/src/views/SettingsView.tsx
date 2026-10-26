@@ -4,6 +4,7 @@ import { UpdateSettings } from '../components/AppUpdate'
 import { CardTraderSettings } from '../components/CardTraderSettings'
 import { CloudBackupSettings } from '../components/CloudBackupSettings'
 import { PrintingPanel } from '../components/PrintingPanel'
+import { PurchaseSettings } from '../components/PurchaseSettings'
 import { ThemeSettings } from '../components/ThemeSettings'
 import { UiScaleSettings } from '../components/UiScaleSettings'
 import { formatNumber, lang, LANGUAGES, locale, setLang, t, type Lang } from '../i18n'
@@ -194,6 +195,7 @@ export function SettingsView({ status, onStatusChange }: Props) {
       <PrintingPanel />
 
       <CardTraderSettings />
+      <PurchaseSettings />
 
       <section className="panel">
         <h2>{t.settings.app}</h2>

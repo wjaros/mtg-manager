@@ -30,6 +30,11 @@ export function formatNumber(n: number): string {
   return n.toLocaleString(locale)
 }
 
+/** An amount with two decimals, in the UI's number format. */
+export function formatMoney(value: number): string {
+  return value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 /** SQLite datetime('now') values are UTC without a zone marker. */
 export function formatDateTime(value: string): string {
   const date = new Date(value.includes('T') || value.endsWith('Z') ? value : value.replace(' ', 'T') + 'Z')
