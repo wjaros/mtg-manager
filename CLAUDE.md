@@ -21,6 +21,12 @@ language from the request's Accept-Language (the frontend sends its own; default
     one private wishlist (a deck's missing cards put on the list first; no edit endpoint, so each sync creates a new
     one, then deletes the last, its id in `meta`); MTGA text, read back by slug: unrecognized cards are reported;
     API facts in `docs/ideas/cardtrader.md`
+  - `mtgdm/purchase/` – Where to buy (no API or scraping: links open searches in the browser): `sources.py` (shops as
+    https URL templates with `{query}`, `build_search_url`; default Allegro from migration 014), `shopping.py` (a deck's
+    shopping list = missing + proxied cards, done ticks per deck, offers noted by hand, one chosen per card),
+    `basket.py` (chosen offers per seller vs the free-delivery threshold, suggestions, greedy proposal, comparison with
+    CardTrader Zero quotes from `cardtrader/offers.py`), `settings.py` (threshold, currency, manual exchange rates, in
+    meta), `opener.py` (`POST /api/open-urls`: system browser, window app only); deckbuilder tab Shopping
   - `mtgdm/spellbook/` – Commander Spellbook `find-my-combos` (own UA, ≥1 s between requests, 429 back-off; answers
     cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
     to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)

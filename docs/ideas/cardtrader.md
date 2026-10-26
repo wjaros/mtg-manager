@@ -77,6 +77,23 @@ Cloudflare check, the API host is not).
 `GET /marketplace/products?blueprint_id=` gives the cheapest 25 offers per printing. It needs
 blueprint ids: `GET /blueprints/export?expansion_id=` per expansion, which carries `scryfall_id`.
 
+## Marketplace offers and the cart (Where to buy, 2026-10-26)
+
+Used by the basket planner's comparison with CardTrader Zero (`mtgdm/cardtrader/offers.py`). Not
+checked against the live API yet (no token in development): from the "How To Buy" page and a
+third-party guide (github.com/Eomm/cardtrader-api-skills, MIT); the first real fetch will tell.
+
+- `GET /expansions`: `{id, game_id, code, name}`; Magic's codes look like Scryfall's.
+- `GET /blueprints/export?expansion_id=`: blueprints with `scryfall_id`.
+- `GET /marketplace/products?blueprint_id=` (optionally `language=`): `{"<blueprint id>": [...]}`,
+  the cheapest 25 per blueprint. A product: `id`, `quantity`, `price: {cents, currency}`,
+  `properties_hash` (`condition`, `mtg_language`, `mtg_foil`), `user: {username, can_sell_via_hub,
+  country_code}`, `graded`, `on_vacation`, `bundle_size`. CardTrader Zero = `user.can_sell_via_hub`.
+  Rate limit: 10/s per the reference (one source says 1/s); a 429 backs off.
+- `POST /cart/add` `{product_id, quantity, via_cardtrader_zero}` adds to the user's cart (addresses
+  optional: the account's own). `GET /cart`, `POST /cart/remove`; `POST /cart/purchase` buys – never
+  called by the app.
+
 ## Possible steps
 
 1. **"Send to CardTrader"** for a deck's missing cards, and later the shopping list:

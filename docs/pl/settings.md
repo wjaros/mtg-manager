@@ -34,7 +34,7 @@ Ceny ze Scryfalla mają do doby opóźnienia, dlatego aplikacja pokazuje je jako
 ## Kopia zapasowa
 
 - **Zapisz kopię:** zapisuje kolekcję, lokalizacje, talie (z historią wersji), listę zakupów,
-  twoje tagi i profile drukarek do jednego pliku JSON. Danych kart ze Scryfalla w niej nie ma (da
+  sklepy i oferty z „Gdzie kupić”, twoje tagi i profile drukarek do jednego pliku JSON. Danych kart ze Scryfalla w niej nie ma (da
   się je pobrać ponownie). Tokenu CardTradera też nie ma.
 - **Wczytaj kopię…:** przywraca kopię i dodaje ją do tego, co jest. Z zaznaczonym **zastąp obecne dane (zamiast dodawać)**
   najpierw usuwa obecne dane. Uszkodzony plik niczego nie zmienia.
@@ -51,6 +51,10 @@ najpierw zapisze w `history/`) albo pozostanie przy swoich. Niczego nie nadpisuj
 ## Drukowanie
 
 Rozmiar karty i profile drukarek do proxy: [kalibracja drukarki](proxies.md#kalibracja-drukarki).
+
+## Gdzie kupić
+
+Sklepy z linkami wyszukiwania, próg darmowej dostawy, wysyłka i kursy walut: [Zakupy w sklepach](buying.md#zakupy-w-sklepach).
 
 ## CardTrader
 

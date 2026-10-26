@@ -34,7 +34,7 @@ Scryfall's prices are up to a day old, so the app shows them as estimates.
 ## Backup
 
 - **Save backup:** your collection, locations, decks (with their version history), shopping list,
-  your tags and printer profiles as one JSON file. Scryfall's card data isn't in it (it can be
+  the shops and offers of Where to buy, your tags and printer profiles as one JSON file. Scryfall's card data isn't in it (it can be
   downloaded again), and neither is the CardTrader token.
 - **Load backup…:** restores a backup, adding it to what's there. With **replace the current data
   (instead of adding)** checked, the current data is removed first. A broken file changes nothing.
@@ -52,6 +52,10 @@ data goes to `history/` first) or to keep its own. It never overwrites anything 
 
 Card size and printer profiles for proxies: see
 [printer calibration](proxies.md#printer-calibration).
+
+## Where to buy
+
+Shops with search links, the free-delivery threshold, shipping and exchange rates: see [Where to buy](buying.md#where-to-buy).
 
 ## CardTrader
 
