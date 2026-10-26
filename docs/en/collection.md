@@ -83,7 +83,8 @@ Cards you own come first, under **In the collection**, then **Others**. By defau
 within the chosen card's colors are shown; the W U B R G toggles add more colors.
 
 In the deckbuilder, the list follows the deck's format and leaves out cards already in the deck.
-A click adds a card to the deck. **Deck's colors** selects the commander's colors.
+A click adds a card to the deck. **Deck's colors** selects the commander's colors. In
+[deck comparison](decks.md#comparing-decks) you choose which of the two decks to search for.
 
 ![Similar cards](../images/en/similar-cards.webp)
 

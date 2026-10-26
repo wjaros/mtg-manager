@@ -364,6 +364,7 @@ export const pl = {
     notOnArena: 'brak na Arenie',
     notInIdentity: 'poza kolorami dowódcy',
     atLimit: 'limit kopii',
+    similarFor: (side: string, deck: string) => `Podobne karty dla ${side}: ${deck}`,
     inDeck: (n: number) => `w talii: ${n}`,
     fits: 'można dodać',
   },

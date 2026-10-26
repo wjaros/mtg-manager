@@ -10,6 +10,7 @@ interface Props {
   card: Pick<CardSummary, 'id' | 'name' | 'color_identity'>
   deckId?: number // deckbuilder: the deck's format, without the cards already in it
   deckColors?: string[] // a shortcut to the deck's color identity
+  initialColors?: string[] // instead of the card's own
   onPick: (card: CardSummary) => void
   onContextMenu?: (card: CardSummary, event: MouseEvent) => void
   hoverInfo?: (cardId: string) => ReactNode
@@ -24,6 +25,7 @@ export function SimilarCardsPanel({
   card,
   deckId,
   deckColors,
+  initialColors,
   onPick,
   onContextMenu,
   hoverInfo,
@@ -31,7 +33,7 @@ export function SimilarCardsPanel({
   dimmed,
   onClose,
 }: Props) {
-  const [colors, setColors] = useState<string[]>(card.color_identity)
+  const [colors, setColors] = useState<string[]>(initialColors ?? card.color_identity)
   // Results and errors belong to one request: a newer one shows "searching" until its own arrive.
   const colorParam = COLORS.filter((c) => colors.includes(c)).join('') || 'C' // C: colorless only
   const key = [card.id, colorParam, deckId ?? ''].join('|')

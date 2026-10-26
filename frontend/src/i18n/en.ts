@@ -360,6 +360,7 @@ export const en: Messages = {
     notOnArena: 'not on Arena',
     notInIdentity: "outside the commander's colors",
     atLimit: 'copy limit',
+    similarFor: (side: string, deck: string) => `Similar cards for ${side}: ${deck}`,
     inDeck: (n: number) => `in the deck: ${n}`,
     fits: 'can be added',
   },

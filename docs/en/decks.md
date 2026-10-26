@@ -124,6 +124,12 @@ deck, but only when the card can go there: legal in its format, within its comma
 for an Arena deck, on Arena. Singleton formats get one copy at most. An Arena deck gets Arena's
 printing, a paper deck the printing you own the most copies of (or the default one).
 
+When a card can't go into the other deck (e.g. not legal in Brawl), right-click its name for
+**Similar cards for A** or **for B**: [similar cards](collection.md#similar-cards) legal in that
+deck's format and, for an Arena deck, on Arena. The list starts with the card's colors that fit
+the deck's commander (or, when none do, the commander's colors). A click adds the card to that deck
+(one copy in singleton formats).
+
 ![Comparing decks: table by price](../images/en/compare.webp)
 
 ![Comparing decks: diff](../images/en/compare-diff.webp)

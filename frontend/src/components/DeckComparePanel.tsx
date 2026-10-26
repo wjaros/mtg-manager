@@ -1,8 +1,20 @@
-import { Fragment, useEffect, useMemo, useState, type MouseEvent } from 'react'
-import { api, type CardFit, type CompareRow, type DeckComparison, type DeckDetail, type DeckSummary } from '../api/client'
-import { FORMAT_LABEL } from '../decks'
+import { Fragment, useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react'
+import {
+  api,
+  type CardFit,
+  type CardSummary,
+  type CompareRow,
+  type DeckComparison,
+  type DeckDetail,
+  type DeckSummary,
+} from '../api/client'
+import { copyFromMenu } from '../clipboard'
+import { COMMANDER_FORMATS, FORMAT_LABEL, isBasicLand } from '../decks'
 import { useHoverPreview } from '../hooks/useHoverPreview'
+import { CardUsageInfo } from './CardUsageInfo'
+import { ContextMenu, type MenuState } from './ContextMenu'
 import { ManaCost } from './ManaCost'
+import { SimilarCardsPanel } from './SimilarCardsPanel'
 import { locale, t } from '../i18n'
 
 type Sort = 'mv-asc' | 'mv-desc' | 'price-desc' | 'price-asc' | 'name'
@@ -37,6 +49,12 @@ export function DeckComparePanel({
   const [otherRevision, setOtherRevision] = useState(0)
   const [result, setResult] = useState<{ key: string; data: DeckComparison } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [menu, setMenu] = useState<MenuState | null>(null)
+  const closeMenu = useCallback(() => setMenu(null), [])
+  // Similar cards to add to one of the decks, and the copies added from them (by name).
+  const [similar, setSimilar] = useState<{ card: CardSummary; side: 'a' | 'b' } | null>(null)
+  const closeSimilar = useCallback(() => setSimilar(null), [])
+  const [similarAdded, setSimilarAdded] = useState<Record<string, number>>({})
 
   useEffect(() => {
     api.decks().then(setDecks, (e: Error) => setError(e.message))
@@ -102,10 +120,52 @@ export function DeckComparePanel({
   })
   // On the name, not the whole row: the preview opens next to it, with the card's image.
   const name = (row: CompareRow, text: string) => (
-    <span className="compare-name" onMouseEnter={(e: MouseEvent) => preview.show(row.card, e)} onMouseLeave={() => preview.show(null)}>
+    <span
+      className="compare-name"
+      onMouseEnter={(e: MouseEvent) => preview.show(row.card, e)}
+      onMouseLeave={() => preview.show(null)}
+      onContextMenu={(e) => openMenu(row, e)}
+    >
       {text}
     </span>
   )
+
+  const openMenu = (row: CompareRow, e: MouseEvent) => {
+    if (!data) return
+    e.preventDefault()
+    preview.show(null)
+    const similarFor = (side: 'a' | 'b') => ({
+      label: t.compare.similarFor(side.toUpperCase(), data[side].name),
+      onClick: () => {
+        setSimilarAdded({})
+        setSimilar({ card: row.card, side })
+      },
+    })
+    setMenu({
+      x: e.clientX,
+      y: e.clientY,
+      title: row.name,
+      items: [similarFor('a'), similarFor('b'), { label: t.common.copyName, onClick: () => copyFromMenu(row.name) }],
+    })
+  }
+
+  const addSimilar = async (card: CardSummary) => {
+    if (!similar || !data) return
+    const target = data[similar.side]
+    // Singleton formats: one copy (the panel leaves out the deck's cards, not those just added).
+    if (target.format in COMMANDER_FORMATS && similarAdded[card.name] && !isBasicLand(card.type_line)) return
+    try {
+      if (similar.side === 'a') {
+        await onAddHere(card.id, 1)
+      } else {
+        await api.addDeckCard(target.id, card.id, 'main', 1)
+        setOtherRevision((n) => n + 1)
+      }
+      setSimilarAdded((prev) => ({ ...prev, [card.name]: (prev[card.name] ?? 0) + 1 }))
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
 
   const addToOther = async (row: CompareRow) => {
     if (!data || !row.fit_b.card_id) return
@@ -344,8 +404,42 @@ export function DeckComparePanel({
         </>
       )}
       {preview.element}
+      {menu && <ContextMenu menu={menu} onClose={closeMenu} />}
+      {similar && data && (
+        <SimilarCardsPanel
+          key={`${similar.card.id}|${similar.side}`}
+          card={similar.card}
+          deckId={data[similar.side].id}
+          deckColors={data[similar.side].color_identity ?? undefined}
+          initialColors={startColors(similar.card, data[similar.side].color_identity)}
+          onPick={addSimilar}
+          onContextMenu={(card, e) =>
+            setMenu({
+              x: e.clientX,
+              y: e.clientY,
+              title: card.name,
+              items: [
+                { label: t.compare.addToTitle(data[similar.side].name), onClick: () => addSimilar(card) },
+                { label: t.common.copyName, onClick: () => copyFromMenu(card.name) },
+              ],
+            })
+          }
+          hoverInfo={(cardId) => (
+            <CardUsageInfo cardId={cardId} deckId={data[similar.side].id} revision={key} paper={data[similar.side].platform === 'paper'} />
+          )}
+          badge={(card) => similarAdded[card.name]}
+          onClose={closeSimilar}
+        />
+      )}
     </div>
   )
+}
+
+/** Similar cards for a deck start within its colors: the card's own ones there, else all of the deck's. */
+function startColors(card: CardSummary, deckColors: string[] | null): string[] {
+  if (!deckColors || card.color_identity.length === 0) return card.color_identity
+  const shared = card.color_identity.filter((c) => deckColors.includes(c))
+  return shared.length ? shared : deckColors
 }
 
 function status(row: CompareRow): 'same' | 'only-a' | 'only-b' | 'differ' {

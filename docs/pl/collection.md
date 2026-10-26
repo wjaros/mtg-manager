@@ -84,7 +84,8 @@ Karty, które już masz, są na górze w sekcji **W kolekcji**, a pod nimi **Poz
 widać tylko karty w kolorach wybranej karty; przełączniki W U B R G dodają kolejne kolory.
 
 W deckbuilderze lista bierze pod uwagę format talii i pomija karty, które już w niej są. Kliknięcie
-dodaje kartę do talii. Przycisk **Kolory talii** zaznacza kolory dowódcy.
+dodaje kartę do talii. Przycisk **Kolory talii** zaznacza kolory dowódcy. W
+[porównaniu talii](decks.md) (zakładka **Porównaj**) wybierasz, do której z dwóch talii szukać.
 
 ![Podobne karty](../images/pl/similar-cards.webp)
 

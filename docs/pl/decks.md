@@ -124,6 +124,12 @@ tylko gdy karta może tam trafić: jest legalna w formacie, mieści się w kolor
 talii z Areny jest na Arenie. W formatach singleton dodawana jest najwyżej jedna kopia. Do talii z
 Areny trafia wydanie z Areny, do papierowej to, którego masz najwięcej kopii (albo domyślne).
 
+Gdy karta nie może trafić do drugiej talii (np. nielegalna w Brawl), prawy przycisk na jej nazwie
+daje **Podobne karty dla A** albo **dla B**: [podobne karty](collection.md#podobne-karty) legalne w
+formacie tamtej talii i, dla talii z Areny, na Arenie. Lista zaczyna od kolorów karty, które
+mieszczą się w kolorach dowódcy tej talii (a gdy żaden się nie mieści, od kolorów dowódcy).
+Kliknięcie dodaje kartę do tej talii (w formatach singleton jedną kopię).
+
 ![Porównanie talii: tabela według ceny](../images/pl/compare.webp)
 
 ![Porównanie talii: diff](../images/pl/compare-diff.webp)
