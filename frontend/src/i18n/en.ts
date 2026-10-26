@@ -35,6 +35,8 @@ export const en: Messages = {
     scan: 'Scanning',
     settings: 'Settings',
     syncing: 'Syncing',
+    collapse: 'Collapse menu',
+    expand: 'Expand menu',
   },
   app: {
     backendDown: (message: string) => `Cannot reach the backend (${message})`,

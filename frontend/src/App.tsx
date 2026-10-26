@@ -16,7 +16,7 @@ import { ScanView } from './views/ScanView'
 import { WantsView } from './views/WantsView'
 import { useWants } from './wants'
 import { SettingsView } from './views/SettingsView'
-import { setUiScale, stepUiScale, useUiScale } from './prefs'
+import { getPref, setPref, setUiScale, stepUiScale, useUiScale } from './prefs'
 
 type Route =
   | { view: 'collection' }
@@ -30,13 +30,28 @@ type Route =
   | { view: 'scan' }
   | { view: 'deck'; deckId: number; tab: DeckTab }
 
-const NAV: { id: keyof typeof t.nav; label: string }[] = [
-  { id: 'collection', label: t.nav.collection },
-  { id: 'decks', label: t.nav.decks },
-  { id: 'import', label: t.nav.import },
-  { id: 'scan', label: t.nav.scan },
-  { id: 'settings', label: t.nav.settings },
+const NAV: { id: keyof typeof t.nav; label: string; icon: string }[] = [
+  // 24×24 stroke paths, shown alone when the sidebar is collapsed
+  { id: 'collection', label: t.nav.collection, icon: 'M4 6h16M4 12h16M4 18h16' },
+  { id: 'decks', label: t.nav.decks, icon: 'M7 3h10v14H7zM4 7v14h10' },
+  { id: 'import', label: t.nav.import, icon: 'M12 3v12M7 10l5 5 5-5M4 21h16' },
+  { id: 'scan', label: t.nav.scan, icon: 'M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M8 12h8' },
+  {
+    id: 'settings',
+    label: t.nav.settings,
+    icon: 'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1',
+  },
 ]
+
+const COLLAPSED_KEY = 'mtgdm.sidebarCollapsed'
+
+function NavIcon({ path }: { path: string }) {
+  return (
+    <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={path} />
+    </svg>
+  )
+}
 
 function routeFromHash(): Route {
   const hash = window.location.hash
@@ -58,6 +73,12 @@ export default function App() {
   const [route, setRoute] = useState<Route>(routeFromHash)
   const [status, setStatus] = useState<SyncStatus | null>(null)
   const [backendError, setBackendError] = useState<string | null>(null)
+  const [collapsed, setCollapsed] = useState(() => getPref(COLLAPSED_KEY) === 'true')
+  const toggleSidebar = () => {
+    const next = !collapsed
+    setCollapsed(next)
+    void setPref(COLLAPSED_KEY, next ? 'true' : null)
+  }
 
   useEffect(() => {
     const onHash = () => setRoute(routeFromHash())
@@ -105,7 +126,7 @@ export default function App() {
   const { notice: wantsNotice } = useWants()
 
   return (
-    <div className="shell">
+    <div className={`shell ${collapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className="sidebar">
         <div className="brand">
           <img src="/favicon.svg" alt="" width={28} height={28} />
@@ -117,12 +138,25 @@ export default function App() {
               key={item.id}
               className={`nav-item ${activeNav === item.id ? 'active' : ''}`}
               onClick={() => go(item.id)}
+              title={collapsed ? item.label : undefined}
+              aria-label={item.label}
             >
-              {item.label}
+              <NavIcon path={item.icon} />
+              <span className="nav-label">{item.label}</span>
               {item.id === 'settings' && status?.progress.running && <span className="dot" title={t.nav.syncing} />}
             </button>
           ))}
         </nav>
+        <button
+          className="nav-item sidebar-toggle"
+          onClick={toggleSidebar}
+          title={collapsed ? t.nav.expand : t.nav.collapse}
+          aria-label={collapsed ? t.nav.expand : t.nav.collapse}
+          aria-expanded={!collapsed}
+        >
+          <NavIcon path={collapsed ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6'} />
+          <span className="nav-label">{t.nav.collapse}</span>
+        </button>
       </aside>
 
       <main className="content">
