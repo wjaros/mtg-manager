@@ -38,6 +38,9 @@ The menu on the left leads to five parts:
 - **[Scanning](scanning.md):** cards from photos and scans into the collection.
 - **[Settings](settings.md):** card data, language, backups, printing, CardTrader.
 
+**Collapse menu** at the bottom of the menu leaves only the icons (the name shows on hover) to make
+more room; the arrow expands it again. The app remembers the choice.
+
 ## Language
 
 The interface is in English and Polish: **Settings → Language**. Changing it reloads the app.

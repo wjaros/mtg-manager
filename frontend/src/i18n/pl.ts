@@ -39,6 +39,8 @@ export const pl = {
     scan: 'Skanowanie',
     settings: 'Ustawienia',
     syncing: 'Synchronizacja',
+    collapse: 'Zwiń menu',
+    expand: 'Rozwiń menu',
   },
   app: {
     backendDown: (message: string) => `Brak połączenia z backendem (${message})`,

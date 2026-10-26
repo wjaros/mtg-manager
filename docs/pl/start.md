@@ -38,6 +38,9 @@ Menu po lewej prowadzi do pięciu części:
 - **[Skanowanie](scanning.md):** dodawanie kart do kolekcji ze zdjęć i skanów.
 - **[Ustawienia](settings.md):** dane kart, język, kopie zapasowe, drukowanie, CardTrader.
 
+**Zwiń menu** na dole menu zostawia same ikony (nazwa w podpowiedzi), żeby zrobić więcej miejsca;
+strzałka rozwija je z powrotem. Aplikacja pamięta wybór.
+
 ## Język
 
 Interfejs jest po polsku i po angielsku: **Ustawienia → Język / Language**. Zmiana języka
