@@ -4,7 +4,7 @@ import { setUiScale, UI_SCALES, useUiScale } from '../prefs'
 /** Size of the whole interface: the window app zooms its web view; a browser has its own zoom. */
 export function UiScaleSettings() {
   const { scale, native } = useUiScale()
-  if (!native) return <p className="muted small">{t.settings.uiScaleBrowser}</p>
+  if (!native) return <span className="muted small">{t.settings.uiScaleBrowser}</span>
   return (
     <>
       <div className="segmented" role="group" aria-label={t.settings.uiScaleTitle}>
@@ -14,7 +14,7 @@ export function UiScaleSettings() {
           </button>
         ))}
       </div>
-      <p className="muted small">{t.settings.uiScaleHint}</p>
+      <span className="muted small">{t.settings.uiScaleHint}</span>
     </>
   )
 }

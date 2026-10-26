@@ -116,7 +116,11 @@ language from the request's Accept-Language (the frontend sends its own; default
 - Window app: `cd frontend && npm run build && cd ../backend && uv run mtgdm app`
 - After changing API models: `scripts/gen_api_types.sh`
 - Frontend checks: `cd frontend && npm run build && npm run lint`
-- Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator; don't add hues without re-validating.
+- Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator (dark steps on the
+  dark surface, light steps on `#ffffff`); don't add hues without re-validating.
+- Colors are tokens on `:root` (dark) with a light set under `:root[data-theme='light']` (`index.html` sets the system's
+  theme before the first paint, `src/theme.ts` applies the choice from Settings). No hex colors in rules: a tint is
+  `color-mix(in srgb, var(--token) N%, transparent)`; check new UI in both themes.
 - Smoke test of a built app: `python scripts/smoke_test.py <path to executable>`; CI: `.github/workflows/build.yml`
 - Release: bump `__version__` in `backend/mtgdm/__init__.py` and merge into master; CI tags and publishes
   `v<version>` once all packages pass. Packages are built for PRs, releases and manual runs only (not for
