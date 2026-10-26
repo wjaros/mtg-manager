@@ -36,6 +36,9 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/backup.py` – JSON backup of collection, locations and decks (cards by id, then set+number, then name)
   - `mtgdm/updates.py` – new version check (GitHub releases API, cached in meta, skip a version); notify only,
     no self-update (unsigned macOS app)
+  - `mtgdm/prefs.py` – the UI's preferences (`ui:` keys in meta, not in backups) and the interface scale, which
+    `mtgdm app` applies as the web view's own zoom (WKWebView pageZoom / WebView2 ZoomFactor) before the page
+    loads and on every change (`PUT /api/prefs/scale`); in a browser the browser's zoom does it
   - `mtgdm/cloud_backup.py` – the backup written to a chosen (synced) folder by a background thread when the data
     changed (hash without timestamps); a newer file from another machine id is offered on start (never overwritten)
   - `mtgdm/decks/` – deck storage (`deck_cards` is the source of truth; decks.commander/partner/companion_card_id are derived),
@@ -66,6 +69,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     derived into `card_tags`; `otag:` in the query syntax, `functions` in deck stats
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
+  Remembered UI choices go through `src/prefs.ts` (`getPref` / `setPref`, loaded before the app renders), never
+  localStorage: the window app's web view is private and on a random port, so browser storage is lost on restart.
 - `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);
   the bundle uses a minimal OpenCV (`scripts/build_opencv.py`: core/imgproc/imgcodecs, JPEG+PNG, same version as uv.lock,
   cached in `build/opencv-slim/`) put first on PYTHONPATH; dev and tests use the PyPI wheel. A new cv2 function from
@@ -78,7 +83,7 @@ language from the request's Accept-Language (the frontend sends its own; default
   GPL-2.0-only is not). Third-party licenses in THIRD_PARTY_NOTICES.md (update it with new dependencies)
   bundled resource paths live in `mtgdm/config.py` (FROZEN branch) and must match the spec
 - `docs/` – user guide in Polish (`docs/pl/`) and English (`docs/en/`), one page per area, same file names in both,
-  screenshots in `docs/images/{pl,en}/` (1440×900 WebP, taken on a copy of the data); Jekyll-ready for GitHub Pages
+  screenshots in `docs/images/{pl,en}/` (1440×900 WebP, taken on a copy of the data by `scripts/docs_screenshots.py`); Jekyll-ready for GitHub Pages
   (`docs/_config.yml`, `docs/ideas/` excluded). Update both languages when a feature changes; anchors ASCII only
 - `seeds/` – example decklists (precons and products), offered in the Import view; `seeds/collection/` – lists of
   products that are not decks (imported into the collection: Import → Kolekcja → Lista kart). A trailing `# note` on a
@@ -111,7 +116,15 @@ language from the request's Accept-Language (the frontend sends its own; default
 - Window app: `cd frontend && npm run build && cd ../backend && uv run mtgdm app`
 - After changing API models: `scripts/gen_api_types.sh`
 - Frontend checks: `cd frontend && npm run build && npm run lint`
-- Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator; don't add hues without re-validating.
+- Docs screenshots (user guide + README's deckbuilder ones, both languages, on a copy of the app's data):
+  `cd frontend && npm run build && cd ../backend && uv run --with playwright python ../scripts/docs_screenshots.py`
+  (`--only stats,history`, `--lang pl`; Chromium once: `uv run --with playwright playwright install chromium`).
+  A new screenshot = a shot in its SHOTS; keep the decks it uses findable by name (DECKS)
+- Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator (dark steps on the
+  dark surface, light steps on `#ffffff`); don't add hues without re-validating.
+- Colors are tokens on `:root` (dark) with a light set under `:root[data-theme='light']` (`index.html` sets the system's
+  theme before the first paint, `src/theme.ts` applies the choice from Settings). No hex colors in rules: a tint is
+  `color-mix(in srgb, var(--token) N%, transparent)`; check new UI in both themes.
 - Smoke test of a built app: `python scripts/smoke_test.py <path to executable>`; CI: `.github/workflows/build.yml`
 - Release: bump `__version__` in `backend/mtgdm/__init__.py` and merge into master; CI tags and publishes
   `v<version>` once all packages pass. Packages are built for PRs, releases and manual runs only (not for
