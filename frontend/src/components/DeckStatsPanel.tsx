@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, type DeckStats } from '../api/client'
 import { ChartTable, Columns, HorizontalBars, Legend, StatTile, type Series } from './charts/charts'
+import { RARITY_LABEL } from '../decks'
 import { locale, t } from '../i18n'
 
 // The curve is one series (magnitude per mana value). Seven mana-color series cannot all be
@@ -37,15 +38,6 @@ const TYPE_LABEL: Record<string, string> = {
   Battle: t.deck.typeBattle,
   Land: t.deck.typeLand,
 }
-const RARITY_LABEL: Record<string, string> = {
-  common: 'Common',
-  uncommon: 'Uncommon',
-  rare: 'Rare',
-  mythic: 'Mythic',
-  special: 'Special',
-  bonus: 'Bonus',
-}
-
 interface Props {
   deckId: number
   platform: 'paper' | 'arena'

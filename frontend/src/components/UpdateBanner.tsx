@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, type SyncCheck, type SyncStatus } from '../api/client'
 import { t } from '../i18n'
+import { getPref, setPref } from '../prefs'
 
 const STALE_AFTER_DAYS = 7  // gameplay data changes rarely: refresh weekly
 const DISMISS_KEY = 'mtgdm.updateDismissedFor'
@@ -36,18 +37,10 @@ export function UpdateBanner({ status, onRefresh }: Props) {
   }, [stale])
 
   if (!check?.update_available || dismissed || status.progress.running) return null
-  try {
-    if (localStorage.getItem(DISMISS_KEY) === check.remote_updated_at) return null
-  } catch {
-    // storage unavailable: show the banner
-  }
+  if (getPref(DISMISS_KEY) === check.remote_updated_at) return null
 
   const dismiss = () => {
-    try {
-      localStorage.setItem(DISMISS_KEY, check.remote_updated_at)
-    } catch {
-      // ignore
-    }
+    void setPref(DISMISS_KEY, check.remote_updated_at)
     setDismissed(true)
   }
 

@@ -2,6 +2,7 @@ import { useEffect, useState, type MouseEvent, type ReactNode } from 'react'
 import { api, type CardSummary, type SimilarCards } from '../api/client'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { t } from '../i18n'
+import { getPref, setPref } from '../prefs'
 import { CardImage } from './CardImage'
 
 const COLORS = ['W', 'U', 'B', 'R', 'G'] as const
@@ -36,13 +37,7 @@ export function SimilarCardsPanel({
 }: Props) {
   const [colors, setColors] = useState<string[]>(initialColors ?? card.color_identity)
   // With a deck: only the cards it can play, or all of them with the others marked (remembered).
-  const [legalOnly, setLegalOnly] = useState(() => {
-    try {
-      return localStorage.getItem(LEGAL_ONLY_KEY) !== 'false'
-    } catch {
-      return true
-    }
-  })
+  const [legalOnly, setLegalOnly] = useState(() => getPref(LEGAL_ONLY_KEY) !== 'false')
   const legalParam = deckId === undefined ? undefined : legalOnly
   // Results and errors belong to one request: a newer one shows "searching" until its own arrive.
   const colorParam = COLORS.filter((c) => colors.includes(c)).join('') || 'C' // C: colorless only
@@ -76,11 +71,7 @@ export function SimilarCardsPanel({
   )
   const chooseLegalOnly = (value: boolean) => {
     setLegalOnly(value)
-    try {
-      localStorage.setItem(LEGAL_ONLY_KEY, String(value))
-    } catch {
-      // the choice just isn't remembered
-    }
+    void setPref(LEGAL_ONLY_KEY, String(value))
   }
   const toggle = (c: string) => setColors((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]))
   const sameColors = (a: string[], b: string[]) => a.length === b.length && a.every((c) => b.includes(c))

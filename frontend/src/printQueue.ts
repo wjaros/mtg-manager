@@ -1,10 +1,11 @@
 import { useSyncExternalStore } from 'react'
 import type { CardSummary } from './api/client'
+import { getPref, setPref } from './prefs'
 
 type Card = Pick<CardSummary, 'id' | 'name' | 'image_faces' | 'set_code' | 'collector_number'>
 
 /** Cards picked for proxy printing in the collection (one entry per printing), shared by the
-collection grid, its context menu and the print dialog. Kept in this browser between visits. */
+collection grid, its context menu and the print dialog. Kept between visits (see prefs). */
 export interface QueuedCard {
   card_id: string
   name: string
@@ -19,7 +20,7 @@ let queue: QueuedCard[] = load()
 
 function load(): QueuedCard[] {
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
+    const saved = JSON.parse(getPref(STORAGE_KEY) ?? '[]')
     return Array.isArray(saved) ? saved : []
   } catch {
     return []
@@ -28,11 +29,7 @@ function load(): QueuedCard[] {
 
 function set(next: QueuedCard[]): void {
   queue = next
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-  } catch {
-    // private mode: the list just isn't remembered
-  }
+  void setPref(STORAGE_KEY, JSON.stringify(next))
   for (const listener of listeners) listener()
 }
 

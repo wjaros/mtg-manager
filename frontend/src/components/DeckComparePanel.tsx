@@ -16,6 +16,7 @@ import { ContextMenu, type MenuState } from './ContextMenu'
 import { ManaCost } from './ManaCost'
 import { SimilarCardsPanel } from './SimilarCardsPanel'
 import { locale, t } from '../i18n'
+import { getPref, setPref } from '../prefs'
 
 type Sort = 'mv-asc' | 'mv-desc' | 'price-desc' | 'price-asc' | 'name'
 type View = 'side' | 'table' | 'diff'
@@ -36,7 +37,7 @@ export function DeckComparePanel({
   const [decks, setDecks] = useState<DeckSummary[]>([])
   const [otherId, setOtherId] = useState<number | null>(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(STORE_KEY) ?? '{}') as Record<string, number>
+      const saved = JSON.parse(getPref(STORE_KEY) ?? '{}') as Record<string, number>
       return saved[deck.id] ?? null
     } catch {
       return null
@@ -84,10 +85,10 @@ export function DeckComparePanel({
   const choose = (id: number | null) => {
     setOtherId(id)
     try {
-      const saved = JSON.parse(localStorage.getItem(STORE_KEY) ?? '{}') as Record<string, number | null>
-      localStorage.setItem(STORE_KEY, JSON.stringify({ ...saved, [deck.id]: id }))
+      const saved = JSON.parse(getPref(STORE_KEY) ?? '{}') as Record<string, number | null>
+      void setPref(STORE_KEY, JSON.stringify({ ...saved, [deck.id]: id }))
     } catch {
-      // the choice just isn't remembered
+      // a broken stored value: the choice just isn't remembered
     }
   }
 

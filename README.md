@@ -31,7 +31,9 @@ Tag cards your own way (right click → *My tags…*: "wincon", "pet card"…) a
 Pioneer and freeform decks:
 - the card pool shows only cards that fit the deck (commander identity, format, Arena availability);
 - format validation runs as you build;
-- mana value columns;
+- the deck as stacks (mana value columns, like Arena) or a visual spoiler, grouped by type, mana value,
+  colour, rarity or category; the hovered card enlarged beside it and in a panel with its price, and
+  the border between the pool and the deck dragged where you like;
 - statistics: curve, colours, types, categories, card functions (ramp, draw, removal, board wipes…
   from Scryfall's tags) and the price of what's missing;
 - search by function like on Scryfall (`otag:ramp`) or with the *Function* filter.
@@ -60,7 +62,7 @@ printings in yellow. You can compare versions, restore one or discard unsaved ch
 - *in another deck*: your copies sit in another deck's box (the tooltip names the deck);
 - *not in box*: you own it, but it isn't in this deck's box.
 
-Missing cards are greyed out in the mana columns. The *Missing* tab lists what to buy, with
+Missing cards are greyed out in the stacks. The *Missing* tab lists what to buy, with
 estimated prices. Copies built into your other decks can count as unavailable, so the list covers
 having both decks at once. Copy the list into a CardMarket wants list or download it as CSV.
 
@@ -137,7 +139,8 @@ Proxies are for personal playtesting only, not for sale.
 
 ![Printer calibration](docs/screenshots/printing.webp)
 
-The interface is in Polish and English (Settings → Language).
+The interface is in Polish and English (Settings → Language), and its size goes from 80% to 200%
+(Settings → Interface size, or Cmd/Ctrl + and −) for big screens.
 
 ## Install
 
