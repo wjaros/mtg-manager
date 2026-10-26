@@ -94,6 +94,18 @@ Zakładka **Statystyki** pokazuje:
 - **Moje tagi** i **Kategorie**;
 - cenę talii i brakujących kart, a w talii z Areny potrzebne wildcardy.
 
+**Baza many** mówi, czy mana talii udźwignie jej czary (metoda Franka Karstena): dla każdego koloru
+liczy źródła (lądy i tanie źródła many do MV 2) i porównuje je z tym, ile trzeba, by najtrudniejszy
+czar tego koloru zagrać w jego turze w 90% gier, gdy trafiasz lądy. Symbole hybrydowe i
+phyrexiańskie się nie liczą, bo można je opłacić inaczej. Pod spodem szansa na 3, 4 i 5 lądów w
+turach 3–5.
+
+W talii Commandera **Bracket Commandera** pokazuje najniższy bracket (poziom mocy według Wizards of
+the Coast), na jaki pozwalają karty: brackety 1–2 nie mają Game Changerów (oznaczonych przez
+Scryfall), bracket 3 ma ich najwyżej trzy, a masowe niszczenie lądów to dopiero bracket 4. Lista
+pokazuje też karty z dodatkowymi turami i liczbę tutorów. Combo dwóch kart sprawdzisz w zakładce
+**Combo**.
+
 ![Statystyki](../images/pl/stats.webp)
 
 ![Moje tagi w statystykach](../images/pl/stats-my-tags.webp)

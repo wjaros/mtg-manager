@@ -1816,6 +1816,19 @@ export interface components {
             /** Engine */
             engine?: string | null;
         };
+        /** Bracket */
+        Bracket: {
+            /** Minimum */
+            minimum: number;
+            /** Game Changers */
+            game_changers: components["schemas"]["CardRef"][];
+            /** Mass Land Denial */
+            mass_land_denial: components["schemas"]["CardRef"][];
+            /** Extra Turns */
+            extra_turns: components["schemas"]["CardRef"][];
+            /** Tutors */
+            tutors: number;
+        };
         /** CalibrationResult */
         CalibrationResult: {
             profile: components["schemas"]["PrinterProfile"];
@@ -1965,6 +1978,13 @@ export interface components {
             items: components["schemas"]["CardSummary"][];
             /** Type Hint */
             type_hint?: string | null;
+        };
+        /** CardRef */
+        CardRef: {
+            /** Card Id */
+            card_id: string;
+            /** Name */
+            name: string;
         };
         /**
          * CardSummary
@@ -2281,6 +2301,23 @@ export interface components {
             land_sources: number;
             /** Other Sources */
             other_sources: number;
+        };
+        /** ColorRequirement */
+        ColorRequirement: {
+            /** Color */
+            color: string;
+            /** Sources */
+            sources: number;
+            /** Needed */
+            needed: number | null;
+            /** Card Id */
+            card_id: string;
+            /** Name */
+            name: string;
+            /** Pips */
+            pips: number;
+            /** Turn */
+            turn: number;
         };
         /** Combo */
         Combo: {
@@ -2627,6 +2664,8 @@ export interface components {
             wildcards: {
                 [key: string]: number;
             };
+            mana_base: components["schemas"]["ManaBase"];
+            bracket?: components["schemas"]["Bracket"] | null;
         };
         /** DeckSummary */
         DeckSummary: {
@@ -3024,6 +3063,13 @@ export interface components {
              */
             card_ids?: string[];
         };
+        /** LandDrop */
+        LandDrop: {
+            /** Turn */
+            turn: number;
+            /** Chance */
+            chance: number;
+        };
         /** LanguageBody */
         LanguageBody: {
             /** Language */
@@ -3065,6 +3111,15 @@ export interface components {
             name?: string | null;
             /** Kind */
             kind?: ("deck" | "binder" | "box" | "other") | null;
+        };
+        /** ManaBase */
+        ManaBase: {
+            /** Colors */
+            colors: components["schemas"]["ColorRequirement"][];
+            /** Land Drops */
+            land_drops: components["schemas"]["LandDrop"][];
+            /** Target */
+            target: number;
         };
         /** MarkRequest */
         MarkRequest: {

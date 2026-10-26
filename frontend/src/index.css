@@ -2170,6 +2170,34 @@ tr.compare-group td {
   color: var(--text-muted);
 }
 
+.mana-verdicts {
+  margin: 0.6rem 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.mana-verdicts li {
+  margin: 0;
+}
+
+.mana-verdicts li + li {
+  margin-top: 0.2rem;
+}
+
+.bracket-cards {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+}
+
+.bracket-cards dt {
+  font-weight: 600;
+}
+
+.bracket-cards dd {
+  margin: 0 0 0.4rem;
+}
+
 .chart-pair {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

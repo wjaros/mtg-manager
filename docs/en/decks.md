@@ -93,6 +93,17 @@ The **Statistics** tab shows:
 - **My tags** and **Categories**;
 - the price of the deck and of its missing cards, and the wildcards an Arena deck needs.
 
+**Mana base** tells whether the deck's mana carries its spells (Frank Karsten's method): per color it
+counts the sources (lands and cheap mana sources up to MV 2) against how many the hardest spell of
+that color needs to be cast on its turn in 90% of games when you hit your land drops. Hybrid and
+Phyrexian symbols don't count, as they can be paid another way. Below that, the chance of 3, 4 and 5
+lands on turns 3–5.
+
+In a Commander deck, **Commander bracket** shows the lowest bracket (Wizards of the Coast's power
+levels) the cards allow: brackets 1–2 have no Game Changers (as marked by Scryfall), bracket 3 at
+most three, and mass land denial means bracket 4. It also lists cards with extra turns and counts
+the tutors. Two-card combos are checked on the **Combos** tab.
+
 ![Statistics](../images/en/stats.webp)
 
 ![My tags in the statistics](../images/en/stats-my-tags.webp)

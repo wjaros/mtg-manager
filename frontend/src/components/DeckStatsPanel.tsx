@@ -27,6 +27,10 @@ const SOURCE_SERIES: Series[] = [
   { key: 'pips', label: t.stats.pips, color: 'var(--series-1)' },
   { key: 'sources', label: t.stats.sources, color: 'var(--series-2)' },
 ]
+const MANA_SERIES: Series[] = [
+  { key: 'sources', label: t.stats.manaSources, color: 'var(--series-1)' },
+  { key: 'needed', label: t.stats.manaNeeded, color: 'var(--series-2)' },
+]
 const SINGLE: Series[] = [{ key: 'value', label: t.stats.cards, color: 'var(--series-1)' }]
 const TYPE_LABEL: Record<string, string> = {
   Creature: t.deck.typeCreature,
@@ -72,6 +76,8 @@ export function DeckStatsPanel({ deckId, platform, revision }: Props) {
   const categoryRows = Object.entries(stats.categories).sort((a, b) => b[1] - a[1])
   const functionRows = Object.entries(stats.functions ?? {})
   const userTagRows = Object.entries(stats.user_tags ?? {}) // most first
+  const mana = stats.mana_base
+  const bracket = stats.bracket
   const priceDate = stats.price.as_of ? new Date(stats.price.as_of).toLocaleDateString(locale) : null
 
   return (
@@ -139,6 +145,82 @@ export function DeckStatsPanel({ deckId, platform, revision }: Props) {
             head={t.stats.colorHead}
             rows={colorRows.map((c) => [COLOR_NAME[c.color], c.pips, c.land_sources, c.other_sources])}
           />
+        </section>
+      )}
+
+      {mana.colors.length > 0 && (
+        <section className="chart-card">
+          <h3 className="chart-title">{t.stats.manaTitle}</h3>
+          <p className="chart-subtitle">{t.stats.manaSubtitle(Math.round(mana.target * 100))}</p>
+          <Legend series={MANA_SERIES} />
+          <HorizontalBars
+            rows={mana.colors.map((c) => ({
+              label: COLOR_NAME[c.color],
+              values: { sources: c.sources, needed: c.needed ?? 0 },
+            }))}
+            series={MANA_SERIES}
+            unit={t.stats.unitCards}
+          />
+          <ul className="mana-verdicts">
+            {mana.colors.map((c) => (
+              <li key={c.color} className={c.needed !== null && c.sources >= c.needed ? 'status ok' : 'status warn'}>
+                <strong>{COLOR_NAME[c.color]}:</strong>{' '}
+                {c.needed === null
+                  ? t.stats.manaOutOfReach(c.name, c.pips, c.turn)
+                  : c.sources >= c.needed
+                    ? t.stats.manaEnough(c.sources, c.needed, c.name, c.pips, c.turn)
+                    : t.stats.manaShort(c.sources, c.needed, c.name, c.pips, c.turn)}
+              </li>
+            ))}
+          </ul>
+          <div className="stat-tiles">
+            {mana.land_drops.map((d) => (
+              <StatTile
+                key={d.turn}
+                label={t.stats.landDrop(d.turn)}
+                value={`${Math.round(d.chance * 100)}%`}
+                note={t.stats.landDropNote}
+              />
+            ))}
+          </div>
+          <ChartTable
+            head={t.stats.manaHead}
+            rows={mana.colors.map((c) => [COLOR_NAME[c.color], c.sources, c.needed ?? '—', c.name, c.pips, c.turn])}
+          />
+        </section>
+      )}
+
+      {bracket && (
+        <section className="chart-card">
+          <h3 className="chart-title">{t.stats.bracketTitle}</h3>
+          <p className="chart-subtitle">{t.stats.bracketSubtitle}</p>
+          <div className="stat-tiles">
+            <StatTile
+              label={t.stats.bracketMinimum}
+              value={bracket.minimum === 2 ? '1–2' : bracket.minimum}
+              note={t.stats.bracketReason[bracket.minimum]}
+            />
+            <StatTile label={t.stats.gameChangers} value={bracket.game_changers.length} note={t.stats.gameChangersNote} />
+            <StatTile label={t.stats.tutors} value={bracket.tutors} note={t.stats.tutorsNote} />
+          </div>
+          <dl className="bracket-cards">
+            {(
+              [
+                [t.stats.gameChangers, bracket.game_changers],
+                [t.stats.massLandDenial, bracket.mass_land_denial],
+                [t.stats.extraTurns, bracket.extra_turns],
+              ] as const
+            )
+              .filter(([, cards]) => cards.length > 0)
+              .map(([label, cards]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{cards.map((c) => c.name).join(', ')}</dd>
+                </div>
+              ))}
+          </dl>
+          {bracket.extra_turns.length > 0 && <p className="muted">{t.stats.extraTurnsNote}</p>}
+          <p className="muted">{t.stats.bracketCombos}</p>
         </section>
       )}
 

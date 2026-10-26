@@ -7,6 +7,8 @@ from collections import Counter
 
 from pydantic import BaseModel
 
+from mtgdm.decks.brackets import Bracket, CardRef, bracket, is_mass_land_denial, takes_extra_turns
+from mtgdm.decks.mana import CHEAP_SOURCE_MV, ManaBase, Spell, mana_base
 from mtgdm.decks.service import DeckNotFound
 from mtgdm.scryfall.bulk import META_UPDATED_AT, get_meta
 from mtgdm.scryfall.tags import TAGS
@@ -55,13 +57,17 @@ class DeckStats(BaseModel):
     user_tags: dict[str, int] = {}  # copies with each of the user's own tags, most first
     price: Price
     wildcards: dict[str, int]      # Arena wildcards per rarity to craft the deck (basic lands are free)
+    mana_base: ManaBase
+    bracket: Bracket | None = None  # Commander decks only
 
 
 def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
     rows = conn.execute(
         """
-        SELECT dc.quantity, dc.category, c.oracle_id, c.layout, c.type_line, c.mana_cost, c.cmc, c.colors,
+        SELECT dc.card_id, dc.quantity, dc.category, c.oracle_id, c.name, c.oracle_text, c.layout, c.type_line,
+               c.mana_cost, c.cmc, c.colors,
                c.rarity, c.produced_mana, c.games, d.prices,
+               json_extract(d.raw, '$.game_changer') AS game_changer,
                (SELECT rarity FROM cards a WHERE a.id = o.arena_card_id) AS arena_rarity,
                (SELECT COALESCE(SUM(ci.quantity), 0) FROM collection_items ci JOIN cards x ON x.id = ci.card_id
                 WHERE x.oracle_id = c.oracle_id AND ci.kind = 'real') AS owned
@@ -73,7 +79,7 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
         """,
         (deck_id,),
     ).fetchall()
-    deck = conn.execute("SELECT platform FROM decks WHERE id = ?", (deck_id,)).fetchone()
+    deck = conn.execute("SELECT platform, format FROM decks WHERE id = ?", (deck_id,)).fetchone()
     if deck is None:
         raise DeckNotFound(deck_id)
     platform = deck["platform"]
@@ -87,6 +93,12 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
     unpriced = 0
     needed: Counter[str] = Counter()
     owned: dict[str, int] = {}
+    producers = 0
+    cheap_sources: Counter[str] = Counter()
+    spells: list[Spell] = []
+    game_changers: dict[str, CardRef] = {}
+    land_denial: dict[str, CardRef] = {}
+    extra_turns: dict[str, CardRef] = {}
 
     for r in rows:
         qty = r["quantity"]
@@ -105,6 +117,22 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
         for color in COLORS:
             if color in produced:
                 (land_sources if is_land else other_sources)[color] += qty
+        cheap = not is_land and (r["cmc"] or 0) <= CHEAP_SOURCE_MV and any(c in produced for c in COLORS)
+        if is_land or cheap:
+            producers += qty
+        if cheap:
+            for color in COLORS:
+                if color in produced:
+                    cheap_sources[color] += qty
+
+        ref = CardRef(card_id=r["card_id"], name=r["name"])
+        if r["game_changer"]:
+            game_changers.setdefault(r["oracle_id"], ref)
+        text = r["oracle_text"] or ""
+        if is_mass_land_denial(text):
+            land_denial.setdefault(r["oracle_id"], ref)
+        if takes_extra_turns(text):
+            extra_turns.setdefault(r["oracle_id"], ref)
 
         if is_land:
             lands += qty
@@ -117,6 +145,8 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
             curve[bucket][group] += qty
             for color, count in _pips(_castable_cost(r["layout"], r["mana_cost"])).items():
                 pips[color] += count * qty
+            if strict := _strict_pips((r["mana_cost"] or "").split(" // ")[0]):
+                spells.append(Spell(card_id=r["card_id"], name=r["name"], mv=int(mv), pips=strict))
 
         prices = json.loads(r["prices"] or "{}")
         card_eur, card_usd = _price(prices, "eur"), _price(prices, "usd")
@@ -142,6 +172,7 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
             missing_usd += (_price(prices, "usd") or 0) * take
 
     nonlands = total - lands
+    functions = _functions(conn, deck_id)
     return DeckStats(
         total=total,
         lands=lands,
@@ -159,7 +190,7 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
             for c in COLORS
         ],
         categories=dict(categories),
-        functions=_functions(conn, deck_id),
+        functions=functions,
         user_tags=_user_tags(conn, deck_id),
         price=Price(
             eur=round(eur, 2), usd=round(usd, 2),
@@ -167,6 +198,13 @@ def deck_stats(conn: sqlite3.Connection, deck_id: int) -> DeckStats:
             unpriced=unpriced, as_of=get_meta(conn, META_UPDATED_AT),
         ),
         wildcards={r: wildcards[r] for r in ("common", "uncommon", "rare", "mythic") if wildcards[r]},
+        mana_base=mana_base(
+            total, lands, producers, {c: land_sources[c] + cheap_sources[c] for c in COLORS}, spells, COLORS,
+        ),
+        bracket=bracket(
+            list(game_changers.values()), list(land_denial.values()), list(extra_turns.values()),
+            functions.get("tutor", 0),
+        ) if deck["format"] == "commander" else None,
     )
 
 
@@ -185,6 +223,12 @@ def _pips(cost: str) -> Counter[str]:
             if part in COLORS:
                 counts[part] += 1
     return counts
+
+
+def _strict_pips(cost: str) -> dict[str, int]:
+    """Single-colour symbols only: {W/U} and {W/P} can be paid another way."""
+    counts: Counter[str] = Counter(s for s in _SYMBOL_RE.findall(cost) if s in COLORS)
+    return dict(counts)
 
 
 def _price(prices: dict, currency: str) -> float | None:
