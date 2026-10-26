@@ -139,8 +139,9 @@ Proxies are for personal playtesting only, not for sale.
 
 ![Printer calibration](docs/screenshots/printing.webp)
 
-The interface is in Polish and English (Settings → Language), and its size goes from 80% to 200%
-(Settings → Interface size, or Cmd/Ctrl + and −) for big screens.
+The interface is in Polish and English (Settings → Language), light or dark after the system's setting
+(or chosen in Settings → Appearance), and its size goes from 80% to 200% (Settings → Appearance, or
+Cmd/Ctrl + and −) for big screens.
 
 ## Install
 

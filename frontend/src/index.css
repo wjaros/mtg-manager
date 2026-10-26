@@ -10,6 +10,11 @@
   --ok: #4fbf7f;
   --warn: #e0b04f;
   --error: #e06666;
+  --on-accent: #1a1408; /* text on an accent fill */
+  --bg-sunken: #0c0f14; /* the deck's cards under the pool */
+  --placeholder-from: #262c38;
+  --placeholder-to: #1a1e27;
+  --shadow: rgb(0 0 0 / 0.55);
 
   --mana-w: #f8f2d8;
   --mana-u: #4a9ad8;
@@ -31,6 +36,43 @@
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Light theme: data-theme is set from the system's preference (index.html), or the choice in
+   Settings → Appearance (theme.ts). Same roles, own steps; texts keep >= 4.5:1 on white. */
+:root[data-theme='light'] {
+  --bg: #f3f4f6;
+  --bg-elevated: #ffffff;
+  --bg-hover: #e8eaef;
+  --bg-input: #ffffff;
+  --border: #d3d7df;
+  --text: #1b1f27;
+  --text-muted: #5d6574;
+  --accent: #8f6206;
+  --ok: #1c7d47;
+  --warn: #935f00;
+  --error: #c03535;
+  --on-accent: #ffffff;
+  --bg-sunken: #e4e7ec;
+  --placeholder-from: #dfe3ea;
+  --placeholder-to: #eef0f4;
+  --shadow: rgb(20 26 38 / 0.18);
+  --proxy: #4258c9;
+
+  --mana-b: #4a4152;
+
+  --rarity-common: #666b75;
+  --rarity-uncommon: #3f6f8f;
+  --rarity-rare: #8f6f12;
+  --rarity-mythic: #b8480f;
+
+  /* Chart series: slots 1-2 of the reference palette, light steps, validated on #ffffff. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --chart-grid: #e6e8ed;
+  --chart-axis: #c4c9d2;
+
+  color-scheme: light;
 }
 
 * {
@@ -229,7 +271,7 @@ nav {
 .button.primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #1a1408;
+  color: var(--on-accent);
   font-weight: 600;
 }
 
@@ -370,7 +412,7 @@ nav {
 .chip.on {
   background: var(--accent);
   border-color: var(--accent);
-  color: #1a1408;
+  color: var(--on-accent);
   font-weight: 600;
 }
 
@@ -391,7 +433,7 @@ nav {
 }
 
 .chip.on[class*='rarity-'] {
-  color: #1a1408;
+  color: var(--on-accent);
 }
 
 .chip-mana {
@@ -528,11 +570,11 @@ nav {
 
 .card-button:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 10px 24px rgb(0 0 0 / 0.5);
+  box-shadow: 0 10px 24px var(--shadow);
 }
 
 .card-button.selected {
-  box-shadow: 0 0 0 3px var(--accent), 0 10px 24px rgb(0 0 0 / 0.5);
+  box-shadow: 0 0 0 3px var(--accent), 0 10px 24px var(--shadow);
 }
 
 .card-image {
@@ -541,7 +583,7 @@ nav {
   aspect-ratio: 488 / 680;
   border-radius: 4.75% / 3.5%;
   overflow: hidden;
-  background: linear-gradient(160deg, #262c38, #1a1e27);
+  background: linear-gradient(160deg, var(--placeholder-from), var(--placeholder-to));
 }
 
 .card-image img {
@@ -592,7 +634,7 @@ nav {
   height: 32px;
   border: 0;
   border-radius: 50%;
-  background: rgb(0 0 0 / 0.5);
+  background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
@@ -615,7 +657,7 @@ nav {
   transform: translateX(-50%);
   font-size: 0.8rem;
   white-space: nowrap;
-  background: rgb(15 18 24 / 0.85);
+  background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
 }
 
 .user-tags {
@@ -729,14 +771,14 @@ nav {
 }
 
 .legality.legal {
-  background: rgb(79 191 127 / 0.15);
-  border-color: rgb(79 191 127 / 0.5);
+  background: color-mix(in srgb, var(--ok) 15%, transparent);
+  border-color: color-mix(in srgb, var(--ok) 50%, transparent);
   color: var(--ok);
 }
 
 .legality.banned {
-  background: rgb(224 102 102 / 0.15);
-  border-color: rgb(224 102 102 / 0.5);
+  background: color-mix(in srgb, var(--error) 15%, transparent);
+  border-color: color-mix(in srgb, var(--error) 50%, transparent);
   color: var(--error);
 }
 
@@ -939,7 +981,7 @@ nav {
 }
 
 .deck-tile-delete:hover {
-  background: rgb(224 102 102 / 0.2);
+  background: color-mix(in srgb, var(--error) 20%, transparent);
   color: var(--error);
 }
 
@@ -1153,7 +1195,7 @@ nav {
   position: relative;
   min-height: 0;
   border-top: 1px solid var(--border);
-  background: #0c0f14;
+  background: var(--bg-sunken);
 }
 
 /* On the deck's top edge: drag to share the height between the pool and the deck. */
@@ -1208,7 +1250,7 @@ nav {
   border: 1px solid var(--border);
   border-bottom: 0;
   border-radius: 6px 6px 0 0;
-  background: #0c0f14;
+  background: var(--bg-sunken);
 }
 
 .columns-toggle button {
@@ -1365,7 +1407,7 @@ nav {
   height: 2rem;
   border: 1px solid var(--border);
   border-radius: 50%;
-  background: rgb(15 18 24 / 0.85);
+  background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
   color: var(--text);
   font-size: 1rem;
   cursor: pointer;
@@ -1480,7 +1522,7 @@ nav {
 
 .deck-spoiler-grid .stack-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgb(0 0 0 / 0.6);
+  box-shadow: 0 6px 16px var(--shadow);
 }
 
 .card-count-badge {
@@ -1490,7 +1532,7 @@ nav {
   min-width: 1.6em;
   padding: 0.05em 0.4em;
   border-radius: 999px;
-  background: rgb(15 18 24 / 0.9);
+  background: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
   border: 1px solid var(--accent);
   color: var(--accent);
   font-size: 0.75rem;
@@ -1512,7 +1554,7 @@ nav {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-elevated);
-  box-shadow: 0 12px 30px rgb(0 0 0 / 0.55);
+  box-shadow: 0 12px 30px var(--shadow);
 }
 
 .context-menu-title {
@@ -1554,7 +1596,7 @@ nav {
   position: fixed;
   z-index: 40;
   pointer-events: none;
-  filter: drop-shadow(0 12px 30px rgb(0 0 0 / 0.6));
+  filter: drop-shadow(0 12px 30px var(--shadow));
 }
 
 .modal-backdrop {
@@ -1585,6 +1627,21 @@ nav {
   .view.deckbuilder {
     grid-template-columns: minmax(0, 1fr) 280px;
   }
+}
+
+/* ---------- Settings: appearance ---------- */
+
+.appearance-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.appearance-label {
+  min-width: 10rem;
+  font-size: 0.9rem;
 }
 
 /* ---------- Import / export ---------- */
@@ -1630,17 +1687,17 @@ nav {
 
 .pill.ok {
   color: var(--ok);
-  border-color: rgb(79 191 127 / 0.5);
+  border-color: color-mix(in srgb, var(--ok) 50%, transparent);
 }
 
 .pill.warn {
   color: var(--warn);
-  border-color: rgb(224 176 79 / 0.5);
+  border-color: color-mix(in srgb, var(--warn) 50%, transparent);
 }
 
 .pill.error {
   color: var(--error);
-  border-color: rgb(224 102 102 / 0.5);
+  border-color: color-mix(in srgb, var(--error) 50%, transparent);
 }
 
 .report-lines {
@@ -1673,7 +1730,7 @@ nav {
 }
 
 .report-line.not_found {
-  background: rgb(224 102 102 / 0.08);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
 }
 
 .report-line.not_found .report-status,
@@ -1730,15 +1787,15 @@ nav {
 }
 
 .compare-table tr.compare-only-a {
-  background: rgb(224 102 102 / 0.08);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
 }
 
 .compare-table tr.compare-only-b {
-  background: rgb(79 191 127 / 0.08);
+  background: color-mix(in srgb, var(--ok) 8%, transparent);
 }
 
 .compare-table tr.compare-differ {
-  background: rgb(224 176 79 / 0.08);
+  background: color-mix(in srgb, var(--warn) 8%, transparent);
 }
 
 .compare-table tr.compare-same {
@@ -1807,12 +1864,12 @@ tr.compare-group td {
 
 .compare-only-a > .side-cell:first-child,
 .compare-differ > .side-cell:first-child {
-  background: rgb(224 102 102 / 0.1);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
 }
 
 .compare-only-b > .side-cell:last-child,
 .compare-differ > .side-cell:last-child {
-  background: rgb(79 191 127 / 0.1);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
 }
 
 .compare-same > .side-cell {
@@ -1865,11 +1922,11 @@ tr.compare-group td {
 }
 
 .diff-line.removed {
-  background: rgb(224 102 102 / 0.12);
+  background: color-mix(in srgb, var(--error) 12%, transparent);
 }
 
 .diff-line.added {
-  background: rgb(79 191 127 / 0.12);
+  background: color-mix(in srgb, var(--ok) 12%, transparent);
 }
 
 .diff-line.same {
@@ -1934,7 +1991,7 @@ tr.compare-group td {
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--bg-elevated);
-  box-shadow: 0 20px 50px rgb(0 0 0 / 0.6);
+  box-shadow: 0 20px 50px var(--shadow);
 }
 
 .dialog-header {
@@ -2152,8 +2209,8 @@ tr.compare-group td {
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: #0c0f14;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 0.5);
+  background: var(--bg-elevated);
+  box-shadow: 0 8px 20px var(--shadow);
   font-size: 0.8rem;
   pointer-events: none;
   white-space: nowrap;
@@ -2245,7 +2302,7 @@ tr.compare-group td {
 }
 
 .issue.error {
-  background: rgb(224 102 102 / 0.1);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
 }
 
 .issue.error .issue-icon {
@@ -2521,7 +2578,7 @@ a.button {
   gap: 0.75rem;
   padding: 0.55rem 1.5rem;
   border-bottom: 1px solid var(--border);
-  background: rgb(214 168 66 / 0.12);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
   font-size: 0.875rem;
 }
 
@@ -2534,7 +2591,7 @@ a.button {
 .drop-target {
   outline: 2px dashed var(--accent);
   outline-offset: -4px;
-  background-color: rgb(214 168 66 / 0.06);
+  background-color: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
 .category-tag {
@@ -2582,7 +2639,7 @@ a.button {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-elevated);
-  box-shadow: 0 12px 30px rgb(0 0 0 / 0.55);
+  box-shadow: 0 12px 30px var(--shadow);
   font-size: 0.85rem;
 }
 
@@ -2637,7 +2694,7 @@ label.button.disabled {
 .drop-zone:hover,
 .drop-zone.active {
   border-color: var(--accent);
-  background: rgb(214 168 66 / 0.06);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
 .scan-bulk {
@@ -2662,7 +2719,7 @@ label.button.disabled {
 }
 
 .scan-item.accepted {
-  border-color: rgb(79 191 127 / 0.6);
+  border-color: color-mix(in srgb, var(--ok) 60%, transparent);
 }
 
 .scan-item.rejected {
@@ -2813,7 +2870,7 @@ label.button.disabled {
 }
 
 .page-card circle {
-  fill: rgb(15 18 24 / 0.85);
+  fill: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
 }
 
 .page-card text {
@@ -2822,7 +2879,7 @@ label.button.disabled {
 }
 
 .grid-preview rect {
-  fill: rgb(214 168 66 / 0.12);
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
   stroke: var(--accent);
   stroke-width: 8;
 }
@@ -2890,7 +2947,7 @@ label.button.disabled {
     inset: 0 0 0 auto;
     width: min(400px, 100vw);
     z-index: 10;
-    box-shadow: -10px 0 30px rgb(0 0 0 / 0.5);
+    box-shadow: -10px 0 30px var(--shadow);
   }
 }
 
@@ -2930,12 +2987,12 @@ label.button.disabled {
 
 .deck-row.change-added,
 .deck-row.change-more {
-  background: rgb(79 191 127 / 0.14);
+  background: color-mix(in srgb, var(--ok) 14%, transparent);
   box-shadow: inset 3px 0 0 var(--ok);
 }
 
 .deck-row.change-less {
-  background: rgb(224 102 102 / 0.12);
+  background: color-mix(in srgb, var(--error) 12%, transparent);
   box-shadow: inset 3px 0 0 var(--error);
 }
 
@@ -2944,7 +3001,7 @@ label.button.disabled {
 }
 
 .deck-row.change-removed {
-  background: rgb(224 102 102 / 0.12);
+  background: color-mix(in srgb, var(--error) 12%, transparent);
   box-shadow: inset 3px 0 0 var(--error);
 }
 
@@ -2996,7 +3053,7 @@ label.button.disabled {
   left: 6%;
   padding: 0.05em 0.4em;
   border-radius: 999px;
-  background: rgb(15 18 24 / 0.9);
+  background: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
   font-size: 0.7rem;
   font-weight: 700;
   pointer-events: none;
@@ -3069,12 +3126,12 @@ label.button.disabled {
 
 .change-row.change-added,
 .change-row.change-more {
-  background: rgb(79 191 127 / 0.1);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
 }
 
 .change-row.change-less,
 .change-row.change-removed {
-  background: rgb(224 102 102 / 0.1);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
 }
 
 .change-row.change-removed .change-name {
@@ -3191,7 +3248,7 @@ label.button.disabled {
   bottom: 8%;
   padding: 0.1em 0.4em;
   border-radius: 4px;
-  background: rgb(15 18 24 / 0.9);
+  background: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
   border: 1px solid var(--error);
   color: var(--error);
   font-size: 0.7rem;
@@ -3205,7 +3262,7 @@ label.button.disabled {
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: rgb(15 18 24 / 0.95);
+  background: color-mix(in srgb, var(--bg-elevated) 95%, transparent);
   line-height: 1.45;
 }
 
@@ -3422,7 +3479,7 @@ label.button.disabled {
 }
 
 .card-button.marked {
-  box-shadow: 0 0 0 3px var(--ok), 0 10px 24px rgb(0 0 0 / 0.5);
+  box-shadow: 0 0 0 3px var(--ok), 0 10px 24px var(--shadow);
 }
 
 .card-button.marked::after {
@@ -3432,7 +3489,7 @@ label.button.disabled {
   left: 6%;
   padding: 0.05em 0.35em;
   border-radius: 6px;
-  background: rgb(15 18 24 / 0.9);
+  background: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
   color: var(--text);
   font-size: 0.85rem;
   pointer-events: none;
@@ -3478,7 +3535,7 @@ label.button.disabled {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-elevated);
-  box-shadow: 0 12px 30px rgb(0 0 0 / 0.55);
+  box-shadow: 0 12px 30px var(--shadow);
 }
 
 .printing-list button {
@@ -3532,7 +3589,7 @@ label.button.disabled {
   top: 2%;
   left: 6%;
   margin: 0;
-  background: rgb(15 18 24 / 0.9);
+  background: color-mix(in srgb, var(--bg-elevated) 90%, transparent);
   pointer-events: none;
 }
 
@@ -3606,7 +3663,7 @@ label.button.disabled {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg-elevated);
-  box-shadow: 0 12px 30px rgb(0 0 0 / 0.55);
+  box-shadow: 0 12px 30px var(--shadow);
   font-size: 0.875rem;
 }
 
@@ -3674,7 +3731,7 @@ label.button.disabled {
 }
 
 .cloud-banner {
-  background: rgb(143 168 255 / 0.12);
+  background: color-mix(in srgb, var(--proxy) 12%, transparent);
 }
 
 /* Export dialog: the list keeps its height however many warnings there are. */
@@ -3774,7 +3831,7 @@ label.button.disabled {
 /* ---------- App updates ---------- */
 
 .app-update-banner {
-  background: rgb(79 191 127 / 0.12);
+  background: color-mix(in srgb, var(--ok) 12%, transparent);
 }
 
 .changes-dialog {

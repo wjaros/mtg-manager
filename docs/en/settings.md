@@ -6,9 +6,12 @@
 
 **Language:** English or Polish. Changing it reloads the app.
 
-## Interface size
+## Appearance
 
-Enlarges the whole app: text, buttons and cards, e.g. on a big screen. Pick 80% to 200% or use
+**Theme:** **System** (the default) follows the system's light / dark setting, also when it changes
+while the app is open; **Light** and **Dark** fix the theme.
+
+**Interface size** enlarges the whole app: text, buttons and cards, e.g. on a big screen. Pick 80% to 200% or use
 **Cmd/Ctrl +** and **Cmd/Ctrl −** (**Cmd/Ctrl 0** goes back to 100%). The app remembers the size,
 like the other view settings (deckbuilder layout, grouping, card size). In a browser
 (`mtgdm serve`) the browser's own zoom does this instead.
