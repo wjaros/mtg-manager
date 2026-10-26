@@ -42,7 +42,12 @@ export function SettingsView({ status, onStatusChange }: Props) {
     api.health().then(setHealth, () => setHealth(null))
   }, [])
 
-  const running = progress?.running ?? status?.progress.running ?? false
+  // The app's status is from its start: a sync started since then (here, before leaving the view) shows up.
+  useEffect(onStatusChange, [onStatusChange])
+
+  // A running sync from either source: this view's own events, or the app's status on coming back.
+  const live = progress?.running ? progress : status?.progress.running ? status.progress : progress
+  const running = live?.running ?? false
 
   // Follow a running sync over server-sent events, then refresh the data summary.
   useEffect(() => {
@@ -68,6 +73,7 @@ export function SettingsView({ status, onStatusChange }: Props) {
     setStartError(null)
     try {
       setProgress(await api.syncStart(force))
+      onStatusChange() // the sidebar's dot, and this view when it opens again
     } catch (e) {
       setStartError((e as Error).message)
     }
@@ -139,7 +145,7 @@ export function SettingsView({ status, onStatusChange }: Props) {
           <p className="muted">{t.common.loading}</p>
         )}
 
-        {running && progress && <SyncProgressBar progress={progress} />}
+        {running && live && <SyncProgressBar progress={live} />}
 
         {!running && (
           <div className="actions">

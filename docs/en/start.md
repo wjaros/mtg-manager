@@ -10,7 +10,10 @@ Download the latest version from [Releases](https://github.com/wjaros/mtg-manage
   drag the app to Applications. The app isn't notarized by Apple: the first time, open it with
   right click → **Open**.
 - **Windows:** `…-windows-x64.zip`. Unpack it and run `MTG Deck Manager.exe`. The app's window uses
-  Microsoft Edge WebView2, built into Windows 11 and current Windows 10.
+  Microsoft Edge WebView2, built into Windows 11 and current Windows 10. The app isn't signed, so
+  Windows may show **Windows protected your PC**: click **More info → Run anyway**. It asks again
+  for every new version; to skip it, right-click the ZIP before unpacking → **Properties** and tick
+  **Unblock**.
 
 ## First start: card data
 
@@ -37,6 +40,9 @@ The menu on the left leads to five parts:
 - **[Import](import-export.md):** decklists, precons and collections.
 - **[Scanning](scanning.md):** cards from photos and scans into the collection.
 - **[Settings](settings.md):** card data, language, backups, printing, CardTrader.
+
+**Collapse menu** at the bottom of the menu leaves only the icons (the name shows on hover) to make
+more room; the arrow expands it again. The app remembers the choice.
 
 ## Language
 

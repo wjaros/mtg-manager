@@ -150,7 +150,9 @@ Download the latest build from [Releases](https://github.com/wjaros/mtg-manager/
 - **macOS:** `…-arm64.dmg` for Apple Silicon (M1–M4), `…-x86_64.dmg` for Intel. The app is not
   notarized: open it the first time with right click → Open.
 - **Windows:** `…-windows-x64.zip`. Unpack it and run `MTG Deck Manager.exe` (needs the Edge
-  WebView2 runtime, built into Windows 11 and current Windows 10).
+  WebView2 runtime, built into Windows 11 and current Windows 10). The app is not signed: if
+  SmartScreen says "Windows protected your PC", click More info → Run anyway (or tick *Unblock* in
+  the ZIP's Properties before unpacking).
 
 On first start, open **Settings → Download card data** (about 80 MB; the import takes 2–3 minutes).
 Refresh it now and then: the app suggests it when Scryfall has newer data.

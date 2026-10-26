@@ -11,6 +11,10 @@ Pobierz najnowszą wersję ze strony [Releases](https://github.com/wjaros/mtg-ma
   przez Apple: za pierwszym razem otwórz ją prawym przyciskiem → **Otwórz**.
 - **Windows:** plik `…-windows-x64.zip`. Rozpakuj go i uruchom `MTG Deck Manager.exe`. Okno
   aplikacji korzysta z Microsoft Edge WebView2, wbudowanego w Windows 11 i aktualny Windows 10.
+  Aplikacja nie jest podpisana cyfrowo, więc Windows może pokazać okno **System Windows ochronił
+  Twój komputer**: kliknij **Więcej informacji → Uruchom mimo to**. Pyta o to przy każdej nowej
+  wersji. Żeby tego uniknąć, przed rozpakowaniem kliknij ZIP prawym przyciskiem → **Właściwości**
+  i zaznacz **Odblokuj**.
 
 ## Pierwsze uruchomienie: dane kart
 
@@ -37,6 +41,9 @@ Menu po lewej prowadzi do pięciu części:
 - **[Import](import-export.md):** listy talii, precony i kolekcje.
 - **[Skanowanie](scanning.md):** dodawanie kart do kolekcji ze zdjęć i skanów.
 - **[Ustawienia](settings.md):** dane kart, język, kopie zapasowe, drukowanie, CardTrader.
+
+**Zwiń menu** na dole menu zostawia same ikony (nazwa w podpowiedzi), żeby zrobić więcej miejsca;
+strzałka rozwija je z powrotem. Aplikacja pamięta wybór.
 
 ## Język
 
