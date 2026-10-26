@@ -1,5 +1,7 @@
 # Build "MTG Deck Manager" for Windows into dist\: a folder with "MTG Deck Manager.exe" and a zip of it.
 # Requirements: uv, Node.js. Run from any directory:  powershell -File scripts\build_windows.ps1
+# -ZipOnly zips the built folder again (CI, after the exe was signed).
+param([switch]$ZipOnly)
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path "$PSScriptRoot\..").Path
 $Version = (Select-String -Path "$Root\backend\mtgdm\__init__.py" -Pattern '__version__ = "(.+)"').Matches[0].Groups[1].Value
@@ -9,6 +11,24 @@ function Invoke-Step([string]$Name, [scriptblock]$Command) {
     & $Command
     # Native tools report failure only through the exit code.
     if ($LASTEXITCODE -ne 0) { throw "$Name failed with exit code $LASTEXITCODE" }
+}
+
+$AppDir = "$Root\dist\MTG Deck Manager"
+$Exe = "$AppDir\MTG Deck Manager.exe"
+$Zip = "$Root\dist\MTG-Deck-Manager-$Version-windows-x64.zip"
+
+function Write-Zip {
+    Write-Host "==> Zip"
+    if (Test-Path $Zip) { Remove-Item $Zip }
+    Compress-Archive -Path $AppDir -DestinationPath $Zip
+    Write-Host ""
+    Write-Host "App: $Exe"
+    Write-Host "Zip: $Zip"
+}
+
+if ($ZipOnly) {
+    Write-Zip
+    exit 0
 }
 
 Push-Location "$Root\frontend"
@@ -32,12 +52,10 @@ try {
     }
 } finally { Pop-Location }
 
-$AppDir = "$Root\dist\MTG Deck Manager"
-$Zip = "$Root\dist\MTG-Deck-Manager-$Version-windows-x64.zip"
-Write-Host "==> Zip"
-if (Test-Path $Zip) { Remove-Item $Zip }
-Compress-Archive -Path $AppDir -DestinationPath $Zip
+# Code signing checks the exe's product name and version (packaging/signpath/).
+$Info = (Get-Item $Exe).VersionInfo
+if ($Info.ProductName -ne "MTG Deck Manager" -or $Info.ProductVersion -ne $Version) {
+    throw "Exe version info is '$($Info.ProductName)' '$($Info.ProductVersion)', expected 'MTG Deck Manager' '$Version'"
+}
 
-Write-Host ""
-Write-Host "App: $AppDir\MTG Deck Manager.exe"
-Write-Host "Zip: $Zip"
+Write-Zip

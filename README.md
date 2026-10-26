@@ -150,9 +150,10 @@ Download the latest build from [Releases](https://github.com/wjaros/mtg-manager/
 - **macOS:** `…-arm64.dmg` for Apple Silicon (M1–M4), `…-x86_64.dmg` for Intel. The app is not
   notarized: open it the first time with right click → Open.
 - **Windows:** `…-windows-x64.zip`. Unpack it and run `MTG Deck Manager.exe` (needs the Edge
-  WebView2 runtime, built into Windows 11 and current Windows 10). The app is not signed: if
-  SmartScreen says "Windows protected your PC", click More info → Run anyway (or tick *Unblock* in
-  the ZIP's Properties before unpacking).
+  WebView2 runtime, built into Windows 11 and current Windows 10). The exe is signed (see the
+  [code signing policy](#code-signing-policy)). A new version can still meet SmartScreen's "Windows
+  protected your PC" for a while: click More info → Run anyway (or tick *Unblock* in the ZIP's
+  Properties before unpacking).
 
 On first start, open **Settings → Download card data** (about 80 MB; the import takes 2–3 minutes).
 Refresh it now and then: the app suggests it when Scryfall has newer data.
@@ -235,6 +236,13 @@ powershell -File scripts\build_windows.ps1
 
 Builds `dist\MTG Deck Manager\MTG Deck Manager.exe` and a zip of that folder.
 
+**Signing (SignPath Foundation).** Release builds in CI sign the exe once the repository has the
+secret `SIGNPATH_API_TOKEN` and the variable `SIGNPATH_ORGANIZATION_ID` (optionally
+`SIGNPATH_PROJECT_SLUG`, default `mtg-manager`, and `SIGNPATH_SIGNING_POLICY_SLUG`, default
+`release-signing`). The SignPath project's artifact configuration is
+`packaging/signpath/artifact-configuration.xml`. Each release waits up to an hour for its signing
+request to be approved in SignPath; pull requests and manual runs are not signed.
+
 ### CI and releases
 
 `.github/workflows/build.yml` runs the tests on Linux and Windows. For pull requests and releases it
@@ -271,6 +279,35 @@ you are free to use, study, change and share the app. Anything you distribute th
 must keep this notice and be shared under the same license, with its source code.
 
 Third-party components and data: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by
+[SignPath Foundation](https://signpath.org).
+
+- **What is signed:** the Windows app's `MTG Deck Manager.exe`, built from this repository by
+  GitHub Actions (`.github/workflows/build.yml`) for each release. The bundled Python runtime and
+  libraries are upstream binaries and are not signed by this project.
+- **Committers and reviewers:** [Wojciech Jaros](https://github.com/wjaros). Changes from anyone
+  else come as pull requests and are reviewed before merging.
+- **Approvers:** [Wojciech Jaros](https://github.com/wjaros) approves each signing request.
+
+### Privacy
+
+The app has no accounts, telemetry or analytics; your collection, decks and settings stay on your
+computer (and in the backup folder you choose). It connects to these services only:
+
+- [Scryfall](https://scryfall.com): card data when you download or refresh it in Settings, and card
+  images and set icons the first time they are shown.
+- [MTGJSON](https://mtgjson.com): preconstructed deck lists, with the card data.
+- [Commander Spellbook](https://commanderspellbook.com): a deck's card names, when you open its
+  *Combos* tab.
+- [CardTrader](https://www.cardtrader.com): your shopping list, with your own API token, when you
+  send it there.
+- [GitHub](https://github.com): the list of releases, to tell you about a new version (at most every
+  few hours; turn it off in *Settings → Application*).
+
+Each service's own privacy policy applies to what it receives.
 
 ## Legal
 

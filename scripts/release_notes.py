@@ -21,6 +21,7 @@ DOWNLOADS = """Download the file for your system:
 - **Windows**: `…-windows-x64.zip` (unpack it and run `MTG Deck Manager.exe`; needs the Edge WebView2 runtime, built into Windows 11)
 
 macOS: the app is not notarized – the first time, right-click it → Open.
+Windows: the exe is signed, see the [code signing policy](https://github.com/wjaros/mtg-manager#code-signing-policy).
 On first start, open Settings → Download card data."""
 
 TRAILER = re.compile(r"^(Co-Authored-By|Signed-off-by):", re.IGNORECASE)
