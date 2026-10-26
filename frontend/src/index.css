@@ -2987,6 +2987,31 @@ label.button.disabled {
   opacity: 0.8;
 }
 
+.card-button.not-legal {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+}
+
+.card-button.not-legal:hover {
+  opacity: 0.9;
+}
+
+.card-legal-badge {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: 8%;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  background: rgb(15 18 24 / 0.9);
+  border: 1px solid var(--error);
+  color: var(--error);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
+}
+
 .usage-info {
   margin-top: 6px;
   padding: 0.5rem 0.65rem;

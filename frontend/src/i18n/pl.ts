@@ -378,6 +378,11 @@ export const pl = {
     hint: 'Podobny tekst reguł, wspólne funkcje (tagi ze Scryfall Tagger) i koszt many. Kliknij kartę, żeby ją otworzyć.',
     hintDeck:
       'Podobny tekst reguł, wspólne funkcje (tagi ze Scryfall Tagger) i koszt many, legalne w formacie talii. Kliknij kartę, żeby dodać ją do talii; prawy przycisk: więcej.',
+    legalOnly: 'Tylko legalne w formacie talii',
+    legalOnlyTitle: 'Format talii, a dla talii z Areny także dostępność na Arenie',
+    hintDeckAll:
+      'Podobny tekst reguł, wspólne funkcje (tagi ze Scryfall Tagger) i koszt many, bez kart z talii; te, których talia nie może zagrać, są wyszarzone. Kliknij kartę, żeby dodać ją do talii; prawy przycisk: więcej.',
+    notLegal: 'Nielegalna w talii',
     searching: 'Szukam…',
     none: 'Brak podobnych kart w wybranych kolorach.',
     inCollection: (n: number) => `W kolekcji (${n})`,

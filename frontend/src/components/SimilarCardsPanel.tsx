@@ -5,6 +5,7 @@ import { t } from '../i18n'
 import { CardImage } from './CardImage'
 
 const COLORS = ['W', 'U', 'B', 'R', 'G'] as const
+const LEGAL_ONLY_KEY = 'mtgdm.similarLegalOnly'
 
 interface Props {
   card: Pick<CardSummary, 'id' | 'name' | 'color_identity'>
@@ -34,23 +35,32 @@ export function SimilarCardsPanel({
   onClose,
 }: Props) {
   const [colors, setColors] = useState<string[]>(initialColors ?? card.color_identity)
+  // With a deck: only the cards it can play, or all of them with the others marked (remembered).
+  const [legalOnly, setLegalOnly] = useState(() => {
+    try {
+      return localStorage.getItem(LEGAL_ONLY_KEY) !== 'false'
+    } catch {
+      return true
+    }
+  })
+  const legalParam = deckId === undefined ? undefined : legalOnly
   // Results and errors belong to one request: a newer one shows "searching" until its own arrive.
   const colorParam = COLORS.filter((c) => colors.includes(c)).join('') || 'C' // C: colorless only
-  const key = [card.id, colorParam, deckId ?? ''].join('|')
+  const key = [card.id, colorParam, deckId ?? '', legalParam ?? ''].join('|')
   const [result, setResult] = useState<{ key: string; data: SimilarCards } | null>(null)
   const [error, setError] = useState<{ key: string; message: string } | null>(null)
   const preview = useHoverPreview(hoverInfo)
 
   useEffect(() => {
     let cancelled = false
-    api.similarCards(card.id, { colors: colorParam, deck: deckId }).then(
+    api.similarCards(card.id, { colors: colorParam, deck: deckId, legal_only: legalParam }).then(
       (data) => !cancelled && setResult({ key, data }),
       (e: Error) => !cancelled && setError({ key, message: e.message }),
     )
     return () => {
       cancelled = true
     }
-  }, [card.id, colorParam, deckId, key])
+  }, [card.id, colorParam, deckId, legalParam, key])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -61,6 +71,17 @@ export function SimilarCardsPanel({
   const data = result?.key === key ? result.data : null
   const owned = data?.owned.map((i) => i.card) ?? []
   const others = data?.others.map((i) => i.card) ?? []
+  const notLegal = new Set(
+    [...(data?.owned ?? []), ...(data?.others ?? [])].filter((i) => i.legal === false).map((i) => i.card.id),
+  )
+  const chooseLegalOnly = (value: boolean) => {
+    setLegalOnly(value)
+    try {
+      localStorage.setItem(LEGAL_ONLY_KEY, String(value))
+    } catch {
+      // the choice just isn't remembered
+    }
+  }
   const toggle = (c: string) => setColors((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]))
   const sameColors = (a: string[], b: string[]) => a.length === b.length && a.every((c) => b.includes(c))
 
@@ -71,7 +92,8 @@ export function SimilarCardsPanel({
         return (
           <button
             key={c.id}
-            className={`card-button ${dimmed?.(c) ? 'dimmed' : ''}`}
+            className={`card-button ${dimmed?.(c) ? 'dimmed' : ''} ${notLegal.has(c.id) ? 'not-legal' : ''}`}
+            title={notLegal.has(c.id) ? t.similar.notLegal : undefined}
             onClick={() => onPick(c)}
             onContextMenu={
               onContextMenu &&
@@ -85,6 +107,7 @@ export function SimilarCardsPanel({
           >
             <CardImage cardId={c.id} name={c.name} size="normal" hasImage={c.image_faces > 0} />
             {count ? <span className="card-count-badge">{count}</span> : null}
+            {notLegal.has(c.id) && <span className="card-legal-badge">{t.similar.notLegal}</span>}
           </button>
         )
       })}
@@ -124,8 +147,14 @@ export function SimilarCardsPanel({
               {t.similar.cardColors}
             </button>
           )}
+          {deckId !== undefined && (
+            <label className="checkbox" title={t.similar.legalOnlyTitle}>
+              <input type="checkbox" checked={legalOnly} onChange={(e) => chooseLegalOnly(e.target.checked)} />
+              {t.similar.legalOnly}
+            </label>
+          )}
         </div>
-        <p className="muted small">{deckId === undefined ? t.similar.hint : t.similar.hintDeck}</p>
+        <p className="muted small">{deckId === undefined ? t.similar.hint : legalOnly ? t.similar.hintDeck : t.similar.hintDeckAll}</p>
 
         {error?.key === key && <p className="status error">{error.message}</p>}
         {data === null && error?.key !== key && <p className="muted">{t.similar.searching}</p>}

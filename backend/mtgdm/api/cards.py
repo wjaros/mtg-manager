@@ -107,14 +107,15 @@ def similar(
         str | None,
         Query(pattern="^[WUBRGCwubrgc]*$", description="Color identity to search in (C: colorless); default: the card's"),
     ] = None,
-    deck: Annotated[int | None, Query(description="Deck being built: only its format's cards, not those in it")] = None,
+    deck: Annotated[int | None, Query(description="Deck being built: not the cards in it")] = None,
     limit: Annotated[int, Query(ge=1, le=200)] = 60,
+    legal_only: Annotated[bool, Query(description="With a deck: only cards it can play; else all, marked")] = True,
 ) -> SimilarCards:
     """Cards doing a similar job (alike rules text, shared Scryfall Tagger tags, close mana value): the best
     ones in the collection and the best others."""
     try:
         chosen = None if colors is None else [c for c in colors.upper() if c != "C"]
-        result = similar_cards(db, card_id, chosen, deck, limit)
+        result = similar_cards(db, card_id, chosen, deck, limit, legal_only)
     except DeckNotFound as exc:
         raise HTTPException(status_code=404, detail="Deck not found") from exc
     if result is None:

@@ -89,6 +89,28 @@ def test_owned_apart_and_deck_context(app):
     assert in_deck  # other white removal is still suggested
 
 
+def test_legal_only_or_all_marked(app):
+    pioneer = app.post("/api/decks", json={"name": "P", "format": "pioneer", "platform": "paper"}).json()["id"]
+    app.post(f"/api/decks/{pioneer}/cards", json={"card_id": CARDS["Karametra's Blessing"]["id"]})
+    legal = similar(app, "Swords to Plowshares", colors="wb", deck=pioneer)
+    assert "Epic Downfall" in names(legal) and "Path to Exile" not in names(legal)  # not legal in Pioneer
+    assert all(item["legal"] for item in legal["others"])
+
+    every = similar(app, "Swords to Plowshares", colors="wb", deck=pioneer, legal_only=False)
+    marks = {item["card"]["name"]: item["legal"] for item in every["others"]}
+    assert marks["Path to Exile"] is False and marks["Epic Downfall"] is True
+    assert "Karametra's Blessing" not in marks  # the deck's own cards stay out either way
+
+    # An Arena deck plays only Arena cards, freeform too (Wave of Reckoning isn't on Arena).
+    arena = app.post("/api/decks", json={"name": "A", "format": "freeform", "platform": "arena"}).json()["id"]
+    assert "Wave of Reckoning" not in names(similar(app, "Swords to Plowshares", colors="wb", deck=arena))
+    every = similar(app, "Swords to Plowshares", colors="wb", deck=arena, legal_only=False)["others"]
+    marks = {item["card"]["name"]: item["legal"] for item in every}
+    assert marks["Wave of Reckoning"] is False and marks["Path to Exile"] is True
+
+    assert {item["legal"] for item in similar(app, "Swords to Plowshares")["others"]} == {None}  # no deck
+
+
 def test_unknown_card_or_deck(app):
     assert app.get("/api/cards/nope/similar").status_code == 404
     swords = CARDS["Swords to Plowshares"]["id"]

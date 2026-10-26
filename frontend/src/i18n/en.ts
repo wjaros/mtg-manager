@@ -374,6 +374,11 @@ export const en: Messages = {
     hint: 'Alike rules text, shared functions (Scryfall Tagger tags) and mana value. Click a card to open it.',
     hintDeck:
       "Alike rules text, shared functions (Scryfall Tagger tags) and mana value, legal in the deck's format. Click a card to add it to the deck; right-click for more.",
+    legalOnly: "Only legal in the deck's format",
+    legalOnlyTitle: "The deck's format and, for an Arena deck, being on Arena",
+    hintDeckAll:
+      "Alike rules text, shared functions (Scryfall Tagger tags) and mana value, without the deck's cards; those the deck can't play are greyed out. Click a card to add it to the deck; right-click for more.",
+    notLegal: 'Not legal in the deck',
     searching: 'Searching…',
     none: 'No similar cards in the chosen colors.',
     inCollection: (n: number) => `In the collection (${n})`,

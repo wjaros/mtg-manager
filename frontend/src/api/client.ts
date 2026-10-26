@@ -172,7 +172,7 @@ export const api = {
   userTags: () => request<UserTag[]>('/api/user-tags'),
   updateUserTags: (id: string, tags: string[]) =>
     request<string[]>(`/api/cards/${id}/user-tags`, jsonBody('PUT', { tags })),
-  similarCards: (id: string, params: { colors?: string; deck?: number }) =>
+  similarCards: (id: string, params: { colors?: string; deck?: number; legal_only?: boolean }) =>
     request<SimilarCards>(`/api/cards/${id}/similar?${toSearchParams(params)}`),
   sets: () => request<SetInfo[]>('/api/sets'),
 

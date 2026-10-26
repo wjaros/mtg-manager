@@ -7,7 +7,8 @@ ancestors ("burn-creature" is also "removal-burn", "removal-creature", ...), so 
 some weight, and each is weighted by how rare it is ("cast-tax" counts far more than "removal").
 Tag families that say nothing about what a card does (cycles, draft signposts, names, ...) are
 ignored. Only cards within the chosen color identity (by default the card's own), of a main type the
-card has (instants and sorceries count as one), and legal somewhere (or in the deck's format)."""
+card has (instants and sorceries count as one), and legal somewhere. For a deck: not those in it, and
+by default only cards it can play (its format, Arena for an Arena deck); otherwise each is marked."""
 
 import json
 import math
@@ -58,6 +59,7 @@ STOP_WORDS = frozenset("""a an the to of and or its it that this is are be for w
 class SimilarCard(BaseModel):
     card: CardSummary  # the card's default printing
     score: float       # 0-1
+    legal: bool | None = None  # the deck can play it (its format, Arena for an Arena deck); None without a deck
 
 
 class SimilarCards(BaseModel):
@@ -71,14 +73,16 @@ class DeckNotFound(Exception):
 
 
 def similar_cards(conn: sqlite3.Connection, card_id: str, colors: list[str] | None = None, deck_id: int | None = None,
-                  limit: int = 60) -> SimilarCards | None:
+                  limit: int = 60, legal_only: bool = True) -> SimilarCards | None:
     card = conn.execute(
         "SELECT oracle_id, name, oracle_text, type_line, cmc, color_identity FROM cards WHERE id = ?", (card_id,)
     ).fetchone()
     if card is None:
         return None
     identity = [c for c in COLORS if c in (colors if colors is not None else json.loads(card["color_identity"] or "[]"))]
-    where, params, arena = _filters(conn, card, identity, deck_id)
+    where, params, arena, fits = _filters(conn, card, identity, deck_id)
+    if legal_only:
+        where += fits
     signals = _Signals(conn, card)
     owned_text = _text_matches(conn, card, [*where, OWNED_SQL], params)
     others_text = _text_matches(conn, card, [*where, f"NOT {OWNED_SQL}"], params)
@@ -91,12 +95,20 @@ def similar_cards(conn: sqlite3.Connection, card_id: str, colors: list[str] | No
     owned = [(score, o) for score, o in owned if score >= max(OWNED_MIN_SCORE, OWNED_MIN_SHARE * best)]
 
     printing = "COALESCE(arena_card_id, default_card_id)" if arena else "default_card_id"
-    printings = _chunked(conn, f"SELECT oracle_id, {printing} FROM oracle_cards WHERE oracle_id IN ({{}})",
-                         [o for _, o in owned + others])
+    found = [o for _, o in owned + others]
+    printings = _chunked(conn, f"SELECT oracle_id, {printing} FROM oracle_cards WHERE oracle_id IN ({{}})", found)
     summaries = {s.oracle_id: s for s in card_summaries(conn, list(printings.values()))}
+    if deck_id is None:
+        legal: set[str] | None = None
+    elif legal_only or not fits:
+        legal = set(found)
+    else:
+        legal = set(_chunked(conn, f"""SELECT o.oracle_id, 1 FROM oracle_cards o JOIN cards c ON c.id = o.default_card_id
+                                      WHERE o.oracle_id IN ({{}}) AND {' AND '.join(fits)}""", found))
 
     def items(ranked: list[tuple[float, str]]) -> list[SimilarCard]:
-        return [SimilarCard(card=summaries[o], score=round(score, 3)) for score, o in ranked if o in summaries]
+        return [SimilarCard(card=summaries[o], score=round(score, 3), legal=None if legal is None else o in legal)
+                for score, o in ranked if o in summaries]
 
     return SimilarCards(colors=identity, owned=items(owned), others=items(others))
 
@@ -142,9 +154,9 @@ class _Signals:
 
 
 def _filters(conn: sqlite3.Connection, card: sqlite3.Row, identity: list[str],
-             deck_id: int | None) -> tuple[list[str], list[Any], bool]:
-    """WHERE parts over `c` (a card's default printing, joined through oracle_cards `o`); the third
-    value says the deck is an Arena one."""
+             deck_id: int | None) -> tuple[list[str], list[Any], bool, list[str]]:
+    """WHERE parts over `c` (a card's default printing, joined through oracle_cards `o`); then whether
+    the deck is an Arena one, and the parts (no parameters) saying the deck can play a card."""
     where = ["c.oracle_id != ?", f"COALESCE(c.layout, '') NOT IN ({', '.join('?' * len(EXTRA_LAYOUTS))})"]
     params: list[Any] = [card["oracle_id"], *EXTRA_LAYOUTS]
     identity_filter(identity, where, params)
@@ -153,24 +165,22 @@ def _filters(conn: sqlite3.Connection, card: sqlite3.Row, identity: list[str],
         types = [t for g in groups for t in g]
         where.append("(" + " OR ".join("c.type_line LIKE ?" for _ in types) + ")")
         params += [f"%{t}%" for t in types]
+    where.append("""(c.legalities LIKE '%"legal"%' OR c.legalities LIKE '%"restricted"%')""")
     arena = False
+    fits: list[str] = []
     if deck_id is not None:
         deck = conn.execute("SELECT format, platform FROM decks WHERE id = ?", (deck_id,)).fetchone()
         if deck is None:
             raise DeckNotFound(deck_id)
-        if deck["format"] in FORMATS:  # whitelisted, so safe in the JSON path
-            where.append(f"json_extract(c.legalities, '$.{deck['format']}') IN ('legal', 'restricted')")
-        else:  # freeform
-            where.append("""(c.legalities LIKE '%"legal"%' OR c.legalities LIKE '%"restricted"%')""")
+        if deck["format"] in FORMATS:  # whitelisted, so safe in the JSON path; freeform: anything
+            fits.append(f"json_extract(c.legalities, '$.{deck['format']}') IN ('legal', 'restricted')")
         arena = deck["platform"] == "arena"
         if arena:
-            where.append("o.arena_card_id IS NOT NULL")
+            fits.append("o.arena_card_id IS NOT NULL")
         where.append("c.oracle_id NOT IN (SELECT x.oracle_id FROM deck_cards dc JOIN cards x ON x.id = dc.card_id"
                      " WHERE dc.deck_id = ? AND dc.board IN ('main', 'commander', 'companion'))")
         params.append(deck_id)
-    else:
-        where.append("""(c.legalities LIKE '%"legal"%' OR c.legalities LIKE '%"restricted"%')""")
-    return where, params, arena
+    return where, params, arena, fits
 
 
 def _text_matches(conn: sqlite3.Connection, card: sqlite3.Row, where: list[str], params: list[Any]) -> dict[str, float]:

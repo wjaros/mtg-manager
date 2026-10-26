@@ -3561,6 +3561,8 @@ export interface components {
             card: components["schemas"]["CardSummary"];
             /** Score */
             score: number;
+            /** Legal */
+            legal?: boolean | null;
         };
         /** SimilarCards */
         SimilarCards: {
@@ -4194,9 +4196,11 @@ export interface operations {
             query?: {
                 /** @description Color identity to search in (C: colorless); default: the card's */
                 colors?: string | null;
-                /** @description Deck being built: only its format's cards, not those in it */
+                /** @description Deck being built: not the cards in it */
                 deck?: number | null;
                 limit?: number;
+                /** @description With a deck: only cards it can play; else all, marked */
+                legal_only?: boolean;
             };
             header?: never;
             path: {
