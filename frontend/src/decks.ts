@@ -1,5 +1,5 @@
-import type { DeckCard, DeckChange, DeckFormat, Holding, Platform } from './api/client'
-import { t } from './i18n'
+import type { Board, DeckCard, DeckChange, DeckFormat, Holding, Platform } from './api/client'
+import { locale, t } from './i18n'
 
 export const FORMAT_LABEL: Record<DeckFormat, string> = {
   brawl: 'Brawl (Historic)',
@@ -56,8 +56,26 @@ export function isBasicLand(typeLine: string | null | undefined): boolean {
   return (typeLine ?? '').includes('Basic') && (typeLine ?? '').includes('Land')
 }
 
+export const RARITY_LABEL: Record<string, string> = {
+  common: 'Common',
+  uncommon: 'Uncommon',
+  rare: 'Rare',
+  mythic: 'Mythic',
+  special: 'Special',
+  bonus: 'Bonus',
+}
+
+/** The deck's parts in display order; the main deck is grouped, the others are one group each. */
+export const BOARD_SECTIONS: { board: Board; label: string }[] = [
+  { board: 'commander', label: t.panels.boardCommander },
+  { board: 'companion', label: 'Companion' },
+  { board: 'main', label: t.panels.boardMain },
+  { board: 'sideboard', label: 'Sideboard' },
+  { board: 'maybe', label: 'Maybeboard' },
+]
+
 export interface CardGroup {
-  type: string
+  key: string
   label: string
   cards: DeckCard[]
   count: number
@@ -136,20 +154,95 @@ export function coverage(holdings: Iterable<Holding>): { deck: Coverage; sideboa
   return { deck, sideboard }
 }
 
-export function groupByType(cards: DeckCard[]): CardGroup[] {
-  const groups = new Map<string, DeckCard[]>()
+export type DeckGrouping = 'type' | 'mv' | 'color' | 'rarity' | 'category' | 'none'
+export type DeckSort = 'name' | 'mv'
+export const DECK_GROUPINGS: readonly DeckGrouping[] = ['type', 'mv', 'color', 'rarity', 'category', 'none']
+export const DECK_SORTS: readonly DeckSort[] = ['name', 'mv']
+/** The deck's cards as images: stacks (columns of overlapping cards) or a visual spoiler (a grid). */
+export type DeckVisualMode = 'stacks' | 'spoiler'
+export const DECK_VISUAL_MODES: readonly DeckVisualMode[] = ['stacks', 'spoiler']
+
+type GroupOrder = (readonly [key: string, label: string])[]
+
+const TYPE_ORDER: GroupOrder = [...TYPE_GROUPS, ['Other', t.deck.typeOther]]
+// Lands get a group of their own, like the last column of Arena's deckbuilder.
+const MV_ORDER: GroupOrder = [
+  ...['0', '1', '2', '3', '4', '5', '6', '7+'].map((mv) => [mv, t.deckView.mv(mv)] as const),
+  ['Land', t.deck.typeLand],
+]
+const COLOR_ORDER: GroupOrder = [
+  ['W', t.deckView.white],
+  ['U', t.deckView.blue],
+  ['B', t.deckView.black],
+  ['R', t.deckView.red],
+  ['G', t.deckView.green],
+  ['M', t.stats.multicolor],
+  ['C', t.stats.colorlessCards],
+  ['Land', t.deck.typeLand],
+]
+const RARITY_ORDER: GroupOrder = [
+  ...['mythic', 'rare', 'uncommon', 'common', 'special', 'bonus'].map((r) => [r, RARITY_LABEL[r]] as const),
+  ['Other', t.deck.typeOther],
+]
+
+function typeLabel(entry: DeckCard): string {
+  const type = primaryType(entry.card.type_line)
+  return TYPE_ORDER.find(([key]) => key === type)![1]
+}
+
+const GROUP_KEY: Record<DeckGrouping, (entry: DeckCard) => string> = {
+  type: (entry) => primaryType(entry.card.type_line),
+  mv: (entry) => {
+    if (isLand(entry)) return 'Land'
+    const mv = Math.floor(entry.card.cmc ?? 0)
+    return mv >= 7 ? '7+' : String(mv)
+  },
+  color: (entry) => {
+    if (isLand(entry)) return 'Land'
+    const colors = entry.card.colors
+    return colors.length > 1 ? 'M' : (colors[0] ?? 'C')
+  },
+  rarity: (entry) => (RARITY_ORDER.some(([key]) => key === entry.card.rarity) ? entry.card.rarity! : 'Other'),
+  // Cards without a category fall back to their type, so lands and the rest still sit together.
+  // Keyed by label: a category named like a type group ("Lądy") joins it.
+  category: (entry) => entry.category?.trim() || typeLabel(entry),
+  none: () => 'all',
+}
+
+function groupOrder(by: DeckGrouping, keys: Iterable<string>): GroupOrder {
+  if (by === 'type') return TYPE_ORDER
+  if (by === 'mv') return MV_ORDER
+  if (by === 'color') return COLOR_ORDER
+  if (by === 'rarity') return RARITY_ORDER
+  if (by === 'none') return [['all', t.panels.boardMain]]
+  // Categories alphabetically, then the type groups of uncategorized cards in their usual order.
+  const types = TYPE_ORDER.map(([, label]) => label)
+  const categories = [...keys].filter((k) => !types.includes(k)).sort((a, b) => a.localeCompare(b, locale))
+  return [...categories, ...types].map((label) => [label, label] as const)
+}
+
+export function sortCards(cards: DeckCard[], sort: DeckSort): DeckCard[] {
+  return [...cards].sort(
+    (a, b) => (sort === 'mv' ? (a.card.cmc ?? 0) - (b.card.cmc ?? 0) : 0) || a.card.name.localeCompare(b.card.name),
+  )
+}
+
+export function countCards(cards: DeckCard[]): number {
+  return cards.reduce((n, c) => n + c.quantity, 0)
+}
+
+/** Cards in groups, in the grouping's order; `keepEmpty` keeps groups with no cards (fixed columns). */
+export function groupCards(cards: DeckCard[], by: DeckGrouping, sort: DeckSort, keepEmpty = false): CardGroup[] {
+  const lists = new Map<string, DeckCard[]>()
   for (const c of cards) {
-    const type = primaryType(c.card.type_line)
-    groups.set(type, [...(groups.get(type) ?? []), c])
+    const key = GROUP_KEY[by](c)
+    lists.set(key, [...(lists.get(key) ?? []), c])
   }
-  const order: (readonly [string, string])[] = [...TYPE_GROUPS, ['Other', t.deck.typeOther]]
-  return order
-    .filter(([type]) => groups.has(type))
-    .map(([type, label]) => {
-      const list = [...groups.get(type)!].sort(
-        (a, b) => (a.card.cmc ?? 0) - (b.card.cmc ?? 0) || a.card.name.localeCompare(b.card.name),
-      )
-      return { type, label, cards: list, count: list.reduce((n, c) => n + c.quantity, 0) }
+  return groupOrder(by, lists.keys())
+    .filter(([key]) => keepEmpty || lists.has(key))
+    .map(([key, label]) => {
+      const list = sortCards(lists.get(key) ?? [], sort)
+      return { key, label, cards: list, count: countCards(list) }
     })
 }
 

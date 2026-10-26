@@ -4,6 +4,7 @@ import { UpdateSettings } from '../components/AppUpdate'
 import { CardTraderSettings } from '../components/CardTraderSettings'
 import { CloudBackupSettings } from '../components/CloudBackupSettings'
 import { PrintingPanel } from '../components/PrintingPanel'
+import { UiScaleSettings } from '../components/UiScaleSettings'
 import { formatNumber, lang, LANGUAGES, locale, setLang, t, type Lang } from '../i18n'
 
 const STAGE_LABEL: Record<string, string> = {
@@ -102,6 +103,11 @@ export function SettingsView({ status, onStatusChange }: Props) {
           </select>
           <span className="muted small">{t.settings.languageHint}</span>
         </div>
+      </section>
+
+      <section className="panel">
+        <h2>{t.settings.uiScaleTitle}</h2>
+        <UiScaleSettings />
       </section>
 
       <section className="panel">

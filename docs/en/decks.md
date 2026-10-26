@@ -43,10 +43,29 @@ The pool is a search with the same filters as the [Collection](collection.md#sea
 Hovering a card shows how many copies the deck has, how many you own and where they are (e.g. in
 another deck's box). Singleton duplicates are greyed out.
 
-### The deck list and mana columns
+### The deck list, stacks and spoiler
 
 On the right is the deck by section (commander, creatures, spells…). Find a card in it with
-Cmd+F / Ctrl+F. At the bottom are columns by mana value.
+Cmd+F / Ctrl+F. Under the search field choose how the list is grouped (type, mana value, color,
+rarity, category or no grouping) and sorted within a group (name or mana value).
+
+At the bottom are the deck's card images, in one of two views (switch on the panel's edge):
+- **Stacks:** overlapping cards, one column per group; by mana value by default, like Arena;
+- **Spoiler:** whole cards in a grid, one section per group.
+
+The images have their own grouping, sorting and card size (− 100% +), apart from the list. The
+commander, companion, sideboard and maybeboard get columns and sections of their own. Drag the
+deck's top edge to move the border between the pool and the deck; at an edge only the pool or only
+the deck is left, and a double-click brings back the default split. **▴ Deck** and
+**▾ Collection** switch between these in one click. Clicking an image takes off one copy;
+right-clicking opens the card's menu. The app remembers these settings.
+
+The hovered card shows enlarged beside itself and in a panel next to the deck, with its printing,
+copies, collection state and price. In stacks the card stays in place (it only gets a ring), so it
+doesn't cover the cards below it. The panel keeps the last card you hovered (the commander at
+first), from the list on the right too. ⟲ turns a double-faced card over, and **Details and
+printings** opens its details. In the bar above the deck choose **Preview: beside + panel**,
+**Preview: panel** (no enlarged copy beside the card) or **Preview: beside card** (no panel).
 
 In a paper deck, the color of a card's quantity tells where its copies are:
 - **missing:** you don't own enough copies;
@@ -55,7 +74,8 @@ In a paper deck, the color of a card's quantity tells where its copies are:
 
 Right-clicking a card in the deck moves it between the deck's parts (main, maybeboard, sideboard,
 commander, companion) and gives it a **Category**: its role in this deck, e.g. "Ramp". Categories
-count in the statistics.
+count in the statistics, and grouping by category gathers the cards with the same role (cards
+without one go to their type's group).
 
 ### Validation
 

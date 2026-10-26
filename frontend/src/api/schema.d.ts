@@ -1054,6 +1054,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/prefs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Prefs
+         * @description The UI's preferences, loaded once before it renders.
+         */
+        get: operations["get_prefs_api_prefs_get"];
+        /** Put Pref */
+        put: operations["put_pref_api_prefs_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/prefs/scale": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Scale
+         * @description Size of the whole interface; the window app zooms its web view right away.
+         */
+        put: operations["put_scale_api_prefs_scale_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/decks/{deck_id}/proxy-candidates": {
         parameters: {
             query?: never;
@@ -3154,6 +3195,24 @@ export interface components {
             /** Loaded */
             loaded: boolean;
         };
+        /** PrefUpdate */
+        PrefUpdate: {
+            /** Key */
+            key: string;
+            /** Value */
+            value?: string | null;
+        };
+        /** Prefs */
+        Prefs: {
+            /** Values */
+            values: {
+                [key: string]: string;
+            };
+            /** Scale */
+            scale: number;
+            /** Native Zoom */
+            native_zoom: boolean;
+        };
         /** Price */
         Price: {
             /** Eur */
@@ -3439,6 +3498,11 @@ export interface components {
             language?: string | null;
             /** Use Existing Item Id */
             use_existing_item_id?: number | null;
+        };
+        /** ScaleUpdate */
+        ScaleUpdate: {
+            /** Scale */
+            scale: number;
         };
         /** Scan */
         Scan: {
@@ -5851,6 +5915,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PreconDecklist"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_prefs_api_prefs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Prefs"];
+                };
+            };
+        };
+    };
+    put_pref_api_prefs_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrefUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_scale_api_prefs_scale_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScaleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Prefs"];
                 };
             };
             /** @description Validation Error */
