@@ -83,7 +83,7 @@ language from the request's Accept-Language (the frontend sends its own; default
   GPL-2.0-only is not). Third-party licenses in THIRD_PARTY_NOTICES.md (update it with new dependencies)
   bundled resource paths live in `mtgdm/config.py` (FROZEN branch) and must match the spec
 - `docs/` – user guide in Polish (`docs/pl/`) and English (`docs/en/`), one page per area, same file names in both,
-  screenshots in `docs/images/{pl,en}/` (1440×900 WebP, taken on a copy of the data); Jekyll-ready for GitHub Pages
+  screenshots in `docs/images/{pl,en}/` (1440×900 WebP, taken on a copy of the data by `scripts/docs_screenshots.py`); Jekyll-ready for GitHub Pages
   (`docs/_config.yml`, `docs/ideas/` excluded). Update both languages when a feature changes; anchors ASCII only
 - `seeds/` – example decklists (precons and products), offered in the Import view; `seeds/collection/` – lists of
   products that are not decks (imported into the collection: Import → Kolekcja → Lista kart). A trailing `# note` on a
@@ -116,6 +116,10 @@ language from the request's Accept-Language (the frontend sends its own; default
 - Window app: `cd frontend && npm run build && cd ../backend && uv run mtgdm app`
 - After changing API models: `scripts/gen_api_types.sh`
 - Frontend checks: `cd frontend && npm run build && npm run lint`
+- Docs screenshots (user guide + README's deckbuilder ones, both languages, on a copy of the app's data):
+  `cd frontend && npm run build && cd ../backend && uv run --with playwright python ../scripts/docs_screenshots.py`
+  (`--only stats,history`, `--lang pl`; Chromium once: `uv run --with playwright playwright install chromium`).
+  A new screenshot = a shot in its SHOTS; keep the decks it uses findable by name (DECKS)
 - Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator (dark steps on the
   dark surface, light steps on `#ffffff`); don't add hues without re-validating.
 - Colors are tokens on `:root` (dark) with a light set under `:root[data-theme='light']` (`index.html` sets the system's

@@ -67,6 +67,8 @@ first), from the list on the right too. ⟲ turns a double-faced card over, and 
 printings** opens its details. In the bar above the deck choose **Preview: beside + panel**,
 **Preview: panel** (no enlarged copy beside the card) or **Preview: beside card** (no panel).
 
+![The deck as a spoiler, with the preview panel](../images/en/deck-spoiler.webp)
+
 In a paper deck, the color of a card's quantity tells where its copies are:
 - **missing:** you don't own enough copies;
 - **in another deck:** your copies sit in another deck's box (the tooltip names the deck);

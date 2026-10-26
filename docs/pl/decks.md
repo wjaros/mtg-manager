@@ -68,6 +68,8 @@ także z listy po prawej. Kartę dwustronną odwraca ⟲, a **Szczegóły i wyda
 szczegóły. W pasku nad talią wybierzesz **Podgląd: obok + panel**, **Podgląd: panel** (bez
 powiększenia przy karcie) albo **Podgląd: obok karty** (bez panelu).
 
+![Talia jako spoiler, z panelem podglądu](../images/pl/deck-spoiler.webp)
+
 W talii papierowej kolor liczby przy karcie mówi, gdzie są jej egzemplarze:
 - **brak:** nie masz wystarczająco kopii;
 - **w innej talii:** twoje kopie leżą w pudełku innej talii (podpowiedź podaje której);

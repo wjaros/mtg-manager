@@ -11,6 +11,10 @@
 **Theme:** **System** (the default) follows the system's light / dark setting, also when it changes
 while the app is open; **Light** and **Dark** fix the theme.
 
+![Settings: appearance](../images/en/settings-appearance.webp)
+
+![The deckbuilder in the light theme](../images/en/deckbuilder-light.webp)
+
 **Interface size** enlarges the whole app: text, buttons and cards, e.g. on a big screen. Pick 80% to 200% or use
 **Cmd/Ctrl +** and **Cmd/Ctrl −** (**Cmd/Ctrl 0** goes back to 100%). The app remembers the size,
 like the other view settings (deckbuilder layout, grouping, card size). In a browser

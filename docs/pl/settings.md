@@ -11,6 +11,10 @@
 **Motyw:** **Systemowy** (domyślnie) idzie za ustawieniem jasny / ciemny w systemie, także gdy się
 zmienia w trakcie pracy; **Jasny** i **Ciemny** ustawiają motyw na stałe.
 
+![Ustawienia: wygląd](../images/pl/settings-appearance.webp)
+
+![Deckbuilder w jasnym motywie](../images/pl/deckbuilder-light.webp)
+
 **Rozmiar interfejsu** powiększa całą aplikację: teksty, przyciski i karty, np. na dużym monitorze. Wybierz od 80% do 200%
 albo użyj skrótów **Cmd/Ctrl +** i **Cmd/Ctrl −** (**Cmd/Ctrl 0** wraca do 100%). Aplikacja
 pamięta rozmiar, tak jak inne ustawienia widoków (układ deckbuildera, grupowanie, rozmiar kart). W
