@@ -36,6 +36,9 @@ language from the request's Accept-Language (the frontend sends its own; default
   - `mtgdm/backup.py` – JSON backup of collection, locations and decks (cards by id, then set+number, then name)
   - `mtgdm/updates.py` – new version check (GitHub releases API, cached in meta, skip a version); notify only,
     no self-update (unsigned macOS app)
+  - `mtgdm/prefs.py` – the UI's preferences (`ui:` keys in meta, not in backups) and the interface scale, which
+    `mtgdm app` applies as the web view's own zoom (WKWebView pageZoom / WebView2 ZoomFactor) before the page
+    loads and on every change (`PUT /api/prefs/scale`); in a browser the browser's zoom does it
   - `mtgdm/cloud_backup.py` – the backup written to a chosen (synced) folder by a background thread when the data
     changed (hash without timestamps); a newer file from another machine id is offered on start (never overwritten)
   - `mtgdm/decks/` – deck storage (`deck_cards` is the source of truth; decks.commander/partner/companion_card_id are derived),
@@ -66,6 +69,8 @@ language from the request's Accept-Language (the frontend sends its own; default
     derived into `card_tags`; `otag:` in the query syntax, `functions` in deck stats
   - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
 - `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
+  Remembered UI choices go through `src/prefs.ts` (`getPref` / `setPref`, loaded before the app renders), never
+  localStorage: the window app's web view is private and on a random port, so browser storage is lost on restart.
 - `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);
   the bundle uses a minimal OpenCV (`scripts/build_opencv.py`: core/imgproc/imgcodecs, JPEG+PNG, same version as uv.lock,
   cached in `build/opencv-slim/`) put first on PYTHONPATH; dev and tests use the PyPI wheel. A new cv2 function from

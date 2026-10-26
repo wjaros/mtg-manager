@@ -1,3 +1,4 @@
+import { getPref, setPref } from '../prefs'
 import { en } from './en'
 import { pl, type Messages } from './pl'
 
@@ -8,12 +9,8 @@ export const LANGUAGES: Record<Lang, string> = { pl: 'Polski', en: 'English' }
 const STORAGE_KEY = 'mtgdm.lang'
 
 function detect(): Lang {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved === 'pl' || saved === 'en') return saved
-  } catch {
-    // storage unavailable: fall back to the system language
-  }
+  const saved = getPref(STORAGE_KEY)
+  if (saved === 'pl' || saved === 'en') return saved
   return navigator.language.toLowerCase().startsWith('pl') ? 'pl' : 'en'
 }
 
@@ -25,12 +22,8 @@ export const t: Messages = lang === 'pl' ? pl : en
 document.documentElement.lang = lang
 
 export function setLang(next: Lang): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, next)
-  } catch {
-    // not persisted: the reload falls back to the system language
-  }
-  window.location.reload()
+  // Reloaded once stored (a reload would cut the write short).
+  void setPref(STORAGE_KEY, next).then(() => window.location.reload())
 }
 
 export function formatNumber(n: number): string {

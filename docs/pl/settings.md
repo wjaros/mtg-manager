@@ -6,6 +6,13 @@
 
 **Język / Language**: polski albo angielski. Zmiana przeładowuje aplikację.
 
+## Rozmiar interfejsu
+
+Powiększa całą aplikację: teksty, przyciski i karty, np. na dużym monitorze. Wybierz od 80% do 200%
+albo użyj skrótów **Cmd/Ctrl +** i **Cmd/Ctrl −** (**Cmd/Ctrl 0** wraca do 100%). Aplikacja
+pamięta rozmiar, tak jak inne ustawienia widoków (układ deckbuildera, grupowanie, rozmiar kart). W
+przeglądarce (`mtgdm serve`) zamiast tego działa powiększenie przeglądarki.
+
 ## Dane kart (Scryfall)
 
 ![Dane kart](../images/pl/settings-card-data.webp)

@@ -12,9 +12,10 @@ from pathlib import Path
 
 import uvicorn
 
-from mtgdm import __version__
+from mtgdm import __version__, prefs
 from mtgdm.app import create_app
 from mtgdm.config import FROZEN, load_settings
+from mtgdm.db import connect
 from mtgdm.i18n import Lang, set_lang, tr
 
 DEFAULT_PORT = 8765
@@ -89,7 +90,12 @@ def cmd_app() -> int:
 
     # Exports (CSV, decklists) are plain downloads from the API.
     webview.settings["ALLOW_DOWNLOADS"] = True
-    webview.create_window("MTG Deck Manager", f"http://127.0.0.1:{port}/", width=1400, height=900, min_size=(900, 600))
+    window = webview.create_window(
+        "MTG Deck Manager", f"http://127.0.0.1:{port}/", width=1400, height=900, min_size=(900, 600)
+    )
+    # The interface scale (Settings, Cmd/Ctrl +/−) zooms the web view: set before the page loads, then on changes.
+    window.events.before_show += lambda: _set_page_zoom(window, _saved_scale(), gui_thread=True)
+    prefs.set_window_zoom(lambda scale: _set_page_zoom(window, scale))
     try:
         webview.start(gui=WINDOW_GUI)
     except Exception as exc:
@@ -97,9 +103,51 @@ def cmd_app() -> int:
         _show_error("window_failed", error=_error_text(exc), log=_log_path())
         return 1
     finally:
+        prefs.set_window_zoom(None)
         server.should_exit = True
         thread.join(timeout=5)
     return 0
+
+
+def _saved_scale() -> float:
+    conn = connect(load_settings().db_path)
+    try:
+        return prefs.get_scale(conn)
+    finally:
+        conn.close()
+
+
+def _set_page_zoom(window, scale: float, gui_thread: bool = False) -> None:
+    """Zoom the window's web view like a browser does (layout, text, image resolution). Called from
+    another thread, the change is handed to the GUI thread."""
+    try:
+        if sys.platform == "darwin":
+            from PyObjCTools import AppHelper
+            from webview.platforms.cocoa import BrowserView
+
+            view = BrowserView.instances.get(window.uid)
+            if view is None or not view.webview.respondsToSelector_("setPageZoom:"):  # WKWebView.pageZoom: macOS 11+
+                return
+            if gui_thread:
+                view.webview.setPageZoom_(scale)
+            else:
+                AppHelper.callAfter(view.webview.setPageZoom_, scale)
+        elif sys.platform == "win32":
+            from System import Func, Type
+
+            form = window.native
+            if form is None or form.webview is None:
+                return
+
+            def zoom():
+                form.webview.ZoomFactor = scale  # kept by the WebView2 control until its core is ready
+
+            if gui_thread:
+                zoom()  # the form has no handle yet: Invoke would fail
+            else:
+                form.Invoke(Func[Type](zoom))
+    except Exception:
+        logging.exception("Could not zoom the app window")
 
 
 def cmd_check_window() -> int:

@@ -2,19 +2,11 @@ import { useEffect, useState } from 'react'
 import { api, setIconUrl, type CardDetail, type CardSummary } from '../api/client'
 import { CardImage } from './CardImage'
 import { CopyButton } from './CopyButton'
+import { RARITY_LABEL } from '../decks'
 import { ManaCost } from './ManaCost'
 import { OwnedCopies } from './OwnedCopies'
 import { locale, t } from '../i18n'
 import { editUserTags } from '../userTags'
-
-const RARITY_LABEL: Record<string, string> = {
-  common: 'Common',
-  uncommon: 'Uncommon',
-  rare: 'Rare',
-  mythic: 'Mythic',
-  special: 'Special',
-  bonus: 'Bonus',
-}
 
 const LEGALITY_FORMATS = [
   ['brawl', 'Brawl'],

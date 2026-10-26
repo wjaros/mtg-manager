@@ -10,6 +10,7 @@ from mtgdm.api import (
     images,
     importing,
     precons,
+    prefs,
     printing,
     scans,
     sync,
@@ -27,6 +28,7 @@ api_router.include_router(decks.router)
 api_router.include_router(images.router)
 api_router.include_router(importing.router)
 api_router.include_router(precons.router)
+api_router.include_router(prefs.router)
 api_router.include_router(printing.router)
 api_router.include_router(scans.router)
 api_router.include_router(sync.router)

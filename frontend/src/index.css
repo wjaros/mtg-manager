@@ -1037,6 +1037,11 @@ nav {
   padding: 0.75rem 1.25rem 0;
 }
 
+/* A low pool (the split dragged up): the tabs and filters keep their size, the grid gives way. */
+.deckbuilder-pool > :not(.card-grid-scroll, .stats-scroll) {
+  flex-shrink: 0;
+}
+
 .pool-bar {
   display: flex;
   flex-wrap: wrap;
@@ -1146,8 +1151,51 @@ nav {
 .deckbuilder-columns {
   grid-area: columns;
   position: relative;
+  min-height: 0;
   border-top: 1px solid var(--border);
   background: #0c0f14;
+}
+
+/* On the deck's top edge: drag to share the height between the pool and the deck. */
+.split-handle {
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 0;
+  right: 0;
+  height: 9px;
+  cursor: row-resize;
+  touch-action: none;
+}
+
+.split-handle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 1.25rem; /* clear of the toolbar on the right */
+  width: 48px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.split-handle:hover::after,
+.split-handle:focus-visible::after,
+.resizing .split-handle::after {
+  background: var(--accent);
+}
+
+.split-handle:focus-visible {
+  outline: none;
+}
+
+.view.deckbuilder.resizing {
+  cursor: row-resize;
+  user-select: none;
+}
+
+.view.deckbuilder.layout-deck .split-handle {
+  top: 0;
 }
 
 .columns-toggle {
@@ -1174,6 +1222,31 @@ nav {
 
 .columns-toggle > * + * {
   border-left: 1px solid var(--border);
+}
+
+.columns-mode {
+  display: inline-flex;
+}
+
+.columns-toggle button.on {
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.columns-select {
+  padding: 0.15rem 0.3rem;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.columns-select:hover,
+.columns-select:focus {
+  outline: none;
+  color: var(--text);
 }
 
 .zoom-control {
@@ -1242,28 +1315,130 @@ nav {
   border-radius: 0 0 6px 6px;
 }
 
-.view.deckbuilder.layout-deck .mana-columns {
-  height: 100%;
+.view.deckbuilder.layout-deck .deck-visual,
+.view.deckbuilder.layout-deck .deck-preview {
   padding-top: 1.75rem;
+}
+
+/* The deck's cards under the pool (stacks or the visual spoiler), the hovered one large beside them. */
+.deck-visual-row {
+  display: flex;
+  height: 100%;
+  /* the preview card fits the row's height (cqh) */
+  container-type: size;
+}
+
+.deck-visual {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 1rem;
+  overflow: auto;
+}
+
+.deck-preview {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  /* A low row (the split under the pool): the card as tall as the row, its details below it (scrolled to). */
+  width: min(270px, calc((100cqh - 1rem) * 488 / 680 + 1rem));
+  padding: 0.5rem 0 0.5rem 1rem;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+
+.deck-preview-image {
+  position: relative;
+  flex: none;
+}
+
+/* Cards swap at once while hovering: no fade-in. */
+.deck-preview .card-image img {
+  transition: none;
+}
+
+.deck-preview-flip {
+  position: absolute;
+  top: 45%;
+  right: 6%;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgb(15 18 24 / 0.85);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.deck-preview-flip:hover {
+  border-color: var(--accent);
+}
+
+.deck-preview-name {
+  margin-top: 0.2rem;
+  font-weight: 600;
+}
+
+.deck-preview-hold.missing {
+  color: var(--error);
+}
+
+.deck-preview-hold.other_deck {
+  color: var(--accent);
+}
+
+.deck-preview-hold.elsewhere {
+  color: var(--warn);
+}
+
+.deck-preview-hold.proxy {
+  color: var(--proxy);
+}
+
+.deck-preview-details {
+  align-self: flex-start;
+  padding-left: 0;
 }
 
 .mana-columns {
   display: grid;
-  /* --zoom 1: the nine columns fill the width, but no wider than 160px each (big screens);
-     larger scrolls sideways, smaller leaves room. */
-  grid-template-columns: repeat(9, calc(min((100% - 8 * 8px) / 9, 160px) * var(--zoom, 1)));
+  /* --zoom 1: the --columns columns (one per group) fill the width, but no wider than 160px each
+     (big screens); larger scrolls sideways, smaller leaves room. */
+  grid-template-columns: repeat(
+    var(--columns, 9),
+    calc(min((100% - (var(--columns, 9) - 1) * 8px) / var(--columns, 9), 160px) * var(--zoom, 1))
+  );
   gap: 8px;
-  height: 300px;
-  padding: 0.5rem 1rem;
-  overflow: auto;
 }
 
 .mana-column-header {
   display: flex;
   justify-content: space-between;
+  gap: 4px;
   padding: 0 2px 4px;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+.mana-column-header span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Deck parts apart from the main deck: the commander in the accent colour, sideboard and maybeboard dimmer. */
+.board-commander .mana-column-header,
+.board-companion .mana-column-header,
+.board-commander > .deck-group-title,
+.board-companion > .deck-group-title {
+  color: var(--accent);
+}
+
+.board-sideboard .mana-column-header,
+.board-maybe .mana-column-header {
+  color: var(--text-muted);
 }
 
 .mana-column-stack {
@@ -1281,13 +1456,30 @@ nav {
   border-radius: 4.75% / 3.5%;
 }
 
-.stack-card + .stack-card {
+.mana-column-stack .stack-card + .stack-card {
   margin-top: -118%;
 }
 
-.stack-card:hover {
-  z-index: 1;
-  transform: translateX(4px);
+/* The hovered card stays in place (raised, it would cover the one below): a ring on its visible
+   strip, the enlarged copy beside it or in the panel. */
+.mana-column-stack .stack-card:hover {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Visual spoiler: whole cards in a grid, a section per group. */
+.deck-spoiler > .deck-spoiler-section:first-child .deck-group-title {
+  margin-top: 0;
+}
+
+.deck-spoiler-grid {
+  display: grid;
+  /* --zoom 1: cards at least 150px wide, stretched to fill the row */
+  grid-template-columns: repeat(auto-fill, minmax(calc(150px * var(--zoom, 1)), 1fr));
+  gap: 10px;
+}
+
+.deck-spoiler-grid .stack-card:hover {
+  transform: translateY(-3px);
   box-shadow: 0 6px 16px rgb(0 0 0 / 0.6);
 }
 
@@ -1392,10 +1584,6 @@ nav {
 @media (max-width: 1100px) {
   .view.deckbuilder {
     grid-template-columns: minmax(0, 1fr) 280px;
-  }
-
-  .mana-columns {
-    height: 220px;
   }
 }
 
@@ -3560,6 +3748,7 @@ label.button.disabled {
   top: -0.75rem;
   z-index: 3;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   margin: -0.75rem -1rem 0.5rem;
@@ -3569,6 +3758,19 @@ label.button.disabled {
 
 .deck-search .input {
   flex: 1;
+}
+
+/* Grouping and sorting of the deck list, a row under the search field. */
+.deck-view-options {
+  display: flex;
+  flex-basis: 100%;
+  gap: 0.4rem;
+}
+
+.deck-view-options .select {
+  flex: 1;
+}
+
 /* ---------- App updates ---------- */
 
 .app-update-banner {
@@ -3607,6 +3809,8 @@ label.button.disabled {
   align-items: center;
   gap: 0.5rem 0.75rem;
   margin-top: 0.75rem;
+}
+
 .precon-filters {
   display: flex;
   flex-wrap: wrap;

@@ -21,7 +21,7 @@ export function HoverPreview({ hovered, info, image = true }: { hovered: Hovered
   const margin = 12
   let left = hovered.x + margin
   if (left + PREVIEW_WIDTH > window.innerWidth - margin) {
-    left = Math.max(margin, hovered.x - PREVIEW_WIDTH * 2 - margin)
+    left = Math.max(margin, hovered.x - hovered.width - PREVIEW_WIDTH - margin)
   }
   // Room for the info panel under the image.
   const height = (image ? PREVIEW_HEIGHT : 0) + (info ? INFO_HEIGHT : 0)

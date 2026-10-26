@@ -16,6 +16,7 @@ import { ScanView } from './views/ScanView'
 import { WantsView } from './views/WantsView'
 import { useWants } from './wants'
 import { SettingsView } from './views/SettingsView'
+import { setUiScale, stepUiScale, useUiScale } from './prefs'
 
 type Route =
   | { view: 'collection' }
@@ -75,6 +76,22 @@ export default function App() {
   }, [])
 
   useEffect(refreshStatus, [refreshStatus])
+
+  // The window app: Cmd/Ctrl +, − and 0 size the whole interface (a browser zooms by itself).
+  const { native: nativeZoom } = useUiScale()
+  useEffect(() => {
+    if (!nativeZoom) return
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey) return
+      if (e.key === '=' || e.key === '+') stepUiScale(1)
+      else if (e.key === '-') stepUiScale(-1)
+      else if (e.key === '0') void setUiScale(1)
+      else return
+      e.preventDefault()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [nativeZoom])
 
   const go = (path: string) => {
     window.location.assign(`#/${path}`)
