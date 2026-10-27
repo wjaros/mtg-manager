@@ -192,8 +192,8 @@ export const api = {
   cardtraderWishlist: (body: CardTraderWishlistRequest) =>
     request<WishlistResult>('/api/cardtrader/wishlists', jsonBody('POST', body)),
   compareDecks: (id: number, otherId: number) => request<DeckComparison>(`/api/decks/${id}/compare/${otherId}`),
-  deleteDeck: (id: number) =>
-    fetch(`/api/decks/${id}`, { method: 'DELETE' }).then((r) => {
+  deleteDeck: (id: number, withCards = false) =>
+    fetch(`/api/decks/${id}${withCards ? '?with_cards=true' : ''}`, { method: 'DELETE' }).then((r) => {
       if (!r.ok) throw new ApiError(r.status, r.statusText)
     }),
   addDeckCard: (id: number, cardId: string, board: Board = 'main', quantity = 1) =>

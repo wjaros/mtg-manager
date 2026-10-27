@@ -113,6 +113,32 @@ def test_deck_to_collection(client):
     assert {"Giada, Font of Hope", "Serra Angel", "Plains"} <= owned
 
 
+def test_delete_deck_keeps_or_removes_its_box(client):
+    serra = printing("Serra Angel", "fdn")
+    kept = import_seed(client, "giada-font-of-hope.txt")
+    box = client.post(f"/api/decks/{kept['id']}/collection").json()["location"]
+    assert client.delete(f"/api/decks/{kept['id']}").status_code == 204
+    # By default the box and its cards stay in the collection.
+    assert client.get("/api/collection/stats").json()["copies"] == 100
+    assert box["id"] in {loc["id"] for loc in client.get("/api/locations").json()}
+
+    deck = import_seed(client, "giada-font-of-hope.txt")
+    box = client.post(f"/api/decks/{deck['id']}/collection").json()["location"]
+    add(client, serra["id"], kind="proxy", location_id=box["id"])
+    loose = add(client, serra["id"])
+    assert client.delete(f"/api/decks/{deck['id']}", params={"with_cards": True}).status_code == 204
+    assert client.get(f"/api/decks/{deck['id']}").status_code == 404
+    assert box["id"] not in {loc["id"] for loc in client.get("/api/locations").json()}
+    items = client.get("/api/collection").json()
+    assert all(i["location"] is None or i["location"]["id"] != box["id"] for i in items)
+    assert loose["id"] in {i["id"] for i in items}
+    assert client.get("/api/collection/stats").json()["copies"] == 101
+    # A deck without a box: nothing else is touched.
+    empty = client.post("/api/decks", json={"name": "Empty", "format": "commander", "platform": "paper"}).json()
+    assert client.delete(f"/api/decks/{empty['id']}", params={"with_cards": True}).status_code == 204
+    assert client.get("/api/collection/stats").json()["copies"] == 101
+
+
 def test_collection_export(client):
     serra = printing("Serra Angel", "fdn")
     bolt = next(c for c in CARDS if c["name"] == "Lightning Bolt")

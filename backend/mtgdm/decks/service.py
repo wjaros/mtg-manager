@@ -80,10 +80,20 @@ def update_deck(conn: sqlite3.Connection, deck_id: int, data: DeckUpdate) -> Dec
     return get_deck(conn, deck_id)
 
 
-def delete_deck(conn: sqlite3.Connection, deck_id: int) -> None:
+def delete_deck(conn: sqlite3.Connection, deck_id: int, with_cards: bool = False) -> None:
+    """Delete a deck; its box location and the copies in it stay in the collection, unless
+    with_cards: then the box's copies (real and proxies) go too, and the box itself
+    (kept when another deck uses the same location)."""
     with conn:
-        if conn.execute("DELETE FROM decks WHERE id = ?", (deck_id,)).rowcount == 0:
+        row = conn.execute("SELECT location_id FROM decks WHERE id = ?", (deck_id,)).fetchone()
+        if row is None:
             raise DeckNotFound(deck_id)
+        conn.execute("DELETE FROM decks WHERE id = ?", (deck_id,))
+        location_id = row["location_id"]
+        if with_cards and location_id is not None:
+            conn.execute("DELETE FROM collection_items WHERE location_id = ?", (location_id,))
+            if not conn.execute("SELECT 1 FROM decks WHERE location_id = ?", (location_id,)).fetchone():
+                conn.execute("DELETE FROM locations WHERE id = ?", (location_id,))
 
 
 def add_card(conn: sqlite3.Connection, deck_id: int, card_id: str, quantity: int, board: Board) -> DeckDetail:

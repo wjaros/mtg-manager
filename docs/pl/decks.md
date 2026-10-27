@@ -7,6 +7,9 @@
 **Talie** pokazują wszystkie talie z formatem, dowódcą, kolorami i liczbą kart. **+ Nowa talia**
 tworzy pustą talię. Gotową listę albo precon wczytasz w [Imporcie](import-export.md).
 
+**×** na kafelku usuwa talię. Karty z jej pudełka zostają w kolekcji, chyba że zaznaczysz
+**Usuń też z kolekcji karty z jej pudełka**: wtedy znikają z kolekcji (razem z proxy) i samo pudełko.
+
 ![Talie](../images/pl/decks.webp)
 
 ## Deckbuilder

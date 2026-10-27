@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { api, type DeckFormat, type DeckSummary, type Platform } from '../api/client'
+import { api, type DeckFormat, type DeckSummary, type Location, type Platform } from '../api/client'
 import { CardImage } from '../components/CardImage'
 import { ManaCost } from '../components/ManaCost'
 import { deckSizeTarget, FORMAT_LABEL, PLATFORM_LABEL } from '../decks'
@@ -13,15 +13,16 @@ export function DecksView({ onOpen }: Props) {
   const [decks, setDecks] = useState<DeckSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [deleting, setDeleting] = useState<DeckSummary | null>(null)
 
   useEffect(() => {
     api.decks().then(setDecks, (e: Error) => setError(e.message))
   }, [])
 
-  const remove = async (deck: DeckSummary) => {
-    if (!window.confirm(t.decks.confirmDelete(deck.name))) return
+  const remove = async (deck: DeckSummary, withCards: boolean) => {
+    setDeleting(null)
     try {
-      await api.deleteDeck(deck.id)
+      await api.deleteDeck(deck.id, withCards)
       setDecks((prev) => prev?.filter((d) => d.id !== deck.id) ?? null)
     } catch (e) {
       setError((e as Error).message)
@@ -92,7 +93,7 @@ export function DecksView({ onOpen }: Props) {
                     </span>
                   </div>
                 </button>
-                <button className="deck-tile-delete" onClick={() => remove(deck)} title={t.decks.deleteDeck} aria-label={t.decks.deleteDeck}>
+                <button className="deck-tile-delete" onClick={() => setDeleting(deck)} title={t.decks.deleteDeck} aria-label={t.decks.deleteDeck}>
                   ×
                 </button>
               </div>
@@ -100,6 +101,70 @@ export function DecksView({ onOpen }: Props) {
           })}
         </div>
       )}
+      {deleting && (
+        <DeleteDeckDialog deck={deleting} onDelete={(withCards) => remove(deleting, withCards)} onClose={() => setDeleting(null)} />
+      )}
+    </div>
+  )
+}
+
+/** Confirms a deck's deletion; a deck with a box in the collection may take its cards along. */
+function DeleteDeckDialog({
+  deck,
+  onDelete,
+  onClose,
+}: {
+  deck: DeckSummary
+  onDelete: (withCards: boolean) => void
+  onClose: () => void
+}) {
+  const [box, setBox] = useState<Location | null>(null)
+  const [withCards, setWithCards] = useState(false)
+
+  useEffect(() => {
+    if (deck.location_id === null) return
+    api.locations().then(
+      (locations) => setBox(locations.find((l) => l.id === deck.location_id) ?? null),
+      () => setBox(null),
+    )
+  }, [deck.location_id])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  const hasCards = box !== null && box.card_count + (box.proxy_count ?? 0) > 0
+
+  return (
+    <div className="modal-backdrop centered" onClick={onClose}>
+      <div className="dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={t.decks.deleteDeck}>
+        <div className="dialog-header">
+          <h2>{t.decks.deleteDeck}</h2>
+          <button className="close-button static" onClick={onClose} aria-label={t.common.close}>
+            ×
+          </button>
+        </div>
+        <p>{t.decks.confirmDelete(deck.name)}</p>
+        {hasCards && (
+          <div>
+            <label className="checkbox">
+              <input type="checkbox" checked={withCards} onChange={(e) => setWithCards(e.target.checked)} />
+              {t.decks.deleteWithCards(box.card_count, box.proxy_count ?? 0)}
+            </label>
+            <p className="muted small">{t.decks.deleteWithCardsHint}</p>
+          </div>
+        )}
+        <div className="actions">
+          <button className="button primary" onClick={() => onDelete(hasCards && withCards)}>
+            {t.common.delete}
+          </button>
+          <button className="button" onClick={onClose}>
+            {t.common.cancel}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
