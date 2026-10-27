@@ -204,8 +204,8 @@ export const en: Messages = {
     title: 'Decks',
     newDeck: '+ New deck',
     confirmDelete: (name: string) => `Delete deck “${name}”? This cannot be undone.`,
-    deleteWithCards: (cards: number, proxies: number) =>
-      `Also remove the cards in its box from the collection (${cards} cards${proxies ? `, ${proxies} proxies` : ''}) and the box itself`,
+    deleteWithCards: 'Also remove the cards in its box from the collection, and the box itself',
+    boxCounts: (cards: number, proxies: number) => `in the box: ${cards} cards${proxies ? `, ${proxies} proxies` : ''}`,
     deleteWithCardsHint: "Unchecked, the cards stay in the collection, in the deck's location.",
     empty: "You don't have any decks yet.",
     emptyHint: 'Create a deck and add cards from the pool, or import a list from Arena (Import menu).',

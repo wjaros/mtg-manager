@@ -135,7 +135,8 @@ function DeleteDeckDialog({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const hasCards = box !== null && box.card_count + (box.proxy_count ?? 0) > 0
+  // Offered whenever the deck has a box; the counts are added once the locations load.
+  const hasBox = deck.location_id !== null
 
   return (
     <div className="modal-backdrop centered" onClick={onClose}>
@@ -147,17 +148,18 @@ function DeleteDeckDialog({
           </button>
         </div>
         <p>{t.decks.confirmDelete(deck.name)}</p>
-        {hasCards && (
+        {hasBox && (
           <div>
             <label className="checkbox">
               <input type="checkbox" checked={withCards} onChange={(e) => setWithCards(e.target.checked)} />
-              {t.decks.deleteWithCards(box.card_count, box.proxy_count ?? 0)}
+              {t.decks.deleteWithCards}
+              {box && ` (${t.decks.boxCounts(box.card_count, box.proxy_count ?? 0)})`}
             </label>
             <p className="muted small">{t.decks.deleteWithCardsHint}</p>
           </div>
         )}
         <div className="actions">
-          <button className="button primary" onClick={() => onDelete(hasCards && withCards)}>
+          <button className="button primary" onClick={() => onDelete(hasBox && withCards)}>
             {t.common.delete}
           </button>
           <button className="button" onClick={onClose}>

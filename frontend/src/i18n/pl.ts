@@ -208,8 +208,8 @@ export const pl = {
     title: 'Talie',
     newDeck: '+ Nowa talia',
     confirmDelete: (name: string) => `Usunąć talię „${name}”? Tej operacji nie można cofnąć.`,
-    deleteWithCards: (cards: number, proxies: number) =>
-      `Usuń też z kolekcji karty z jej pudełka (${cards} kart${proxies ? `, ${proxies} proxy` : ''}) i samo pudełko`,
+    deleteWithCards: 'Usuń też z kolekcji karty z jej pudełka i samo pudełko',
+    boxCounts: (cards: number, proxies: number) => `w pudełku: ${cards} kart${proxies ? `, ${proxies} proxy` : ''}`,
     deleteWithCardsHint: 'Bez zaznaczenia karty zostają w kolekcji, w lokalizacji talii.',
     empty: 'Nie masz jeszcze żadnej talii.',
     emptyHint: 'Utwórz talię i dodawaj karty z puli albo zaimportuj listę z Areny (menu Import).',
