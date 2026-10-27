@@ -313,6 +313,8 @@ export const pl = {
     removeAll: 'Usuń wszystkie',
     confirmReplaceCollection: 'Karty tej talii już są w kolekcji (pudełko talii). Zastąpić je aktualną listą talii?',
     addedToCollection: (n: number, location: string) => `Dodano ${n} kart do kolekcji (lokalizacja: ${location})`,
+    relinkedBox: (location: string, n: number) =>
+      `Talia dostała istniejące pudełko „${location}” (${n} kart, po usuniętej talii o tej nazwie); nic nie dodano`,
     versionPrompt: 'Opis wersji (opcjonalnie), np. „po turnieju”, „mniej rampy”:',
     confirmDiscard: (n: number | null) => `Odrzucić niezapisane zmiany i wrócić do wersji ${n}?`,
     namePrompt: 'Nazwa talii',

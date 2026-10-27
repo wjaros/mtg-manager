@@ -27,7 +27,8 @@ included) along with the box itself.
 
 **Buttons:**
 - **I own this deck:** moves the deck's cards into its box. It then reads "In collection ✓", and a
-  click refreshes it;
+  click refreshes it. If a deleted deck of the same name left its box with cards behind, the deck
+  takes that box over and adds nothing (no doubled cards);
 - **Proxies:** [proxy printing](proxies.md);
 - **Export:** [deck export](import-export.md#export).
 

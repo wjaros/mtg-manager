@@ -309,6 +309,8 @@ export const en: Messages = {
     removeAll: 'Remove all',
     confirmReplaceCollection: "This deck's cards are already in the collection (deck box). Replace them with the current list?",
     addedToCollection: (n: number, location: string) => `Added ${n} cards to the collection (location: ${location})`,
+    relinkedBox: (location: string, n: number) =>
+      `The deck took over the existing box “${location}” (${n} cards, left by a deleted deck of this name); nothing added`,
     versionPrompt: 'Version note (optional), e.g. “after the tournament”, “less ramp”:',
     confirmDiscard: (n: number | null) => `Discard unsaved changes and go back to version ${n}?`,
     namePrompt: 'Deck name',

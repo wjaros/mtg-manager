@@ -261,27 +261,42 @@ def replace_with_real(conn: sqlite3.Connection, item_id: int, data: ReplaceWithR
 
 
 def deck_box(conn: sqlite3.Connection, deck_id: int) -> int:
-    """The location of the deck's box, created (named after the deck) when it has none yet."""
+    """The location of the deck's box. A deck without one gets the box left behind by a deleted deck
+    of the same name (a 'deck' location no deck uses), else a new box named after the deck."""
     deck = conn.execute("SELECT id, name, location_id FROM decks WHERE id = ?", (deck_id,)).fetchone()
     if deck is None:
         raise DeckNotFound(deck_id)
     if deck["location_id"] is not None:
         return deck["location_id"]
     with conn:
-        location_id = conn.execute("INSERT INTO locations(name, kind) VALUES (?, 'deck')", (deck["name"],)).lastrowid
+        left_behind = conn.execute(
+            """
+            SELECT id FROM locations l WHERE kind = 'deck' AND name = ?
+              AND NOT EXISTS (SELECT 1 FROM decks d WHERE d.location_id = l.id)
+            ORDER BY id LIMIT 1
+            """,
+            (deck["name"],),
+        ).fetchone()
+        location_id = left_behind["id"] if left_behind else conn.execute(
+            "INSERT INTO locations(name, kind) VALUES (?, 'deck')", (deck["name"],)
+        ).lastrowid
         conn.execute("UPDATE decks SET location_id = ? WHERE id = ?", (location_id, deck_id))
     return location_id
 
 
 def add_deck_to_collection(conn: sqlite3.Connection, deck_id: int, replace: bool = False) -> DeckToCollectionResult:
     """'I own this deck': put its cards into the collection, in the deck's own box location.
-    With replace, the box is emptied first (re-sync after the decklist changed)."""
+    With replace, the box is emptied first (re-sync after the decklist changed). A box taken over
+    from a deleted deck of the same name keeps its cards and nothing is added (no doubled copies)."""
+    had_box = conn.execute("SELECT location_id FROM decks WHERE id = ?", (deck_id,)).fetchone()
     location_id = deck_box(conn, deck_id)
     with conn:
         has_items = conn.execute(
             "SELECT 1 FROM collection_items WHERE location_id = ? LIMIT 1", (location_id,)
         ).fetchone()
         if has_items and not replace:
+            if had_box["location_id"] is None:
+                return DeckToCollectionResult(location=get_location(conn, location_id), added=0, relinked=True)
             raise LocationNotEmpty(location_id)
         if replace:
             conn.execute("DELETE FROM collection_items WHERE location_id = ?", (location_id,))

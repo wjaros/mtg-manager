@@ -2676,6 +2676,11 @@ export interface components {
             location: components["schemas"]["Location"];
             /** Added */
             added: number;
+            /**
+             * Relinked
+             * @default false
+             */
+            relinked?: boolean;
         };
         /** DeckToken */
         DeckToken: {
