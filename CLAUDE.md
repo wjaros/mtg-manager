@@ -1,142 +1,162 @@
 # CLAUDE.md
 
-Local MTG collection / deckbuilding / scanning app (see README.md). Changes end with a working app and tests.
-Code, comments, API and DB names in English. UI texts in Polish and English, never inline:
-frontend `src/i18n/pl.ts` (source of keys) + `en.ts` (typed by pl, a missing key fails the build), used as `t.section.key`;
-backend messages for the UI (validation, import warnings, errors) in `mtgdm/i18n.py` via `tr("key", ...)`,
-language from the request's Accept-Language (the frontend sends its own; default Polish).
+Local MTG collection / deckbuilding / scanning app: FastAPI backend + React frontend, shipped as a desktop
+window app (pywebview) for macOS and Windows. Features: README.md; user guide: `docs/{pl,en}/`.
+Every Python module opens with a docstring saying what it does and why: read it before changing the module.
+Changes end with a working app and tests.
+
+## Language
+Code, comments, API and DB names, commit messages in English. UI texts in Polish and English, never inline:
+- frontend: `frontend/src/i18n/pl.ts` is the source of keys, `en.ts` is typed by it (a missing key fails the
+  build); used as `t.section.key`
+- backend messages shown in the UI (validation, import warnings, errors): `mtgdm/i18n.py`, `tr("key", ...)`;
+  the language comes from Accept-Language (the frontend sends its own; default Polish)
 
 ## Layout
-- `backend/` – Python 3.12, FastAPI, managed with `uv`. Package `mtgdm` (flat layout, no `src/`).
-  - `mtgdm/__main__.py` – CLI `mtgdm app | serve | sync | check-window` (the last loads the window toolkit, for the smoke test)
-  - `mtgdm/app.py` – app factory; serves `frontend/dist` (SPA fallback) when it exists
-  - `mtgdm/config.py` – data dir via platformdirs; override with `MTGDM_DATA_DIR`, `MTGDM_FRONTEND_DIST`
-  - `mtgdm/db/migrations/NNN_name.sql` – numbered SQL migrations, applied on startup, tracked in `schema_version`
-  - `mtgdm/scryfall/` – API client (headers, rate limit), sets + `default_cards` bulk sync (`mtgdm sync`)
-  - `mtgdm/mtgjson/` – MTGJSON (MIT) for precon card lists only (Scryfall stays the card source; joined by Scryfall id):
-    `precons.py` syncs DeckList.json + Commander decks as the last sync stage (failure doesn't fail the sync),
-    others on demand; a precon becomes import text with exact printings; `browse_precons` (owned / value per
-    Commander precon) and `precons_for_missing` (precons covering a deck's missing cards, basics left out)
-  - `mtgdm/cardtrader/` – CardTrader API with the user's own token (in `meta`, never in backups): the shopping list as
-    one private wishlist (a deck's missing cards put on the list first; no edit endpoint, so each sync creates a new
-    one, then deletes the last, its id in `meta`); MTGA text, read back by slug: unrecognized cards are reported;
-    API facts in `docs/ideas/cardtrader.md`
-  - `mtgdm/spellbook/` – Commander Spellbook `find-my-combos` (own UA, ≥1 s between requests, 429 back-off; answers
-    cached in memory per card list for a day, nothing stored): a deck's combos and those one card away, cards mapped
-    to local printings (`GET /api/decks/{id}/combos`, deckbuilder tab Combo)
-  - `mtgdm/cards/` – search (FTS5 + filters), card detail, printings; `syntax.py` – Scryfall-style query syntax
-    `user_tags.py` – the user's own tags per oracle id (`tag:` in the syntax, one spelling per tag, in the backup)
-    `similar.py` – similar cards on the fly (FTS5 phrase query on the rules text + shared Tagger tags with their
-    ancestors, weighted by rarity; non-functional tag families such as cycles ignored; mana value only scales the
-    score; weak matches dropped; owned ones ranked apart against the same text reference), context menu → Similar cards
-  - `mtgdm/scan/` – card scanning: `detect.py` (find + straighten; single card or up to 9 on a page), `ocr/` (Apple Vision on macOS, RapidOCR),
-    `reader.py` (OCR lines -> name / number / set / artist / year), `match.py` (set+number, fuzzy name, image hash),
-    `pipeline.py` (auto/single/page, manual grid), `service.py` (scans as records, PDF pages, review, commit),
-    `synth.py` (synthetic photos and A4 pages for tests)
-  - `mtgdm/backup.py` – JSON backup of collection, locations and decks (cards by id, then set+number, then name)
-  - `mtgdm/updates.py` – new version check (GitHub releases API, cached in meta, skip a version); notify only,
-    no self-update (unsigned macOS app)
-  - `mtgdm/prefs.py` – the UI's preferences (`ui:` keys in meta, not in backups) and the interface scale, which
-    `mtgdm app` applies as the web view's own zoom (WKWebView pageZoom / WebView2 ZoomFactor) before the page
-    loads and on every change (`PUT /api/prefs/scale`); in a browser the browser's zoom does it
-  - `mtgdm/cloud_backup.py` – the backup written to a chosen (synced) folder by a background thread when the data
-    changed (hash without timestamps); a newer file from another machine id is offered on start (never overwritten)
-  - `mtgdm/decks/` – deck storage (`deck_cards` is the source of truth; decks.commander/partner/companion_card_id are derived),
-    `textformat.py` (Arena list parser), `matcher.py` (line → printing, warnings instead of silent fallbacks), `export.py`,
-    `validation.py` (format rules → issues), `stats.py`, `pdf.py` (deck PDF, one card per page, Pillow)
-    `compare.py` – two decks card by card (by oracle id; commander, main, companion): copies, price, and per deck
-    whether a card fits (format legality, commander identity, Arena) and how many copies it could take (copy limits:
-    `validation.allowed_copies`), with the printing to add; deckbuilder tab Compare
-    `versions.py` – deck history: `deck_cards` is the working copy (saved on every change), `deck_versions` holds
-    snapshots; changes vs the latest snapshot = "unsaved" (diffed per card name + board, so a printing swap isn't a removal)
-  - `mtgdm/collection/` – physical copies (`collection_items`) and locations; "I own this deck" puts a deck into its box location;
-    `missing.py` – missing-cards report per deck + exports (text / CardMarket wants / CSV)
-    `wants.py` – shopping list (`wants`, per oracle id: by hand or a deck's missing copies; real copies added
-    after a row count as bought, via `owned_at_add`), Cardmarket / CSV export, in the backup
-    `usage.py` – where a card is (copies per location / deck box, decks listing it) for the deckbuilder hover
-    `moxfield.py` – Moxfield collection CSV export / import (condition scale mapping Cardmarket <-> US)
-    `export.py` – collection export: Arena-style list (`4 Name (SET) 123`, Scryfall set codes) and CSV
-  - `mtgdm/printing/` – proxy printing: `candidates.py` (cards a deck's box lacks), `layout.py` (pure mm geometry,
-    calibration math; images are scaled uniformly, frames/marks per axis), `render.py` (reportlab; a system font with
-    Polish letters, else Helvetica without diacritics), `profiles.py` (printer profiles, card size in meta),
-    `text_cards.py` (text proxies: rules text per face, split/adventure halves on one card),
-    `history.py` (print_jobs: recorded prints; marking their cards as proxies in a deck's box),
-    `tokens.py` (tokens a deck makes, from all_parts; the test fixture has no all_parts, tests add them),
-    `jobs.py` (background job: images first, then pages; the PDF is downloaded from a link)
-  - `mtgdm/scryfall/tags.py` – Scryfall Tagger's oracle tags from the `oracle_tags` bulk file, refreshed weekly during sync:
-    all of them with their hierarchy (`oracle_tags`, `oracle_tag_parents`, `oracle_taggings`; a tag's cards include its
-    descendants'), and the card functions the app counts (ramp, draw, removal, …: Tagger tags pinned by id, slugs change)
-    derived into `card_tags`; `otag:` in the query syntax, `functions` in deck stats
-  - `mtgdm/scryfall/images.py` – image cache (`/api/images/...`); `manager.py` – background sync + SSE progress
-- `frontend/` – React + TypeScript + Vite. `src/api/schema.d.ts` is generated, do not edit. Views in `src/views/`, hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`).
-  Remembered UI choices go through `src/prefs.ts` (`getPref` / `setPref`, loaded before the app renders), never
-  localStorage: the window app's web view is private and on a random port, so browser storage is lost on restart.
-- `packaging/` – PyInstaller spec (macOS + Windows), launcher and icons (`scripts/build_macos.sh`, `scripts/build_windows.ps1`);
-  the bundle uses a minimal OpenCV (`scripts/build_opencv.py`: core/imgproc/imgcodecs, JPEG+PNG, same version as uv.lock,
-  cached in `build/opencv-slim/`) put first on PYTHONPATH; dev and tests use the PyPI wheel. A new cv2 function from
-  another module (e.g. features, photo) needs adding to BUILD_LIST there. HEIC only on macOS, through ImageIO
-  (`scan/imageio_mac.py`): libheif wheels carry the GPL x265 encoder, not bundled on purpose.
-  Windows window = pywebview → pythonnet (.NET Framework) → WebView2. A zip unpacked by Explorer marks every file
-  as downloaded and .NET won't load marked assemblies ("Failed to resolve Python.Runtime.Loader.Initialize"): the
-  app drops the mark from its DLLs before loading pythonnet; the smoke test marks the bundle to keep this covered
-- License: GPL-3.0-or-later (LICENSE). Dependencies must be GPLv3-compatible (MIT, BSD, Apache-2.0, MPL-2.0 are;
-  GPL-2.0-only is not). Third-party licenses in THIRD_PARTY_NOTICES.md (update it with new dependencies)
-  bundled resource paths live in `mtgdm/config.py` (FROZEN branch) and must match the spec
-- `docs/` – user guide in Polish (`docs/pl/`) and English (`docs/en/`), one page per area, same file names in both,
-  screenshots in `docs/images/{pl,en}/` (1440×900 WebP, taken on a copy of the data by `scripts/docs_screenshots.py`); Jekyll-ready for GitHub Pages
-  (`docs/_config.yml`, `docs/ideas/` excluded). Update both languages when a feature changes; anchors ASCII only
-- `seeds/` – example decklists (precons and products), offered in the Import view; `seeds/collection/` – lists of
-  products that are not decks (imported into the collection: Import → Kolekcja → Lista kart). A trailing `# note` on a
-  list line becomes the collection item's note (e.g. "printing unverified")
-- `scripts/` – `dev.sh`, `gen_api_types.sh`, `make_fixture.py` (cuts `backend/tests/fixtures/scryfall/{cards.jsonl.gz,sets.json}` out of real data; run with `--decklists ../seeds/*.txt`)
+- `backend/` – Python 3.12, `uv`, package `mtgdm` (flat, no `src/`)
+  - `__main__.py` – CLI `mtgdm app | serve | sync | check-window` (the last only loads the window toolkit, for
+    the smoke test); `app.py` – app factory, serves `frontend/dist` with an SPA fallback
+  - `config.py` – data dir via platformdirs (`MTGDM_DATA_DIR`, `MTGDM_FRONTEND_DIST`, `MTGDM_SEEDS_DIR`);
+    bundled resource paths (FROZEN branch) must match the PyInstaller spec
+  - `api/` – thin FastAPI routers under `/api`, one file per area (`cards`, `decks`, `collection`, `wants`,
+    `printing`, `scans`, `precons`, `importing` `/import`, `backup`, `sync`, `prefs`, `updates`, `cardtrader`,
+    `images`, `health`); `deps.py`: `Db` (one connection per request), `AppSettings`. Deck-scoped endpoints
+    live with their area: `/decks/{id}/missing|holdings|collection` in `collection.py`, `/decks/{id}/wants`
+    in `wants.py`, `/decks/{id}/proxy-candidates|tokens|proxies` in `printing.py`, `/decks/{id}/missing/precons`
+    in `precons.py`. Request/response models in each package's `models.py` (or next to the logic)
+  - `db/` – `connect()` (WAL), `migrate()`; `migrations/NNN_name.sql` applied on startup, tracked in
+    `schema_version`. Tables: `meta` (key/value: settings, tokens, `ui:` prefs); cards: `sets`, `cards` +
+    `cards_fts`, `card_details`, `oracle_cards`, `card_tags`, `oracle_tags`, `oracle_tag_parents`,
+    `oracle_taggings`, `user_tags`; yours: `locations`, `collection_items`, `decks`, `deck_cards`,
+    `deck_versions`, `wants`; `scans`, `scan_items`; `printer_profiles`, `print_jobs`; `precons`, `precon_cards`
+  - `scryfall/` – `client.py` (headers, rate limits), `sets.py`, `bulk.py` (`default_cards` import, rebuilds
+    `oracle_cards`), `sync.py` (stages; `mtgdm sync`), `manager.py` (background sync + SSE progress),
+    `images.py` (image cache, `/api/images/...`), `tags.py` (Tagger's `oracle_tags` bulk, weekly: all tags with
+    their hierarchy – a tag's cards include its descendants' – and the card functions the app counts (ramp,
+    draw, removal…) pinned by tag id since slugs change, derived into `card_tags`)
+  - `cards/` – `search.py` (FTS5 + filters), `syntax.py` (Scryfall-style query; `otag:`, `tag:`),
+    `user_tags.py` (the user's tags per oracle id, in the backup), `similar.py` (rules-text phrase match +
+    shared Tagger tags; context menu → Similar cards)
+  - `decks/` – `service.py` (storage), `textformat.py` (Arena list parser), `matcher.py` (line → printing;
+    warnings, never silent fallbacks), `importer.py`, `export.py`, `validation.py` (format rules → issues,
+    `allowed_copies`), `stats.py`, `pdf.py` (one card per page, Pillow), `compare.py` (two decks by oracle id:
+    copies, price, whether a card fits each deck; tab Compare), `versions.py` (history snapshots)
+  - `collection/` – `service.py` (copies, locations; "I own this deck" fills the deck's box location),
+    `missing.py` (missing cards + exports), `wants.py` (shopping list per oracle id; real copies added after a
+    row count as bought, via `owned_at_add`), `usage.py` (where a card is, for the deckbuilder hover),
+    `moxfield.py` (CSV, Cardmarket ↔ US condition scale), `export.py` (Arena-style list, CSV)
+  - `printing/` – proxies: `candidates.py` (cards a deck's box lacks), `layout.py` (pure mm geometry +
+    calibration; images scaled uniformly, frames/marks per axis), `render.py` (reportlab; a system font with
+    Polish letters, else Helvetica without diacritics), `profiles.py`, `text_cards.py`, `tokens.py` (from
+    `all_parts`; the test fixture has none, tests add them), `history.py` (print jobs → proxies in a box),
+    `jobs.py` (background job, PDF downloaded from a link)
+  - `scan/` – `detect.py` (find + straighten, 1 card or up to 9 on a page) → `ocr/` (Apple Vision on macOS,
+    RapidOCR) → `reader.py` (lines → name / number / set / artist / year) → `match.py` (set+number, fuzzy name,
+    image hash); `pipeline.py`, `service.py` (scans as records, PDF pages, review, commit), `synth.py`
+    (synthetic photos and A4 pages for tests)
+  - external services, each with its own client and politeness rules (details in the docstrings):
+    `mtgjson/` (precon card lists only, joined by Scryfall id; last sync stage, its failure doesn't fail the
+    sync), `cardtrader/` (user's token in `meta`, never in backups; the shopping list as one wishlist,
+    recreated on each send since the API can't edit one; API facts in `docs/ideas/cardtrader.md`),
+    `spellbook/` (Commander Spellbook combos, ≥1 s between requests, cached in memory for a day),
+    `updates.py` (GitHub releases; notify only, no self-update: the macOS app is unsigned)
+  - `backup.py` (JSON backup of collection, locations, decks, wants, user tags; cards matched by id, then
+    set+number, then name), `cloud_backup.py` (written to a synced folder when the data changed; a newer
+    file from another machine is offered on start, never overwritten), `prefs.py` (UI prefs as `ui:` keys in
+    meta, not in backups; the interface scale is applied as the web view's own zoom)
+- `backend/tests/` – pytest; fixtures in `conftest.py`: `client` (empty DB), `card_settings` (a copy of a DB
+  with the fixture cards: `TestClient(create_app(card_settings))`), `db`; fixture data in `tests/fixtures/`
+  (Scryfall cut made by `scripts/make_fixture.py --decklists ../seeds/*.txt`), helpers in `tests/helpers.py`.
+  HTTP is mocked with `httpx.MockTransport` passed to the client (e.g. `create_app(..., scryfall=...)`)
+- `frontend/` – React 19 + TypeScript + Vite, no state library, no test runner (build + lint are the checks)
+  - `src/App.tsx` – sidebar + hash routing (`routeFromHash`): `#/` CollectionView (search), `#/collection/items/
+    {id|none}` CollectionItemsView, `#/collection/locations|proxies|wants` LocationsView / ProxiesView /
+    WantsView, `#/decks` DecksView, `#/decks/{id}[/stats|combos|missing|history|compare]` DeckBuilderView,
+    `#/import` ImportView, `#/scan` ScanView, `#/settings` SettingsView (all in `src/views/`)
+  - `src/api/client.ts` – `api.*` calls (one per endpoint, sends Accept-Language), type aliases of the
+    generated `schema.d.ts` (never edit it), URL builders for downloads and images
+  - deckbuilder: `views/DeckBuilderView.tsx` + `hooks/useDeck.ts` (deck state and actions); tabs are
+    `components/Deck{StatsPanel,CombosPanel,ComparePanel,HistoryPanel}.tsx`, `MissingPanel.tsx`; the deck
+    itself `DeckList.tsx` / `DeckVisual.tsx` / `DeckPreview.tsx`, grouping and sorting in `src/decks.ts`
+  - shared: `CardGrid`, `CardDetailPanel`, `Filters` (+ `src/filters.ts` → query), `ContextMenu`,
+    `HoverPreview` / `hooks/useHoverPreview`, `ProxyDialog`, `PrintingPanel`, `ExportDialog`, charts in
+    `components/charts/`; small stores with a hook: `printQueue.ts`, `wants.ts`; `prefs.ts`, `theme.ts`
+  - styles: one `src/index.css` (tokens on `:root`, see Rules)
+- `packaging/` + `scripts/build_*` – PyInstaller (macOS + Windows); see Packaging below
+- `docs/` – user guide, Jekyll-ready (`docs/ideas/` = developer notes, excluded); `seeds/` – example decklists
+  offered in Import (`seeds/collection/`: non-deck products; a trailing `# note` becomes the item's note)
 
-## Scryfall rules (https://scryfall.com/docs/api)
-- Every request to api.scryfall.com: own `User-Agent: MTGDeckManager/<version>` and `Accept` headers, 100 ms between
-  requests, 500 ms before `/cards/search`, `/named`, `/random` and `/collection` (hard limits, `ENDPOINT_INTERVALS` in
-  the client); a 429 locks the app out for 30 s and repeated ones risk a ban: prefer bulk files over many API requests.
-  Files on `*.scryfall.io` (bulk, images) have no rate limit.
-- Card data comes from the `default_cards` bulk file (streamed, never loaded whole); refresh weekly or after a set release.
-- Images are cached locally and never hotlinked, cropped (copyright / artist line), filtered or watermarked.
-- Prices in bulk data are up to a day old: show them as estimates with their date. Never paywall or republish raw data.
-
-## Data notes
-- `collection_items.kind`: 'real' copies are owned; 'proxy' copies stand in for a card in a deck's box and must never
-  count as owned (search owned filters, stats, missing, exports, validation): filter `kind = 'real'` in new queries.
-- `cards` is kept narrow (searched by full scans); bulky JSON lives in `card_details` (1:1).
-- One card per search result shows the printing owned in most copies (`owned_printings` in `cards/search.py`),
-  not on Arena or with printing filters.
-- `oracle_cards` = one row per card with `default_card_id` / `arena_card_id` (both prefer regular booster printings in a plain frame), rebuilt after each sync.
-- Scryfall bulk is gzipped JSONL now (`jsonl_download_uri`); there are no `A-` (Alchemy rebalanced) cards in it.
-- Scryfall `arena_code` can collide with another set's `code` (me1 → `med`): resolve set codes by `code` first.
+## A typical change touches
+- backend logic in its domain module + a route in `api/<area>.py` + tests in `backend/tests/test_<area>*.py`
+- new/changed API model → `scripts/gen_api_types.sh` → `api.*` in `frontend/src/api/client.ts`
+- UI text → `frontend/src/i18n/pl.ts` + `en.ts`; backend message → `MESSAGES` in `mtgdm/i18n.py` (pl + en)
+- new table/column → `db/migrations/0NN_*.sql`; if it is user data, also `backup.py` (+ its test)
+- user-visible behavior → `docs/pl/<page>.md` + `docs/en/<page>.md` (and README.md if it lists it)
+- a new or moved module, router, table, view or component, a changed command, or a gotcha you had to dig
+  out of the code → this file, in the same commit. It is the agents' map: keep it accurate and dense (what a
+  file holds and what isn't obvious; the how belongs in the module docstring), and drop what no longer exists
 
 ## Commands
-- Tests: `cd backend && uv run pytest`
-- Sync Scryfall data: `cd backend && uv run python -m mtgdm sync` (~2 min, ~700 MB DB)
+- Tests: `cd backend && uv run pytest` (CI adds `-X warn_default_encoding`)
+- Python lint: `cd backend && uvx ruff check mtgdm tests ../scripts`
+- Frontend checks: `cd frontend && npm run build && npm run lint`
+- After changing API models: `scripts/gen_api_types.sh` (no server needed)
 - Dev: `scripts/dev.sh` (backend :8765 with reload, Vite :5173 proxying `/api`)
 - Window app: `cd frontend && npm run build && cd ../backend && uv run mtgdm app`
-- After changing API models: `scripts/gen_api_types.sh`
-- Frontend checks: `cd frontend && npm run build && npm run lint`
-- Docs screenshots (user guide + README's deckbuilder ones, both languages, on a copy of the app's data):
-  `cd frontend && npm run build && cd ../backend && uv run --with playwright python ../scripts/docs_screenshots.py`
-  (`--only stats,history`, `--lang pl`; Chromium once: `uv run --with playwright playwright install chromium`).
-  A new screenshot = a shot in its SHOTS; keep the decks it uses findable by name (DECKS)
-- Chart colors: `--series-*` in `frontend/src/index.css`, validated with the dataviz palette validator (dark steps on the
-  dark surface, light steps on `#ffffff`); don't add hues without re-validating.
-- Colors are tokens on `:root` (dark) with a light set under `:root[data-theme='light']` (`index.html` sets the system's
-  theme before the first paint, `src/theme.ts` applies the choice from Settings). No hex colors in rules: a tint is
-  `color-mix(in srgb, var(--token) N%, transparent)`; check new UI in both themes.
-- Smoke test of a built app: `python scripts/smoke_test.py <path to executable>`; CI: `.github/workflows/build.yml`
-- Release: bump `__version__` in `backend/mtgdm/__init__.py` and merge into master; CI tags and publishes
-  `v<version>` once all packages pass. Packages are built for PRs, releases and manual runs only (not for
-  master pushes that don't release)
-- Scan accuracy on synthetic photos: `cd backend && uv run python ../scripts/scan_benchmark.py --engine rapidocr`
-  (pages: `--pages 20 --background white|black`; fixture images: `scripts/make_scan_fixture.py`); the macOS bundle ships Apple Vision only
-  (`MTGDM_BUNDLE_RAPIDOCR=1` adds RapidOCR; it needs PyYAML via omegaconf, don't exclude `yaml` then)
-- Python lint: `cd backend && uvx ruff check mtgdm tests ../scripts`
+- Card data: `cd backend && uv run python -m mtgdm sync` (~2 min, ~700 MB DB; needs network)
+- Docs screenshots: `cd frontend && npm run build && cd ../backend && uv run --with playwright python
+  ../scripts/docs_screenshots.py [--only stats,history] [--lang pl]` (runs on a copy of the app's data; a new
+  shot goes into SHOTS, keep the decks it uses findable by name in DECKS)
+- Scan accuracy: `cd backend && uv run python ../scripts/scan_benchmark.py --engine rapidocr` (`--pages 20`)
+- Smoke test of a built app: `python scripts/smoke_test.py <executable>`; CI: `.github/workflows/build.yml`
+- Release: bump `__version__` in `backend/mtgdm/__init__.py`, merge into master; CI tags `v<version>` and
+  publishes. Release notes are made from the commit messages (`scripts/release_notes.py`): write commit
+  titles and bodies for users. Packages are built for PRs, releases and manual runs only
 
 ## Rules
-- Tests never touch the network: use fixtures + mocked HTTP client.
-- Schema changes = new migration file; never edit an applied migration. Migrations run with foreign keys off (a table
-  rebuild must not cascade) and must leave no broken reference (checked before commit). Deck formats are not a DB
-  CHECK (since 005): add them to `DeckFormat` and the validator.
+- Tests never touch the network: fixtures + mocked HTTP.
+- Schema change = a new migration file (next number); never edit an applied one. Migrations run with foreign
+  keys off (a table rebuild must not cascade) and must leave no broken reference. Deck formats are not a DB
+  CHECK: add them to `DeckFormat` (`decks/models.py`) and the validator.
 - Always pass `encoding="utf-8"` to text file I/O (Windows defaults to cp1252); CI enforces it.
+- A feature change updates the user guide in both languages (`docs/pl/` and `docs/en/`, same file names,
+  ASCII anchors; screenshots in `docs/images/{pl,en}/`, 1440×900 WebP) and README.md when it lists the feature.
+- New dependency: GPLv3-compatible only (MIT, BSD, Apache-2.0, MPL-2.0 yes; GPL-2.0-only no); add it to
+  THIRD_PARTY_NOTICES.md.
+- Frontend: remembered UI choices go through `src/prefs.ts` (`getPref` / `setPref`), never localStorage (the
+  window's web view is private and on a random port, so browser storage is lost on restart).
+- Colors are tokens on `:root` (dark) with a light set under `:root[data-theme='light']`; no hex colors in
+  rules, a tint is `color-mix(in srgb, var(--token) N%, transparent)`; check new UI in both themes. Chart
+  colors are `--series-*` in `src/index.css`, validated with the dataviz palette validator: don't add hues
+  without re-validating.
+
+## Scryfall (https://scryfall.com/docs/api)
+- api.scryfall.com: own `User-Agent: MTGDeckManager/<version>` and `Accept` headers, 100 ms between requests,
+  500 ms before `/cards/search`, `/named`, `/random`, `/collection` (`ENDPOINT_INTERVALS` in the client);
+  a 429 locks the app out for 30 s, repeated ones risk a ban: prefer bulk files. `*.scryfall.io` (bulk, images) has no rate limit.
+- Card data from the `default_cards` bulk file (gzipped JSONL via `jsonl_download_uri`, streamed, never loaded
+  whole; no `A-` Alchemy cards in it); refresh weekly or after a set release.
+- Images cached locally, never hotlinked, cropped, filtered or watermarked.
+- Prices are up to a day old: show them as estimates with their date. Never paywall or republish raw data.
+
+## Data notes
+- `collection_items.kind`: 'proxy' copies stand in for a card in a deck's box and never count as owned
+  (owned filters, stats, missing, exports, validation): filter `kind = 'real'` in new queries.
+- `cards` is kept narrow (full scans); bulky JSON lives in `card_details` (1:1).
+- `oracle_cards` = one row per card with `default_card_id` / `arena_card_id` (both prefer regular booster
+  printings in a plain frame), rebuilt after each sync.
+- A card in search results shows the printing owned in most copies (`owned_printings` in `cards/search.py`),
+  not on Arena or with printing filters.
+- `deck_cards` is the source of truth; `decks.commander/partner/companion_card_id` are derived. `deck_versions`
+  holds snapshots; "unsaved" = diff vs the latest one, per card name + board (a printing swap isn't a removal).
+- Scryfall `arena_code` can collide with another set's `code` (me1 → `med`): resolve set codes by `code` first.
+
+## Packaging
+- The bundle uses a minimal OpenCV (`scripts/build_opencv.py`: core/imgproc/imgcodecs, same version as
+  uv.lock, cached in `build/opencv-slim/`); a cv2 function from another module needs adding to its `MODULES`
+  (BUILD_LIST). Dev and tests use the PyPI wheel.
+- HEIC only on macOS via ImageIO (`scan/imageio_mac.py`); libheif wheels carry GPL x265, not bundled.
+- The macOS bundle ships Apple Vision only (`MTGDM_BUNDLE_RAPIDOCR=1` adds RapidOCR; it needs PyYAML, don't
+  exclude `yaml` then).
+- Windows: pywebview → pythonnet → WebView2. Explorer marks files from a downloaded zip and .NET won't load
+  them: the app drops the mark from its DLLs before loading pythonnet; the smoke test marks the bundle.
