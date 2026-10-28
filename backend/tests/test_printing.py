@@ -316,6 +316,23 @@ def test_deck_tokens(client):
     assert client.get("/api/decks/999/tokens").status_code == 404
 
 
+def test_tokens_of_cards_added_by_hand(client):
+    serra, bishop, pridemate = card(client, "Serra Angel"), card(client, "Bygone Bishop"), card(client, "Ajani's Pridemate")
+    link_tokens(client, serra["id"], CLUE)
+    link_tokens(client, bishop["id"], CLUE, GOBLIN)
+    link_tokens(client, pridemate["id"], PRIDEMATE_TOKEN)
+
+    # No deck needed: the cards on a print list; sources follow the order the cards were added.
+    ids = [bishop["id"], pridemate["id"], serra["id"], bishop["id"]]
+    tokens = client.get("/api/print/tokens", params={"card": ids}).json()
+    assert [(t["name"], t["sources"], t["card_id"]) for t in tokens] == [
+        ("Clue", ["Bygone Bishop", "Serra Angel"], CLUE),
+        ("Phyrexian Goblin", ["Bygone Bishop"], GOBLIN),
+    ]
+    assert client.get("/api/print/tokens").json() == []
+    assert client.get("/api/print/tokens", params={"card": "no-such-card"}).json() == []
+
+
 def test_back_positions_mirror_the_sheet():
     from mtgdm.printing.render import back_position
 

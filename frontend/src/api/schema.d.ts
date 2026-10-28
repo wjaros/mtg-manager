@@ -1138,6 +1138,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/print/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Print Tokens
+         * @description Tokens and emblems these cards make: suggestions for cards added to a print list by hand.
+         */
+        get: operations["print_tokens_api_print_tokens_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/print/settings": {
         parameters: {
             query?: never;
@@ -6063,6 +6083,38 @@ export interface operations {
             path: {
                 deck_id: number;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckToken"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    print_tokens_api_print_tokens_get: {
+        parameters: {
+            query?: {
+                /** @description Card printing ids */
+                card?: string[];
+            };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;

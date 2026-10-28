@@ -47,8 +47,8 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
     `moxfield.py` (CSV, Cardmarket ↔ US condition scale), `export.py` (Arena-style list, CSV)
   - `printing/` – proxies: `candidates.py` (cards a deck's box lacks), `layout.py` (pure mm geometry +
     calibration; images scaled uniformly, frames/marks per axis), `render.py` (reportlab; a system font with
-    Polish letters, else Helvetica without diacritics), `profiles.py`, `text_cards.py`, `tokens.py` (from
-    `all_parts`; the test fixture has none, tests add them), `history.py` (print jobs → proxies in a box),
+    Polish letters, else Helvetica without diacritics), `profiles.py`, `text_cards.py`, `tokens.py` (a deck's or
+    any cards' tokens, from `all_parts`; the test fixture has none, tests add them), `history.py` (print jobs → proxies in a box),
     `jobs.py` (background job, PDF downloaded from a link)
   - `scan/` – `detect.py` (find + straighten, 1 card or up to 9 on a page) → `ocr/` (Apple Vision on macOS,
     RapidOCR) → `reader.py` (lines → name / number / set / artist / year) → `match.py` (set+number, fuzzy name,

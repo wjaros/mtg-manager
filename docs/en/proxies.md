@@ -33,6 +33,9 @@ Print any other cards or tokens from **Collection → Print proxies**. Add cards
 - with right click → **Add to proxy printing**;
 - by searching in the dialog or pasting a list.
 
+The tokens the added cards make are listed under **Tokens**, unticked: tick the ones you want to
+print.
+
 ## Proxies in a deck
 
 A proxy is part of a deck but never counts as a card you own:

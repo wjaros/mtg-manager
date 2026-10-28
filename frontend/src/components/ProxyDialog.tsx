@@ -3,6 +3,7 @@ import {
   api,
   printJobPdfUrl,
   type CardSummary,
+  type DeckToken,
   type MarkResult,
   type Paper,
   type PrinterProfile,
@@ -57,14 +58,18 @@ interface Props {
 }
 
 /** Print proxies for the cards this deck's box lacks (not owned, or sitting in another deck's box),
-the tokens it makes, and any card added by hand; without a deck, just the cards you add. */
+the tokens it makes, and any card added by hand; without a deck, just the cards you add. Tokens made by
+the deck's cards and by the added ones are offered unchecked. */
 export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
-  // Without a deck the cards come from (and go back to) the collection's print list.
+  // Without a deck the cards come from (and go back to) the collection's print list; tokens are
+  // suggested again each time.
   const [rows, setRows] = useState<Row[] | null>(() => (deckId === null ? queuedRows() : null))
   useEffect(() => {
     if (deckId !== null || rows === null) return
     printQueue.replace(
-      rows.map((r) => ({ card_id: r.card_id, name: r.name, faces: r.faces, qty: r.qty, printing: r.printing })),
+      rows
+        .filter((r) => r.reason === 'extra')
+        .map((r) => ({ card_id: r.card_id, name: r.name, faces: r.faces, qty: r.qty, printing: r.printing })),
     )
   }, [deckId, rows])
   const [includeBasics, setIncludeBasics] = useState(false)
@@ -112,35 +117,54 @@ export function ProxyDialog({ deckId, deckName = '', onClose }: Props) {
     }
   }, [deckId, includeBasics, includeProxied])
 
-  // Tokens the deck makes: listed unchecked, you pick the ones you want.
+  // Tokens the deck and the cards added by hand make: listed unchecked, you pick the ones you want.
+  const extraIds = (rows ?? []).filter((r) => r.reason === 'extra').map((r) => r.card_id).join(',')
   useEffect(() => {
-    if (deckId === null) return
     let cancelled = false
-    api.deckTokens(deckId).then(
-      (list) =>
-        !cancelled &&
-        setRows((prev) => [
-          ...(prev ?? []).filter((r) => r.reason !== 'token'),
-          ...list.map((tok) => ({
-            key: `token-${tok.oracle_id}`,
-            card_id: tok.card_id,
-            name: tok.name,
-            reason: 'token' as Reason,
-            qty: 1,
-            checked: false,
-            faces: tok.faces,
-            printing: tok.printing,
-            other_decks: [],
-            sources: tok.sources,
-            image_status: null,
-          })),
-        ]),
+    Promise.all([
+      deckId === null ? [] : api.deckTokens(deckId),
+      extraIds ? api.printTokens(extraIds.split(',')) : [],
+    ]).then(
+      ([fromDeck, fromExtras]) => {
+        if (cancelled) return
+        const tokens = new Map<string, DeckToken>()
+        for (const tok of [...fromDeck, ...fromExtras]) {
+          const seen = tokens.get(tok.oracle_id)
+          if (seen) seen.sources = [...seen.sources, ...tok.sources.filter((s) => !seen.sources.includes(s))]
+          else tokens.set(tok.oracle_id, { ...tok })
+        }
+        setRows((prev) => {
+          // A token already listed keeps its choices (ticked, copies, printing); one no card makes any more goes.
+          const before = new Map((prev ?? []).filter((r) => r.reason === 'token').map((r) => [r.key, r]))
+          return [
+            ...(prev ?? []).filter((r) => r.reason !== 'token'),
+            ...[...tokens.values()].map((tok) => {
+              const key = `token-${tok.oracle_id}`
+              const kept = before.get(key)
+              if (kept) return { ...kept, sources: tok.sources }
+              return {
+                key,
+                card_id: tok.card_id,
+                name: tok.name,
+                reason: 'token' as Reason,
+                qty: 1,
+                checked: false,
+                faces: tok.faces,
+                printing: tok.printing,
+                other_decks: [],
+                sources: tok.sources,
+                image_status: null,
+              }
+            }),
+          ]
+        })
+      },
       () => {},
     )
     return () => {
       cancelled = true
     }
-  }, [deckId])
+  }, [deckId, extraIds])
 
   useEffect(() => {
     api.printerProfiles().then((list) => {
