@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath artifact configuration for the Windows release (paste into the SignPath project; kept
+     here to track changes). The build uploads only "MTG Deck Manager.exe" as a GitHub artifact, which
+     arrives zipped; the bundled Python and library DLLs are upstream binaries and stay unsigned.
+     The version comes from the workflow (`parameters`) and must match the exe's version resource
+     (packaging/mtgdm.spec). -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+  </parameters>
+  <zip-file>
+    <pe-file path="MTG Deck Manager.exe" product-name="MTG Deck Manager" product-version="${version}">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>

@@ -19,6 +19,42 @@ MACOS = sys.platform == "darwin"
 # RapidOCR is the Windows/Linux engine; MTGDM_BUNDLE_RAPIDOCR=1 bundles it on macOS too (testing).
 RAPIDOCR = not MACOS or os.environ.get("MTGDM_BUNDLE_RAPIDOCR") == "1"
 
+
+def windows_version_info():
+    """The exe's version resource (Properties → Details). Code signing checks the product name and
+    version (SignPath's artifact configuration, packaging/signpath/), so they must be set."""
+    # Needs pefile, which PyInstaller installs on Windows only.
+    from PyInstaller.utils.win32.versioninfo import (
+        FixedFileInfo,
+        StringFileInfo,
+        StringStruct,
+        StringTable,
+        VarFileInfo,
+        VarStruct,
+        VSVersionInfo,
+    )
+
+    numbers = tuple(int(n) for n in re.findall(r"\d+", VERSION)[:4])
+    numbers += (0,) * (4 - len(numbers))
+    strings = {
+        "CompanyName": "Wojciech Jaros",
+        "FileDescription": APP_NAME,
+        "FileVersion": VERSION,
+        "InternalName": "mtgdm",
+        "LegalCopyright": "Copyright © 2026 Wojciech Jaros. GPL-3.0-or-later.",
+        "OriginalFilename": f"{APP_NAME}.exe",
+        "ProductName": APP_NAME,
+        "ProductVersion": VERSION,
+    }
+    return VSVersionInfo(
+        ffi=FixedFileInfo(filevers=numbers, prodvers=numbers),
+        kids=[
+            StringFileInfo([StringTable("040904B0", [StringStruct(k, v) for k, v in strings.items()])]),
+            VarFileInfo([VarStruct("Translation", [0x0409, 1200])]),
+        ],
+    )
+
+
 a = Analysis(
     [str(ROOT / "packaging" / "launcher.py")],
     pathex=[str(BACKEND)],
@@ -71,6 +107,7 @@ exe = EXE(
     argv_emulation=False,
     codesign_identity=None,
     icon=str(ROOT / "packaging" / ("icon.icns" if MACOS else "icon.ico")),
+    version=None if MACOS else windows_version_info(),
 )
 coll = COLLECT(exe, a.binaries, a.datas, name="mtgdm" if MACOS else APP_NAME)
 

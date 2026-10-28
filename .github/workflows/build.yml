@@ -23,6 +23,7 @@ jobs:
     outputs:
       release: ${{ steps.check.outputs.release }}
       tag: ${{ steps.check.outputs.tag }}
+      version: ${{ steps.check.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - id: check
@@ -32,6 +33,7 @@ jobs:
           version=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' backend/mtgdm/__init__.py)
           tag="v$version"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           if [ "$GITHUB_REF_TYPE" = tag ]; then
             if [ "$tag" != "$GITHUB_REF_NAME" ]; then
               echo "::error::Tag $GITHUB_REF_NAME does not match __version__ = $version (backend/mtgdm/__init__.py)"
@@ -91,6 +93,10 @@ jobs:
           - { os: macos-15-intel, name: macos-x86_64 }
           - { os: windows-latest, name: windows-x64 }
     runs-on: ${{ matrix.os }}
+    env:
+      # Windows releases are signed through SignPath Foundation (free code signing for open source)
+      # once its API token is a repository secret; pull requests and manual runs stay unsigned.
+      SIGN_WINDOWS: ${{ matrix.name == 'windows-x64' && needs.version.outputs.release == 'true' && secrets.SIGNPATH_API_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -123,6 +129,50 @@ jobs:
 
       - name: Smoke test (Windows)
         if: runner.os == 'Windows'
+        run: uv run --no-project python scripts/smoke_test.py "dist/MTG Deck Manager/MTG Deck Manager.exe"
+
+      # Only the exe is ours to sign: the bundled Python and library DLLs are upstream binaries.
+      # The artifact configuration in SignPath is packaging/signpath/artifact-configuration.xml.
+      - name: Upload the exe for signing
+        id: unsigned
+        if: env.SIGN_WINDOWS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-windows-exe
+          path: dist/MTG Deck Manager/MTG Deck Manager.exe
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Sign (SignPath)
+        if: env.SIGN_WINDOWS == 'true'
+        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0 (gets the signing token: pinned)
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'mtg-manager' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          # Each release is approved by hand in SignPath: the job waits up to an hour for it.
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: dist/signed
+          parameters: |
+            version: ${{ toJSON(needs.version.outputs.version) }}
+
+      - name: Use the signed exe
+        if: env.SIGN_WINDOWS == 'true'
+        shell: pwsh
+        run: |
+          $exe = "dist\MTG Deck Manager\MTG Deck Manager.exe"
+          Copy-Item "dist\signed\MTG Deck Manager.exe" $exe -Force
+          Remove-Item -Recurse dist\signed
+          $signature = Get-AuthenticodeSignature $exe
+          if ($signature.Status -ne "Valid") { throw "Signature: $($signature.Status) $($signature.StatusMessage)" }
+          Write-Host "Signed by $($signature.SignerCertificate.Subject)"
+          ./scripts/build_windows.ps1 -ZipOnly
+
+      - name: Smoke test (Windows, signed)
+        if: env.SIGN_WINDOWS == 'true'
         run: uv run --no-project python scripts/smoke_test.py "dist/MTG Deck Manager/MTG Deck Manager.exe"
 
       # The package as it is (archive: false), named after its file: a zipped artifact would be a zip

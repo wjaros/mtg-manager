@@ -82,6 +82,8 @@ language from the request's Accept-Language (the frontend sends its own; default
 - License: GPL-3.0-or-later (LICENSE). Dependencies must be GPLv3-compatible (MIT, BSD, Apache-2.0, MPL-2.0 are;
   GPL-2.0-only is not). Third-party licenses in THIRD_PARTY_NOTICES.md (update it with new dependencies)
   bundled resource paths live in `mtgdm/config.py` (FROZEN branch) and must match the spec
+  Windows releases: CI signs the exe through SignPath Foundation (`packaging/signpath/`, only when the
+  `SIGNPATH_API_TOKEN` secret exists); its product name / version come from the spec's version resource
 - `docs/` – user guide in Polish (`docs/pl/`) and English (`docs/en/`), one page per area, same file names in both,
   screenshots in `docs/images/{pl,en}/` (1440×900 WebP, taken on a copy of the data by `scripts/docs_screenshots.py`); Jekyll-ready for GitHub Pages
   (`docs/_config.yml`, `docs/ideas/` excluded). Update both languages when a feature changes; anchors ASCII only
