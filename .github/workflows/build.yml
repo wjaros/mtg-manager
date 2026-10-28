@@ -175,13 +175,13 @@ jobs:
         if: env.SIGN_WINDOWS == 'true'
         run: uv run --no-project python scripts/smoke_test.py "dist/MTG Deck Manager/MTG Deck Manager.exe"
 
+      # The package as it is (archive: false), named after its file: a zipped artifact would be a zip
+      # holding the Windows zip.
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: mtg-deck-manager-${{ matrix.name }}
-          path: |
-            dist/*.dmg
-            dist/*.zip
+          path: ${{ runner.os == 'Windows' && 'dist/*.zip' || 'dist/*.dmg' }}
+          archive: false
           if-no-files-found: error
           # Push builds are for checking; releases keep their files in GitHub Releases.
           retention-days: 14
@@ -199,10 +199,10 @@ jobs:
         with:
           fetch-depth: 0  # the commits since the previous release, for the notes
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: release
-          pattern: mtg-deck-manager-*
+          pattern: MTG-Deck-Manager-*
           merge-multiple: true
 
       - name: Publish
