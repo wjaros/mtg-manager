@@ -92,6 +92,9 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
 - UI text → `frontend/src/i18n/pl.ts` + `en.ts`; backend message → `MESSAGES` in `mtgdm/i18n.py` (pl + en)
 - new table/column → `db/migrations/0NN_*.sql`; if it is user data, also `backup.py` (+ its test)
 - user-visible behavior → `docs/pl/<page>.md` + `docs/en/<page>.md` (and README.md if it lists it)
+- a new or moved module, router, table, view or component, a changed command, or a gotcha you had to dig
+  out of the code → this file, in the same commit. It is the agents' map: keep it accurate and dense (what a
+  file holds and what isn't obvious; the how belongs in the module docstring), and drop what no longer exists
 
 ## Commands
 - Tests: `cd backend && uv run pytest` (CI adds `-X warn_default_encoding`)
