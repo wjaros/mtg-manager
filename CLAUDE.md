@@ -18,8 +18,17 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
     the smoke test); `app.py` – app factory, serves `frontend/dist` with an SPA fallback
   - `config.py` – data dir via platformdirs (`MTGDM_DATA_DIR`, `MTGDM_FRONTEND_DIST`, `MTGDM_SEEDS_DIR`);
     bundled resource paths (FROZEN branch) must match the PyInstaller spec
-  - `api/` – FastAPI routers (thin), `deps.py` gives `Db`; logic lives in the domain packages below
-  - `db/migrations/NNN_name.sql` – applied on startup, tracked in `schema_version`
+  - `api/` – thin FastAPI routers under `/api`, one file per area (`cards`, `decks`, `collection`, `wants`,
+    `printing`, `scans`, `precons`, `importing` `/import`, `backup`, `sync`, `prefs`, `updates`, `cardtrader`,
+    `images`, `health`); `deps.py`: `Db` (one connection per request), `AppSettings`. Deck-scoped endpoints
+    live with their area: `/decks/{id}/missing|holdings|collection` in `collection.py`, `/decks/{id}/wants`
+    in `wants.py`, `/decks/{id}/proxy-candidates|tokens|proxies` in `printing.py`, `/decks/{id}/missing/precons`
+    in `precons.py`. Request/response models in each package's `models.py` (or next to the logic)
+  - `db/` – `connect()` (WAL), `migrate()`; `migrations/NNN_name.sql` applied on startup, tracked in
+    `schema_version`. Tables: `meta` (key/value: settings, tokens, `ui:` prefs); cards: `sets`, `cards` +
+    `cards_fts`, `card_details`, `oracle_cards`, `card_tags`, `oracle_tags`, `oracle_tag_parents`,
+    `oracle_taggings`, `user_tags`; yours: `locations`, `collection_items`, `decks`, `deck_cards`,
+    `deck_versions`, `wants`; `scans`, `scan_items`; `printer_profiles`, `print_jobs`; `precons`, `precon_cards`
   - `scryfall/` – `client.py` (headers, rate limits), `sets.py`, `bulk.py` (`default_cards` import, rebuilds
     `oracle_cards`), `sync.py` (stages; `mtgdm sync`), `manager.py` (background sync + SSE progress),
     `images.py` (image cache, `/api/images/...`), `tags.py` (Tagger's `oracle_tags` bulk, weekly: all tags with
@@ -59,12 +68,30 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
   with the fixture cards: `TestClient(create_app(card_settings))`), `db`; fixture data in `tests/fixtures/`
   (Scryfall cut made by `scripts/make_fixture.py --decklists ../seeds/*.txt`), helpers in `tests/helpers.py`.
   HTTP is mocked with `httpx.MockTransport` passed to the client (e.g. `create_app(..., scryfall=...)`)
-- `frontend/` – React + TypeScript + Vite, no test runner (build + lint are the checks). Views in `src/views/`,
-  components in `src/components/`, API calls in `src/api/client.ts`; `src/api/schema.d.ts` is generated,
-  never edit it. Hash routing (`#/collection/items/5`, `#/decks/12/missing`, `#/settings`)
+- `frontend/` – React 19 + TypeScript + Vite, no state library, no test runner (build + lint are the checks)
+  - `src/App.tsx` – sidebar + hash routing (`routeFromHash`): `#/` CollectionView (search), `#/collection/items/
+    {id|none}` CollectionItemsView, `#/collection/locations|proxies|wants` LocationsView / ProxiesView /
+    WantsView, `#/decks` DecksView, `#/decks/{id}[/stats|combos|missing|history|compare]` DeckBuilderView,
+    `#/import` ImportView, `#/scan` ScanView, `#/settings` SettingsView (all in `src/views/`)
+  - `src/api/client.ts` – `api.*` calls (one per endpoint, sends Accept-Language), type aliases of the
+    generated `schema.d.ts` (never edit it), URL builders for downloads and images
+  - deckbuilder: `views/DeckBuilderView.tsx` + `hooks/useDeck.ts` (deck state and actions); tabs are
+    `components/Deck{StatsPanel,CombosPanel,ComparePanel,HistoryPanel}.tsx`, `MissingPanel.tsx`; the deck
+    itself `DeckList.tsx` / `DeckVisual.tsx` / `DeckPreview.tsx`, grouping and sorting in `src/decks.ts`
+  - shared: `CardGrid`, `CardDetailPanel`, `Filters` (+ `src/filters.ts` → query), `ContextMenu`,
+    `HoverPreview` / `hooks/useHoverPreview`, `ProxyDialog`, `PrintingPanel`, `ExportDialog`, charts in
+    `components/charts/`; small stores with a hook: `printQueue.ts`, `wants.ts`; `prefs.ts`, `theme.ts`
+  - styles: one `src/index.css` (tokens on `:root`, see Rules)
 - `packaging/` + `scripts/build_*` – PyInstaller (macOS + Windows); see Packaging below
 - `docs/` – user guide, Jekyll-ready (`docs/ideas/` = developer notes, excluded); `seeds/` – example decklists
   offered in Import (`seeds/collection/`: non-deck products; a trailing `# note` becomes the item's note)
+
+## A typical change touches
+- backend logic in its domain module + a route in `api/<area>.py` + tests in `backend/tests/test_<area>*.py`
+- new/changed API model → `scripts/gen_api_types.sh` → `api.*` in `frontend/src/api/client.ts`
+- UI text → `frontend/src/i18n/pl.ts` + `en.ts`; backend message → `MESSAGES` in `mtgdm/i18n.py` (pl + en)
+- new table/column → `db/migrations/0NN_*.sql`; if it is user data, also `backup.py` (+ its test)
+- user-visible behavior → `docs/pl/<page>.md` + `docs/en/<page>.md` (and README.md if it lists it)
 
 ## Commands
 - Tests: `cd backend && uv run pytest` (CI adds `-X warn_default_encoding`)
