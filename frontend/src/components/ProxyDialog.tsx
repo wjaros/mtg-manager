@@ -584,6 +584,7 @@ function AddCard({ onAdd }: { onAdd: (card: CardSummary, qty?: number) => void }
   const [list, setList] = useState('')
   const [notFound, setNotFound] = useState<string[]>([])
   const [results, setResults] = useState<CardSummary[]>([])
+  const [searchError, setSearchError] = useState<string | null>(null)
   const abort = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -593,9 +594,16 @@ function AddCard({ onAdd }: { onAdd: (card: CardSummary, qty?: number) => void }
     abort.current = controller
     const timer = setTimeout(() => {
       // Tokens too: they're printed like any card.
-      api.searchCards({ q: query.trim(), include_extras: true }, 0, 8, controller.signal).then(
-        (page) => setResults(page.items),
-        () => {},
+      api.searchCards({ q: query.trim(), include_extras: true }, 1, 8, controller.signal).then(
+        (page) => {
+          setResults(page.items)
+          setSearchError(null)
+        },
+        (e: Error) => {
+          if (controller.signal.aborted) return
+          setResults([])
+          setSearchError(e.message)
+        },
       )
     }, 250)
     return () => {
@@ -649,6 +657,7 @@ function AddCard({ onAdd }: { onAdd: (card: CardSummary, qty?: number) => void }
       )}
       {notFound.length > 0 && <p className="status warn">{t.print.notFound(notFound.join(', '))}</p>}
       {listError && <p className="status error">{listError}</p>}
+      {searchError && query.trim().length >= 2 && <p className="status error">{searchError}</p>}
       {visible.length > 0 && (
         <div className="proxy-add-results">
           {visible.map((card) => (
