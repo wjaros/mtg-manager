@@ -149,11 +149,14 @@ jobs:
         with:
           fetch-depth: 0  # the commits since the previous release, for the notes
 
+      # The packages were uploaded as they are; without skip-decompress a raw .zip (the Windows
+      # package) is taken for a zipped artifact and unpacked into a folder.
       - uses: actions/download-artifact@v8
         with:
           path: release
           pattern: MTG-Deck-Manager-*
           merge-multiple: true
+          skip-decompress: true
 
       - name: Publish
         env:
