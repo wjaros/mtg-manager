@@ -208,6 +208,9 @@ export const pl = {
     title: 'Talie',
     newDeck: '+ Nowa talia',
     confirmDelete: (name: string) => `Usunąć talię „${name}”? Tej operacji nie można cofnąć.`,
+    deleteWithCards: 'Usuń też z kolekcji karty z jej pudełka i samo pudełko',
+    boxCounts: (cards: number, proxies: number) => `w pudełku: ${cards} kart${proxies ? `, ${proxies} proxy` : ''}`,
+    deleteWithCardsHint: 'Bez zaznaczenia karty zostają w kolekcji, w lokalizacji talii.',
     empty: 'Nie masz jeszcze żadnej talii.',
     emptyHint: 'Utwórz talię i dodawaj karty z puli albo zaimportuj listę z Areny (menu Import).',
     cardsSuffix: ' kart',
@@ -310,6 +313,8 @@ export const pl = {
     removeAll: 'Usuń wszystkie',
     confirmReplaceCollection: 'Karty tej talii już są w kolekcji (pudełko talii). Zastąpić je aktualną listą talii?',
     addedToCollection: (n: number, location: string) => `Dodano ${n} kart do kolekcji (lokalizacja: ${location})`,
+    relinkedBox: (location: string, n: number) =>
+      `Talia dostała istniejące pudełko „${location}” (${n} kart, po usuniętej talii o tej nazwie); nic nie dodano`,
     versionPrompt: 'Opis wersji (opcjonalnie), np. „po turnieju”, „mniej rampy”:',
     confirmDiscard: (n: number | null) => `Odrzucić niezapisane zmiany i wrócić do wersji ${n}?`,
     namePrompt: 'Nazwa talii',

@@ -70,8 +70,9 @@ def update_deck(db: Db, deck_id: int, body: DeckUpdate) -> DeckDetail:
 
 
 @router.delete("/{deck_id}", status_code=204)
-def delete_deck(db: Db, deck_id: int) -> Response:
-    _handle(lambda: service.delete_deck(db, deck_id))
+def delete_deck(db: Db, deck_id: int, with_cards: bool = False) -> Response:
+    """with_cards: also remove the copies in the deck's box from the collection."""
+    _handle(lambda: service.delete_deck(db, deck_id, with_cards))
     return Response(status_code=204)
 
 

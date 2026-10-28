@@ -672,7 +672,10 @@ export interface paths {
         get: operations["get_deck_api_decks__deck_id__get"];
         put?: never;
         post?: never;
-        /** Delete Deck */
+        /**
+         * Delete Deck
+         * @description with_cards: also remove the copies in the deck's box from the collection.
+         */
         delete: operations["delete_deck_api_decks__deck_id__delete"];
         options?: never;
         head?: never;
@@ -2673,6 +2676,11 @@ export interface components {
             location: components["schemas"]["Location"];
             /** Added */
             added: number;
+            /**
+             * Relinked
+             * @default false
+             */
+            relinked?: boolean;
         };
         /** DeckToken */
         DeckToken: {
@@ -5168,7 +5176,9 @@ export interface operations {
     };
     delete_deck_api_decks__deck_id__delete: {
         parameters: {
-            query?: never;
+            query?: {
+                with_cards?: boolean;
+            };
             header?: never;
             path: {
                 deck_id: number;

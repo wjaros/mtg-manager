@@ -429,7 +429,11 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
     }
     try {
       const result = await api.deckToCollection(deck.id, replace)
-      setCollectionNote(t.builder.addedToCollection(result.added, result.location.name))
+      setCollectionNote(
+        result.relinked
+          ? t.builder.relinkedBox(result.location.name, result.location.card_count)
+          : t.builder.addedToCollection(result.added, result.location.name),
+      )
       actions.reload()
     } catch (e) {
       setCollectionNote(t.common.error((e as Error).message))

@@ -7,6 +7,10 @@
 **Decks** shows every deck with its format, commander, colors and card count. **+ New deck**
 creates an empty deck. Load a decklist or a precon in [Import](import-export.md).
 
+**×** on a tile deletes the deck. The cards in its box stay in the collection unless you check
+**Also remove the cards in its box from the collection**: then they leave the collection (proxies
+included) along with the box itself.
+
 ![Decks](../images/en/decks.webp)
 
 ## The deckbuilder
@@ -23,7 +27,8 @@ creates an empty deck. Load a decklist or a precon in [Import](import-export.md)
 
 **Buttons:**
 - **I own this deck:** moves the deck's cards into its box. It then reads "In collection ✓", and a
-  click refreshes it;
+  click refreshes it. If a deleted deck of the same name left its box with cards behind, the deck
+  takes that box over and adds nothing (no doubled cards);
 - **Proxies:** [proxy printing](proxies.md);
 - **Export:** [deck export](import-export.md#export).
 

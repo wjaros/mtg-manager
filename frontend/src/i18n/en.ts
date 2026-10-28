@@ -204,6 +204,9 @@ export const en: Messages = {
     title: 'Decks',
     newDeck: '+ New deck',
     confirmDelete: (name: string) => `Delete deck “${name}”? This cannot be undone.`,
+    deleteWithCards: 'Also remove the cards in its box from the collection, and the box itself',
+    boxCounts: (cards: number, proxies: number) => `in the box: ${cards} cards${proxies ? `, ${proxies} proxies` : ''}`,
+    deleteWithCardsHint: "Unchecked, the cards stay in the collection, in the deck's location.",
     empty: "You don't have any decks yet.",
     emptyHint: 'Create a deck and add cards from the pool, or import a list from Arena (Import menu).',
     cardsSuffix: ' cards',
@@ -306,6 +309,8 @@ export const en: Messages = {
     removeAll: 'Remove all',
     confirmReplaceCollection: "This deck's cards are already in the collection (deck box). Replace them with the current list?",
     addedToCollection: (n: number, location: string) => `Added ${n} cards to the collection (location: ${location})`,
+    relinkedBox: (location: string, n: number) =>
+      `The deck took over the existing box “${location}” (${n} cards, left by a deleted deck of this name); nothing added`,
     versionPrompt: 'Version note (optional), e.g. “after the tournament”, “less ramp”:',
     confirmDiscard: (n: number | null) => `Discard unsaved changes and go back to version ${n}?`,
     namePrompt: 'Deck name',

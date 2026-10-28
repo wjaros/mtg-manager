@@ -86,3 +86,4 @@ class ReplaceWithReal(BaseModel):
 class DeckToCollectionResult(BaseModel):
     location: Location
     added: int  # copies added
+    relinked: bool = False  # took over a deleted deck's box with its cards, nothing added
