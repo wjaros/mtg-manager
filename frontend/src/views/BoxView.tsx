@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api, type BoxDetail, type DeckCard, type DeckSummary } from '../api/client'
-import { BoxDeckTile, CardsPreview } from '../components/BoxDecks'
-import { mergeCards } from '../decks'
+import { BoxCardList } from '../components/BoxCardList'
+import { BoxDeckTile } from '../components/BoxDecks'
 import { ManaCost } from '../components/ManaCost'
 import { t } from '../i18n'
 
@@ -19,7 +19,7 @@ export function BoxView({ boxId, onBack, onOpenDeck, onOpenLocation }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<number[]>([])
   const [combineName, setCombineName] = useState<string | null>(null) // null: from the ticked decks' names
-  const [preview, setPreview] = useState<number[]>([])
+  const [shown, setShown] = useState<string[] | null>(null) // decks in the card list; null = all
   const [cards, setCards] = useState<Map<number, DeckCard[]>>(new Map())
   const [busy, setBusy] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -29,25 +29,22 @@ export function BoxView({ boxId, onBack, onOpenDeck, onOpenLocation }: Props) {
     api.box(boxId).then(
       (next) => {
         setDetail(next)
-        setPreview(next.parts.length ? [next.parts[0].id] : [])
+        // The box's own decks don't change here: their cards are loaded once, for the card list.
+        for (const part of next.parts) {
+          api.deck(part.id).then(
+            (deck) => setCards((prev) => new Map(prev).set(part.id, deck.cards)),
+            (e: Error) => setError(e.message),
+          )
+        }
       },
       (e: Error) => setError(e.message),
     )
   }, [boxId])
 
-  // A deck's cards are loaded when it is first previewed.
-  const requested = useRef(new Set<number>())
-  useEffect(() => {
-    for (const id of preview) {
-      if (requested.current.has(id)) continue
-      requested.current.add(id)
-      api.deck(id).then(
-        (deck) => setCards((prev) => new Map(prev).set(id, deck.cards)),
-        (e: Error) => setError(e.message),
-      )
-    }
-  }, [preview])
-  const showPreview = setPreview
+  const showPreview = (ids: number[]) => {
+    setShown(ids.map(String))
+    document.querySelector('.box-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   if (error && !detail) {
     return (
@@ -65,20 +62,16 @@ export function BoxView({ boxId, onBack, onOpenDeck, onOpenLocation }: Props) {
   const byId = new Map([...parts, ...combined.map((c) => c.deck)].map((d) => [d.id, d]))
   const chosen = selected.map((id) => byId.get(id)).filter((d): d is DeckSummary => !!d)
   const name = combineName ?? chosen.map((d) => d.name).join(' + ')
-  const previewDecks = preview.map((id) => byId.get(id)).filter((d): d is DeckSummary => !!d)
-  const previewCards = preview.every((id) => cards.has(id)) ? mergeCards(preview.flatMap((id) => cards.get(id)!)) : null
+  const loaded = parts.every((p) => cards.has(p.id))
 
   const combine = async () => {
     setBusy(true)
     setError(null)
     try {
-      const deck = await api.combineBox(box.id, selected, name.trim() || chosen.map((d) => d.name).join(' + '))
+      await api.combineBox(box.id, selected, name.trim() || chosen.map((d) => d.name).join(' + '))
       setSelected([])
       setCombineName(null)
       await reload()
-      requested.current.add(deck.id)
-      setCards((prev) => new Map(prev).set(deck.id, deck.cards))
-      setPreview([deck.id])
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -101,7 +94,6 @@ export function BoxView({ boxId, onBack, onOpenDeck, onOpenLocation }: Props) {
     if (!window.confirm(t.decks.confirmDelete(deck.name))) return
     try {
       await api.deleteDeck(deck.id)
-      setPreview((prev) => prev.filter((id) => id !== deck.id))
       reload()
     } catch (e) {
       setError((e as Error).message)
@@ -154,7 +146,7 @@ export function BoxView({ boxId, onBack, onOpenDeck, onOpenLocation }: Props) {
                 colors={deck.color_identity}
                 cards={deck.counts.total}
                 checked={checked}
-                previewed={preview.length === 1 && preview[0] === deck.id}
+                previewed={shown?.length === 1 && shown[0] === String(deck.id)}
                 onToggle={() =>
                   setSelected((prev) => (checked ? prev.filter((id) => id !== deck.id) : [...prev, deck.id]))
                 }
@@ -204,9 +196,6 @@ export function BoxView({ boxId, onBack, onOpenDeck, onOpenLocation }: Props) {
                 <span className="muted small">
                   {t.boxes.madeOf(part_ids.map((id) => byId.get(id)?.name ?? '?').join(' + '))}
                 </span>
-                <button className="link-button small" onClick={() => showPreview([deck.id])}>
-                  {t.boxes.preview}
-                </button>
                 <button className="link-button small danger" onClick={() => removeCombined(deck)}>
                   {t.boxes.remove}
                 </button>
@@ -216,15 +205,18 @@ export function BoxView({ boxId, onBack, onOpenDeck, onOpenLocation }: Props) {
         )}
       </section>
 
-      {previewDecks.length > 0 && (
-        <section className="panel">
-          {previewCards ? (
-            <CardsPreview title={previewDecks.map((d) => d.name).join(' + ')} cards={previewCards} />
-          ) : (
-            <p className="muted">{t.common.loading}</p>
-          )}
-        </section>
-      )}
+      <section className="panel">
+        <h2>{t.boxes.cardsTitle}</h2>
+        {loaded ? (
+          <BoxCardList
+            parts={parts.map((p) => ({ key: String(p.id), name: p.name, cards: cards.get(p.id)! }))}
+            shown={shown}
+            onShown={setShown}
+          />
+        ) : (
+          <p className="muted">{t.common.loading}</p>
+        )}
+      </section>
 
       {deleting && (
         <DeleteBoxDialog

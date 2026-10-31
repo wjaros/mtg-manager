@@ -226,6 +226,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cards/prices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prices
+         * @description Prices of many printings at once (a box's or product's card list).
+         */
+        post: operations["prices_api_cards_prices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cards/{card_id}": {
         parameters: {
             query?: never;
@@ -2197,6 +2217,22 @@ export interface components {
             /** Type Hint */
             type_hint?: string | null;
         };
+        /** CardPrice */
+        CardPrice: {
+            /** Eur */
+            eur: number | null;
+            /** Usd */
+            usd: number | null;
+        };
+        /** CardPrices */
+        CardPrices: {
+            /** Prices */
+            prices: {
+                [key: string]: components["schemas"]["CardPrice"];
+            };
+            /** As Of */
+            as_of: string | null;
+        };
         /**
          * CardSummary
          * @description What the card grid needs: one printing with enough data to render and filter.
@@ -3482,6 +3518,11 @@ export interface components {
             /** As Of */
             as_of: string | null;
         };
+        /** PricesRequest */
+        PricesRequest: {
+            /** Ids */
+            ids: string[];
+        };
         /** PrintHistory */
         PrintHistory: {
             /** Id */
@@ -4618,6 +4659,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CardPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prices_api_cards_prices_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PricesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardPrices"];
                 };
             };
             /** @description Validation Error */

@@ -21,6 +21,10 @@ a single tile in the deck list. Open it to see:
   It's a copy – you edit it on its own and the box's decks stay as they are. Combine as often and
   in as many ways as you like.
 - **Combined decks** – the decks combined so far, with what they were made from.
+- **Cards** – all the box's cards like a deck list: each card's price, the total value and what the
+  collection lacks. Group by the box's decks or like a deck (type, mana value, color, rarity), as a
+  list or images; the chips on top narrow it to one deck (Ctrl/Cmd-click adds another, e.g. two
+  halves together). **Preview** on a deck's tile shows its cards here.
 
 The box's cards sit in the collection in the box's location (link **cards in the collection**), so
 the box's decks count them as owned and have no "I own this deck" button. **Delete box** removes it

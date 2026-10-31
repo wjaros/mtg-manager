@@ -34,7 +34,9 @@ pochodzą z MTGJSON, z dokładnymi wydaniami kart.
    liczby dopiero po pobraniu wszystkich pakietów. **W Taliach** prowadzi do już zaimportowanego
    pudełka. Szukasz po nazwie, secie albo nazwie talii (drobna literówka nie przeszkadza). Pudełka
    pokazuje też wyszukiwarka w zakładce **Talia** – kliknięte otwiera się tutaj.
-2. Każda talia ma kafelek z kolorami i liczbą kart; **Podgląd** pokazuje jej karty. Zaznaczone talie
+2. Każda talia ma kafelek z kolorami i liczbą kart; pod kafelkami są wszystkie karty pudełka jak
+   lista talii (ceny, wartość, czego brakuje, grupowanie po taliach albo typie), a **Podgląd**
+   zawęża ją do jednej talii. Zaznaczone talie
    trafią do pudełka – w Beginner Boxie domyślnie wszystkie, w pulach Jumpstart zaznacz pakiety,
    które masz (karty pobierają się przy podglądzie albo zaznaczeniu, nad kafelkami jest filtr).
 3. **Mam to pudełko** (domyślnie włączone) dodaje karty do kolekcji, do lokalizacji pudełka.

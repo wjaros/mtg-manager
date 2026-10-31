@@ -87,8 +87,10 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
     `HoverPreview` / `hooks/useHoverPreview`, `ProxyDialog`, `PrintingPanel`, `ExportDialog`, charts in
     `components/charts/`; small stores with a hook: `printQueue.ts`, `wants.ts`; `prefs.ts`, `theme.ts`
   - import: `views/ImportView.tsx` tabs Deck (text + `PreconSearch`, report → save), Collection
-    (`CollectionImportPanel`), Precons (`PreconBrowser`), Boxes (`BoxImportPanel`); `components/BoxDecks.tsx`: deck tile + read-only
-    card preview (`DeckVisual` with no-op handlers) shared with `views/BoxView.tsx`
+    (`CollectionImportPanel`), Precons (`PreconBrowser`), Boxes (`BoxImportPanel`: `ProductBrowser` table, then a product's decks);
+    shared with `views/BoxView.tsx`: `BoxDecks.tsx` (deck tile), `BoxCardList.tsx` (a box's cards like a
+    deck list: grouped by its decks or `groupCards`, prices from `POST /api/cards/prices`; read-only
+    `DeckVisual` for images). Gotcha: `.panel .muted.small` adds a top margin to any such element
   - styles: one `src/index.css` (tokens on `:root`, see Rules)
 - `packaging/` + `scripts/build_*` – PyInstaller (macOS + Windows); see Packaging below
 - `docs/` – user guide, Jekyll-ready (`docs/ideas/` = developer notes, excluded); `seeds/` – example decklists

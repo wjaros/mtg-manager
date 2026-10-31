@@ -34,7 +34,9 @@ MTGJSON too, with exact printings.
    numbers once all their packs are stored. **In Decks** leads to a box you already imported. Search
    by name, set or a deck's name (a small typo is fine). The search in the **Deck** tab shows boxes
    too – clicking one opens it here.
-2. Each deck has a tile with its colors and card count; **Preview** shows its cards. The ticked decks
+2. Each deck has a tile with its colors and card count; below the tiles are all the box's cards like
+   a deck list (prices, value, what you lack, grouped by deck or type), and **Preview** narrows it
+   to one deck. The ticked decks
    go into the box – all of a Beginner Box by default; in Jumpstart pools tick the packs you have
    (their cards load when you preview or tick them, and a filter sits above the tiles).
 3. **I own this box** (on by default) adds the cards to the collection, in the box's location.

@@ -1,8 +1,5 @@
 import type { ReactNode } from 'react'
-import type { DeckCard } from '../api/client'
-import { useHoverPreview } from '../hooks/useHoverPreview'
 import { t } from '../i18n'
-import { DeckVisual } from './DeckVisual'
 import { ManaCost } from './ManaCost'
 
 interface TileProps {
@@ -41,29 +38,6 @@ export function BoxDeckTile({ name, colors, cards, checked, disabled, previewed,
         </button>
         {children}
       </div>
-    </div>
-  )
-}
-
-/** A deck's (or several decks') cards as image stacks, read only, with a large preview on hover. */
-export function CardsPreview({ title, cards }: { title: string; cards: DeckCard[] }) {
-  const hover = useHoverPreview()
-  const count = cards.filter((c) => c.board === 'main' || c.board === 'commander').reduce((n, c) => n + c.quantity, 0)
-  return (
-    <div className="box-preview">
-      <h3 className="deck-group-title">
-        {t.boxes.previewOf(title)} <span className="muted">{count}</span>
-      </h3>
-      <DeckVisual
-        cards={cards}
-        mode="stacks"
-        grouping="type"
-        sort="mv"
-        onRemove={() => {}}
-        onMenu={() => {}}
-        onHover={(entry, e) => hover.show(entry?.card ?? null, e)}
-      />
-      {hover.element}
     </div>
   )
 }

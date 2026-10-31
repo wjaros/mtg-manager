@@ -20,6 +20,10 @@ jest na liście talii jednym kafelkiem. Po otwarciu widać:
   To kopia – edytujesz ją osobno, a talie w pudełku zostają bez zmian. Łączyć możesz dowolnie
   i wielokrotnie.
 - **Talie złożone** – połączone dotąd talie, z informacją, z czego powstały.
+- **Karty** – wszystkie karty pudełka jak lista talii: z ceną każdej karty, wartością całości
+  i tym, czego brakuje w kolekcji. Grupujesz po taliach z pudełka albo jak talię (typ, mana value,
+  kolor, rzadkość), jako listę albo obrazki; chipy u góry zawężają do jednej talii (Ctrl/Cmd + klik
+  dodaje kolejną, np. dwie połówki razem). **Podgląd** na kafelku talii pokazuje tu jej karty.
 
 Karty pudełka leżą w kolekcji w lokalizacji pudełka (link **karty w kolekcji**), więc talie z pudełka
 mają je jako posiadane i nie mają przycisku „Mam tę talię”. **Usuń pudełko** usuwa je razem z jego

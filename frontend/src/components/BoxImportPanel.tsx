@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api, type DeckCard, type ProductDeck, type ProductDetail } from '../api/client'
 import { t } from '../i18n'
-import { BoxDeckTile, CardsPreview } from './BoxDecks'
+import { BoxCardList } from './BoxCardList'
+import { BoxDeckTile } from './BoxDecks'
 import { ProductBrowser } from './ProductBrowser'
 
 // Up to this many decks (a Beginner Box) all are taken by default; above it (Jumpstart pools)
@@ -25,7 +26,7 @@ export function BoxImportPanel({ initialKey, onOpenBox }: Props) {
   const [detail, setDetail] = useState<ProductDetail | null>(null)
   const [opening, setOpening] = useState<string | null>(initialKey ?? null)
   const [selected, setSelected] = useState<string[]>([])
-  const [preview, setPreview] = useState<string | null>(null)
+  const [shown, setShown] = useState<string[] | null>(null) // decks in the card list; null = all
   const [name, setName] = useState('')
   const [own, setOwn] = useState(true)
   const [loading, setLoading] = useState<string[]>([])
@@ -39,7 +40,7 @@ export function BoxImportPanel({ initialKey, onOpenBox }: Props) {
     setSelected(decks.length <= WHOLE_BOX ? decks.map((d) => d.file_name) : [])
     setName(`${product.name} (${product.set_name ?? product.code.toUpperCase()})`)
     setDeckFilter('')
-    setPreview(decks.find((d) => d.loaded)?.file_name ?? null)
+    setShown(null)
   }
 
   const open = async (key: string) => {
@@ -113,7 +114,6 @@ export function BoxImportPanel({ initialKey, onOpenBox }: Props) {
   const { product } = detail
   const words = deckFilter.toLowerCase().split(/\s+/).filter(Boolean)
   const shownDecks = detail.decks.filter((d) => words.every((w) => d.name.toLowerCase().includes(w)))
-  const previewed = preview ? decks.get(preview) : undefined
   const cardCount = selected.reduce((n, f) => n + (decks.get(f)?.cards ?? 0), 0)
   return (
     <section className="panel box-import">
@@ -160,7 +160,7 @@ export function BoxImportPanel({ initialKey, onOpenBox }: Props) {
               colors={deck.colors}
               cards={deck.loaded ? deck.cards : null}
               checked={checked}
-              previewed={preview === deck.file_name}
+              previewed={shown?.length === 1 && shown[0] === deck.file_name}
               onToggle={() => {
                 if (!checked) ensureLoaded(deck.file_name)
                 setSelected((prev) =>
@@ -168,8 +168,9 @@ export function BoxImportPanel({ initialKey, onOpenBox }: Props) {
                 )
               }}
               onPreview={() => {
-                setPreview(deck.file_name)
+                setShown([deck.file_name])
                 ensureLoaded(deck.file_name)
+                document.querySelector('.box-cards')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
               }}
             >
               {loading.includes(deck.file_name) && <span className="muted small">{t.common.loading}</span>}
@@ -199,7 +200,12 @@ export function BoxImportPanel({ initialKey, onOpenBox }: Props) {
         {error && <p className="status error">{error}</p>}
       </div>
 
-      {previewed?.loaded && <CardsPreview title={previewed.name} cards={deckCards(previewed)} />}
+      <h2>{t.boxes.cardsTitle}</h2>
+      <BoxCardList
+        parts={detail.decks.filter((d) => d.loaded).map((d) => ({ key: d.file_name, name: d.name, cards: deckCards(d) }))}
+        shown={shown}
+        onShown={setShown}
+      />
     </section>
   )
 }

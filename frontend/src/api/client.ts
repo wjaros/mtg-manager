@@ -77,6 +77,7 @@ export type ProductSummary = Schemas['ProductSummary']
 export type ProductDetail = Schemas['ProductDetail']
 export type ProductDeck = Schemas['ProductDeck']
 export type ProductOverview = Schemas['ProductOverview']
+export type CardPrices = Schemas['CardPrices']
 export type ProductImportRequest = Schemas['ProductImportRequest']
 export type BoxSummary = Schemas['BoxSummary']
 export type BoxDetail = Schemas['BoxDetail']
@@ -241,6 +242,7 @@ export const api = {
     request<PreconDecklist>(`/api/precons/${encodeURIComponent(fileName)}/decklist`),
   products: (q: string, limit?: number) =>
     request<ProductSummary[]>(`/api/precons/products?${toSearchParams({ q, limit })}`),
+  cardPrices: (ids: string[]) => request<CardPrices>('/api/cards/prices', jsonBody('POST', { ids })),
   productsOverview: () => request<ProductOverview[]>('/api/precons/products/overview'),
   product: (key: string) => request<ProductDetail>(`/api/precons/products/${encodeURIComponent(key)}`),
   productDeck: (key: string, fileName: string) =>
