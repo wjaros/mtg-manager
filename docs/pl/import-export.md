@@ -28,7 +28,9 @@ W zakładce **Braki** talii aplikacja podpowiada precony, które zawierają kilk
 dziesięć talii po 20 kart), Starter Kit (dwie talie), pakiety Jumpstart, Halfdecki. Listy też
 pochodzą z MTGJSON, z dokładnymi wydaniami kart.
 
-1. Wyszukaj pudełko po nazwie, secie albo nazwie talii (bez wpisywania widać najnowsze).
+1. Wyszukaj pudełko po nazwie, secie albo nazwie talii (bez wpisywania widać najnowsze; drobna
+   literówka nie przeszkadza). Pudełka pokazuje też wyszukiwarka w zakładce **Talia** – kliknięte
+   otwiera się tutaj.
 2. Każda talia ma kafelek z kolorami i liczbą kart; **Podgląd** pokazuje jej karty.
 3. Zaznacz talie i **Połącz zaznaczone** – dwie połówki po 20 kart dają talię 40 kart. Jedna
    zaznaczona talia to osobna talia, a **Pozostałe osobno** dodaje wszystkie jeszcze nieużyte.

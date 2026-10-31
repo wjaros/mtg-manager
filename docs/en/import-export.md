@@ -28,7 +28,8 @@ A deck's **Missing** tab suggests the precons that contain several of its missin
 ten 20-card decks), a Starter Kit (two decks), Jumpstart packs, Halfdecks. The lists come from
 MTGJSON too, with exact printings.
 
-1. Find a box by its name, set or a deck's name (the newest are shown before you type).
+1. Find a box by its name, set or a deck's name (the newest are shown before you type; a small typo
+   is fine). The search in the **Deck** tab shows boxes too – clicking one opens it here.
 2. Each deck has a tile with its colors and card count; **Preview** shows its cards.
 3. Tick decks and **Combine selected** – two 20-card halves make a 40-card deck. A single ticked deck
    becomes a deck of its own, and **The rest on their own** adds every deck not used yet. Each deck

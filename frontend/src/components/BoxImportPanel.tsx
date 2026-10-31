@@ -44,16 +44,17 @@ const notFoundOf = (deck: ProductDeck) =>
   deck.lines.filter((l) => !l.card).reduce((n, l) => n + l.quantity, 0)
 
 interface Props {
+  initialKey?: string | null // a box to open right away (found in the Deck tab's search)
   onImported: (deckIds: number[]) => void
 }
 
 /** Boxes holding several small decks (Beginner Box, Starter Kit, Jumpstart): preview each deck,
  * combine them into decks (two halves = 40 cards), create those decks at once, optionally owned. */
-export function BoxImportPanel({ onImported }: Props) {
+export function BoxImportPanel({ initialKey, onImported }: Props) {
   const [query, setQuery] = useState('')
   const [found, setFound] = useState<{ q: string; list: ProductSummary[] } | null>(null)
   const [detail, setDetail] = useState<ProductDetail | null>(null)
-  const [opening, setOpening] = useState<string | null>(null)
+  const [opening, setOpening] = useState<string | null>(initialKey ?? null)
   const [selected, setSelected] = useState<string[]>([])
   const [plans, setPlans] = useState<Plan[]>([])
   const [preview, setPreview] = useState<string[] | null>(null)
@@ -83,23 +84,42 @@ export function BoxImportPanel({ onImported }: Props) {
     api.locations().then(setLocations, () => setLocations([]))
   }, [])
 
-  const open = async (product: ProductSummary) => {
-    setOpening(product.key)
+  const show = (next: ProductDetail) => {
+    setDetail(next)
+    setSelected([])
+    setPlans([])
+    setDeckFilter('')
+    const first = next.decks.find((d) => d.loaded)
+    setPreview(first ? [first.file_name] : null)
+  }
+
+  const open = async (key: string) => {
+    setOpening(key)
     setError(null)
     try {
-      const next = await api.product(product.key)
-      setDetail(next)
-      setSelected([])
-      setPlans([])
-      setDeckFilter('')
-      const first = next.decks.find((d) => d.loaded)
-      setPreview(first ? [first.file_name] : null)
+      show(await api.product(key))
     } catch (e) {
       setError((e as Error).message)
     } finally {
       setOpening(null)
     }
   }
+
+  // Opened from the Deck tab's search: the panel mounts with the box to show (`opening` starts set).
+  useEffect(() => {
+    if (!initialKey) return
+    let cancelled = false
+    api
+      .product(initialKey)
+      .then(
+        (next) => !cancelled && show(next),
+        (e: Error) => !cancelled && setError(e.message),
+      )
+      .finally(() => !cancelled && setOpening(null))
+    return () => {
+      cancelled = true
+    }
+  }, [initialKey])
 
   const decks = useMemo(() => new Map((detail?.decks ?? []).map((d) => [d.file_name, d])), [detail])
   const partsOf = (fileNames: string[]) => fileNames.map((f) => decks.get(f)!).filter(Boolean)
@@ -179,12 +199,15 @@ export function BoxImportPanel({ onImported }: Props) {
             placeholder={t.boxes.placeholder}
             aria-label={t.boxes.placeholder}
           />
+          {opening && !results?.some((p) => p.key === opening) && (
+            <p className="muted small">{t.boxes.loadingDecks}</p>
+          )}
           {results !== null && results.length === 0 && <p className="muted small">{t.boxes.none}</p>}
           {results !== null && results.length > 0 && (
             <ul className="precon-results box-results">
               {results.map((p) => (
                 <li key={p.key}>
-                  <button onClick={() => open(p)} disabled={opening !== null}>
+                  <button onClick={() => open(p.key)} disabled={opening !== null}>
                     <strong>{p.name}</strong>
                     <span className="muted small">
                       {' '}

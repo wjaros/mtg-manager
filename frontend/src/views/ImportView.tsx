@@ -48,6 +48,7 @@ export function ImportView({ onImported, onDecksImported, onCollectionImported }
   const [report, setReport] = useState<ImportReport | null>(null)
   const [parsing, setParsing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [boxKey, setBoxKey] = useState<string | null>(null)
 
   useEffect(() => {
     api.seeds().then(setSeeds, () => setSeeds([]))
@@ -98,7 +99,7 @@ export function ImportView({ onImported, onDecksImported, onCollectionImported }
       {kind === 'collection' ? (
         <CollectionImportPanel onImported={onCollectionImported} />
       ) : kind === 'boxes' ? (
-        <BoxImportPanel onImported={onDecksImported} />
+        <BoxImportPanel initialKey={boxKey} onImported={onDecksImported} />
       ) : kind === 'precons' ? (
         <PreconBrowser
           onImport={(fileName) =>
@@ -120,6 +121,10 @@ export function ImportView({ onImported, onDecksImported, onCollectionImported }
             onLoad={(deckText) => {
               setText(deckText)
               analyze(deckText)
+            }}
+            onOpenBox={(key) => {
+              setBoxKey(key)
+              setKind('boxes')
             }}
           />
           {seeds.length > 0 && (

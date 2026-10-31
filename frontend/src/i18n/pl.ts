@@ -756,6 +756,8 @@ export const pl = {
   },
   precons: {
     placeholder: 'Szukaj oficjalnej talii (precon): nazwa, dowódca albo kod setu, np. Quintorius, Lorehold, SOC',
+    box: 'Pudełko',
+    openBox: 'otwórz w zakładce Pudełka: podgląd talii i łączenie ich w większe',
     none: 'Nie znaleziono. Listy preconów pobierają się z aktualizacją danych kart (Ustawienia).',
     notSynced: 'Nie ma jeszcze preconów: pobiorą się z aktualizacją danych kart (Ustawienia › Odśwież dane).',
     filterPlaceholder: 'Filtruj: talia, dowódca albo set',

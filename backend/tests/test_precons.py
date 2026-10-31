@@ -74,6 +74,7 @@ def test_search_by_deck_commander_or_set(db):
     assert [p.file_name for p in search_precons(db, "quintorius")] == ["LoreholdSpirit_SOC"]
     assert [p.file_name for p in search_precons(db, "lorehold")] == ["LoreholdSpirit_SOC", "LoreholdLegacies_C21"]
     assert [p.file_name for p in search_precons(db, "dom")] == ["AngelicHost_DOM"]
+    assert "AngelicHost_DOM" in [p.file_name for p in search_precons(db, "dominaria")]  # the set's name
     soc = search_precons(db, "spirit")[0]
     assert (soc.commanders, soc.code, soc.set_name is not None, soc.loaded) == ([QUINTORIUS], "soc", True, True)
     commander_only = search_precons(db, "", ["Commander Deck"])
@@ -175,6 +176,7 @@ def test_products_group_decks_of_one_box(db):
     assert [p.key for p in search_products(db, "tla")] == ["tla-beginner-box"]
     assert [p.key for p in search_products(db, "airbender starter kit")] == ["tla-beginner-box"]
     assert [p.key for p in search_products(db, "starter kit")] == ["blb-starter-kit"]
+    assert [p.key for p in search_products(db, "begginer box")] == ["tla-beginner-box"]  # a typo
     assert search_products(db, "lorehold") == []
 
 

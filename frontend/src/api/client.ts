@@ -237,7 +237,8 @@ export const api = {
     request<PreconSuggestion[]>(`/api/decks/${deckId}/missing/precons?exclude_other_decks=${excludeOtherDecks}`),
   preconDecklist: (fileName: string) =>
     request<PreconDecklist>(`/api/precons/${encodeURIComponent(fileName)}/decklist`),
-  products: (q: string) => request<ProductSummary[]>(`/api/precons/products?${toSearchParams({ q })}`),
+  products: (q: string, limit?: number) =>
+    request<ProductSummary[]>(`/api/precons/products?${toSearchParams({ q, limit })}`),
   product: (key: string) => request<ProductDetail>(`/api/precons/products/${encodeURIComponent(key)}`),
   productDeck: (key: string, fileName: string) =>
     request<ProductDeck>(`/api/precons/products/${encodeURIComponent(key)}/decks/${encodeURIComponent(fileName)}`),

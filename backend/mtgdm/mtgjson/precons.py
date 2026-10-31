@@ -104,11 +104,11 @@ def load_precon(conn: sqlite3.Connection, client: MtgjsonClient, file_name: str)
 
 def search_precons(conn: sqlite3.Connection, q: str = "", types: list[str] | None = None,
                    limit: int = 50) -> list[PreconSummary]:
-    """By deck name or commander name; Commander decks and newer products first."""
+    """By deck, commander or set name, or set code; Commander decks and newer products first."""
     where, params = [], []
     for word in q.split():
-        where.append("(p.name LIKE ? OR p.commanders LIKE ? OR p.code LIKE ?)")
-        params += [f"%{word}%", f"%{word}%", word]
+        where.append("(p.name LIKE ? OR p.commanders LIKE ? OR s.name LIKE ? OR p.code LIKE ?)")
+        params += [f"%{word}%", f"%{word}%", f"%{word}%", word]
     if types:
         where.append(f"p.type IN ({', '.join('?' * len(types))})")
         params += types

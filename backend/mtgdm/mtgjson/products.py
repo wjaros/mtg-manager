@@ -11,6 +11,7 @@ decks is fetched whole when opened; the decks of bigger ones (Jumpstart: 121 pac
 import re
 import sqlite3
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 
 from pydantic import BaseModel, Field
 
@@ -88,16 +89,16 @@ class _Group:
 
 
 def search_products(conn: sqlite3.Connection, q: str = "", limit: int = 50) -> list[ProductSummary]:
-    """By product, set or deck name (words matched from their start), or set code; newest first.
-    Words for a kind of box ("starter kit") don't rule a product out when the query names something
-    else too: people call a Beginner Box a starter kit."""
+    """By product, set or deck name (words matched from their start, longer ones also with a typo:
+    "begginer"), or set code; newest first. Words for a kind of box ("starter kit") don't rule a
+    product out when the query names something else too: people call a Beginner Box a starter kit."""
     words = q.lower().split()
     specific = [w for w in words if w not in GENERIC_WORDS] or words
     found = []
     for group in _groups(conn).values():
         s = group.summary
         text = " ".join([s.name, s.set_name or "", s.type, *(name for _, name, _ in group.decks)]).lower()
-        matched = {w for w in words if w == s.code or re.search(rf"(?<![a-z0-9]){re.escape(w)}", text)}
+        matched = {w for w in words if w == s.code or _matches(w, text)}
         if all(w in matched for w in specific):
             found.append((len(matched), s))
     # Ties: boxes before Jumpstart pools (those are boosters), then the newest.
@@ -233,6 +234,15 @@ def _groups(conn: sqlite3.Connection) -> dict[str, _Group]:
             decks=[(r["file_name"], short, r["loaded_at"] is not None) for r, short in members],
         )
     return groups
+
+
+def _matches(word: str, text: str) -> bool:
+    if re.search(rf"(?<![a-z0-9]){re.escape(word)}", text):
+        return True
+    return len(word) >= 5 and any(
+        abs(len(t) - len(word)) <= 2 and SequenceMatcher(None, word, t).ratio() >= 0.8
+        for t in re.findall(r"[a-z0-9']+", text)
+    )
 
 
 def _slug(text: str) -> str:

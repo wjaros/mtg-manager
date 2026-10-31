@@ -755,6 +755,8 @@ export const en: Messages = {
   },
   precons: {
     placeholder: 'Find an official deck (precon): name, commander or set code, e.g. Quintorius, Lorehold, SOC',
+    box: 'Box',
+    openBox: 'open in the Boxes tab: preview the decks and combine them',
     none: 'Nothing found. Precon lists come with the card data update (Settings).',
     notSynced: 'No precons yet: they come with the card data update (Settings › Refresh data).',
     filterPlaceholder: 'Filter: deck, commander or set',
