@@ -28,9 +28,12 @@ W zakładce **Braki** talii aplikacja podpowiada precony, które zawierają kilk
 dziesięć talii po 20 kart), Starter Kit (dwie talie), pakiety Jumpstart, Halfdecki. Listy też
 pochodzą z MTGJSON, z dokładnymi wydaniami kart.
 
-1. Wyszukaj pudełko po nazwie, secie albo nazwie talii (bez wpisywania widać najnowsze; drobna
-   literówka nie przeszkadza). Pudełka pokazuje też wyszukiwarka w zakładce **Talia** – kliknięte
-   otwiera się tutaj.
+1. Lista pudełek działa jak lista preconów: przy każdym widać kolory kart, ile z nich masz i wartość
+   kart (suma cen pojedynczych kart, nie cena produktu); możesz filtrować po kolorach i sortować.
+   Talie małych pudełek pobierają się z aktualizacją danych kart; duże pule Jumpstart pokazują
+   liczby dopiero po pobraniu wszystkich pakietów. **W Taliach** prowadzi do już zaimportowanego
+   pudełka. Szukasz po nazwie, secie albo nazwie talii (drobna literówka nie przeszkadza). Pudełka
+   pokazuje też wyszukiwarka w zakładce **Talia** – kliknięte otwiera się tutaj.
 2. Każda talia ma kafelek z kolorami i liczbą kart; **Podgląd** pokazuje jej karty. Zaznaczone talie
    trafią do pudełka – w Beginner Boxie domyślnie wszystkie, w pulach Jumpstart zaznacz pakiety,
    które masz (karty pobierają się przy podglądzie albo zaznaczeniu, nad kafelkami jest filtr).

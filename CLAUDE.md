@@ -60,7 +60,8 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
   - external services, each with its own client and politeness rules (details in the docstrings):
     `mtgjson/` (precon card lists only, joined by Scryfall id; last sync stage, its failure doesn't fail the
     sync; `precons.py`: list sync, search, decklist text, Commander browser, precons for missing cards;
-    `products.py`: products of several small decks guessed from the list, imported as a box), `cardtrader/` (user's token in `meta`, never in backups; the shopping list as one wishlist,
+    `products.py`: products of several small decks guessed from the list, imported as a box; the sync
+    also fetches the decks of products of ≤12 decks, for the box list's value / owned), `cardtrader/` (user's token in `meta`, never in backups; the shopping list as one wishlist,
     recreated on each send since the API can't edit one; API facts in `docs/ideas/cardtrader.md`),
     `spellbook/` (Commander Spellbook combos, ≥1 s between requests, cached in memory for a day),
     `updates.py` (GitHub releases; notify only, no self-update: the macOS app is unsigned)

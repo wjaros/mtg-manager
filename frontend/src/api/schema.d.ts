@@ -1082,6 +1082,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/precons/products/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Overview
+         * @description Every product with its cards' colors, what you own of them and the cards' value.
+         */
+        get: operations["products_overview_api_precons_products_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/precons/products/{key}": {
         parameters: {
             query?: never;
@@ -3614,6 +3634,22 @@ export interface components {
              * @default true
              */
             own?: boolean;
+        };
+        /** ProductOverview */
+        ProductOverview: {
+            product: components["schemas"]["ProductSummary"];
+            /** Loaded */
+            loaded: boolean;
+            /** Colors */
+            colors: string[];
+            /** Cards */
+            cards: number;
+            /** Owned */
+            owned: number;
+            /** Price Eur */
+            price_eur: number;
+            /** Box Id */
+            box_id: number | null;
         };
         /** ProductSummary */
         ProductSummary: {
@@ -6311,6 +6347,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    products_overview_api_precons_products_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOverview"][];
                 };
             };
         };

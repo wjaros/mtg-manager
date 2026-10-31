@@ -99,7 +99,7 @@ export function ImportView({ onImported, onBoxImported, onCollectionImported }: 
       {kind === 'collection' ? (
         <CollectionImportPanel onImported={onCollectionImported} />
       ) : kind === 'boxes' ? (
-        <BoxImportPanel initialKey={boxKey} onImported={onBoxImported} />
+        <BoxImportPanel initialKey={boxKey} onOpenBox={onBoxImported} />
       ) : kind === 'precons' ? (
         <PreconBrowser
           onImport={(fileName) =>

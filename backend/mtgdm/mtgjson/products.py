@@ -21,7 +21,7 @@ from mtgdm.decks.boxes import BoxDetail, BoxPart, create_box
 from mtgdm.decks.models import DeckCardEntry, ImportLine
 from mtgdm.i18n import tr
 from mtgdm.mtgjson.client import MtgjsonClient
-from mtgdm.mtgjson.precons import COLOR_ORDER, precon_decklist
+from mtgdm.mtgjson.precons import COLOR_ORDER, _deck_stats, _owned_by_oracle, precon_decklist
 
 GROUP_TYPES = ("Starter Kit", "Arena Starter Kit", "Spellslinger Starter Kit", "Jumpstart", "Halfdeck",
                "Game Night Deck", "Duel Deck", "Clash Pack")
@@ -48,6 +48,16 @@ class ProductSummary(BaseModel):
     type: str
     release_date: str | None
     decks: int
+
+
+class ProductOverview(BaseModel):
+    product: ProductSummary
+    loaded: bool         # all its decks are stored; else the numbers below are 0 (big pools: open one)
+    colors: list[str]    # of all its cards, WUBRG order
+    cards: int           # copies in all its decks
+    owned: int           # of those, how many your real copies cover (any printing)
+    price_eur: float     # the cards' value at single-card prices (not the product's price)
+    box_id: int | None   # the latest box imported from it (Decks)
 
 
 class ProductDeck(BaseModel):
@@ -92,6 +102,46 @@ def search_products(conn: sqlite3.Connection, q: str = "", limit: int = 50) -> l
     # Ties: boxes before Jumpstart pools (those are boosters), then the newest.
     found.sort(key=lambda x: (x[0], x[1].type != "Jumpstart", x[1].release_date or "", x[1].name), reverse=True)
     return [s for _, s in found[:limit]]
+
+
+def browse_products(conn: sqlite3.Connection) -> list[ProductOverview]:
+    """Every product with what you own of it and its cards' value, newest first."""
+    groups = _groups(conn)
+    stats = _deck_stats(conn, None)
+    owned = _owned_by_oracle(conn)
+    counts = dict(conn.execute("SELECT file_name, card_count FROM precons WHERE loaded_at IS NOT NULL").fetchall())
+    boxes = dict(conn.execute("SELECT product_key, MAX(id) FROM boxes GROUP BY product_key").fetchall())
+    result = []
+    for key, group in groups.items():
+        loaded = all(is_loaded for _, _, is_loaded in group.decks)
+        need: dict[str, int] = {}
+        colors: set[str] = set()
+        price = 0.0
+        cards = 0
+        if loaded:
+            for file_name, _, _ in group.decks:
+                s = stats.get(file_name)
+                cards += counts.get(file_name) or 0
+                if s is None:
+                    continue
+                for oracle, n in s["need"].items():
+                    need[oracle] = need.get(oracle, 0) + n
+                colors |= s["card_colors"]
+                price += s["price"]
+        result.append(ProductOverview(
+            product=group.summary, loaded=loaded, colors=[c for c in COLOR_ORDER if c in colors], cards=cards,
+            owned=sum(min(n, owned.get(oracle, 0)) for oracle, n in need.items()), price_eur=round(price, 2),
+            box_id=boxes.get(key),
+        ))
+    result.sort(key=lambda o: (o.product.release_date or "", o.product.name), reverse=True)
+    return result
+
+
+def small_product_files(conn: sqlite3.Connection) -> list[str]:
+    """Decks not stored yet of the products opened whole (up to EAGER_DECKS decks): fetched at sync, so
+    the box list shows their value and what you own."""
+    return [f for group in _groups(conn).values() if len(group.decks) <= EAGER_DECKS
+            for f, _, is_loaded in group.decks if not is_loaded]
 
 
 def get_product(conn: sqlite3.Connection, client: MtgjsonClient | None, key: str) -> ProductDetail:

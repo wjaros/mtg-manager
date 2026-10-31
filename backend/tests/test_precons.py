@@ -10,11 +10,13 @@ from mtgdm.mtgjson import products
 from mtgdm.mtgjson.client import MtgjsonClient
 from mtgdm.mtgjson.precons import precon_decklist, search_precons, sync_precons
 from mtgdm.mtgjson.products import (
-        ProductImportRequest,
+    ProductImportRequest,
+    browse_products,
     get_product,
     get_product_deck,
     import_product,
     search_products,
+    small_product_files,
 )
 
 FIXTURES = Path(__file__).parent / "fixtures" / "mtgjson"
@@ -252,3 +254,22 @@ def test_big_products_fetch_decks_one_by_one(db, monkeypatch):
     fake.requests.clear()
     box = import_product(db, client, "tla-beginner-box", ProductImportRequest(file_names=["BeginnerBoxZukoTutorial_TLA"]))
     assert [d.name for d in box.parts] == ["Zuko Tutorial"] and fake.requests == ["decks/BeginnerBoxZukoTutorial_TLA.json"]
+
+
+def test_sync_fetches_small_boxes_and_the_overview_shows_them(db):
+    fake = FakeMtgjson()
+    client = mtgjson_client(fake)
+    sync_precons(db, client, also=small_product_files)
+    # The Beginner Box's decks came with the sync; the Starter Kit's files are missing (404): not fatal.
+    assert {r for r in fake.requests if "BeginnerBox" in r} == {
+        f"decks/BeginnerBox{n}_TLA.json" for n in ("AangTutorial", "Allies", "ZukoTutorial")}
+    overview = {o.product.key: o for o in browse_products(db)}
+    box, kit = overview["tla-beginner-box"], overview["blb-starter-kit"]
+    assert (box.loaded, box.cards, box.owned, box.box_id) == (True, 60, 0, None)
+    assert set(box.colors) >= {"W", "R"} and box.price_eur >= 0
+    assert (kit.loaded, kit.cards) == (False, 0)
+
+    result = import_product(db, client, "tla-beginner-box", ProductImportRequest(
+        file_names=["BeginnerBoxAangTutorial_TLA", "BeginnerBoxZukoTutorial_TLA", "BeginnerBoxAllies_TLA"]))
+    box = next(o for o in browse_products(db) if o.product.key == "tla-beginner-box")
+    assert (box.owned, box.box_id) == (60, result.box.id)

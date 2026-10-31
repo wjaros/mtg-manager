@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { api, type DeckCard, type ProductDeck, type ProductDetail, type ProductSummary } from '../api/client'
-import { useDebounced } from '../hooks/useDebounced'
+import { api, type DeckCard, type ProductDeck, type ProductDetail } from '../api/client'
 import { t } from '../i18n'
 import { BoxDeckTile, CardsPreview } from './BoxDecks'
+import { ProductBrowser } from './ProductBrowser'
 
 // Up to this many decks (a Beginner Box) all are taken by default; above it (Jumpstart pools)
 // none, and a filter over the deck names helps to find the packs you have.
@@ -16,14 +16,12 @@ function deckCards(deck: ProductDeck): DeckCard[] {
 
 interface Props {
   initialKey?: string | null // a box to open right away (found in the Deck tab's search)
-  onImported: (boxId: number) => void
+  onOpenBox: (boxId: number) => void // after the import too
 }
 
 /** Boxes of small decks (Beginner Box, Starter Kit, Jumpstart): preview each deck, pick the ones you
  * have and import them as a box in Decks (combining them comes later, in the box). */
-export function BoxImportPanel({ initialKey, onImported }: Props) {
-  const [query, setQuery] = useState('')
-  const [found, setFound] = useState<{ q: string; list: ProductSummary[] } | null>(null)
+export function BoxImportPanel({ initialKey, onOpenBox }: Props) {
   const [detail, setDetail] = useState<ProductDetail | null>(null)
   const [opening, setOpening] = useState<string | null>(initialKey ?? null)
   const [selected, setSelected] = useState<string[]>([])
@@ -34,18 +32,6 @@ export function BoxImportPanel({ initialKey, onImported }: Props) {
   const [deckFilter, setDeckFilter] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const q = useDebounced(query, 250).trim()
-
-  useEffect(() => {
-    let cancelled = false
-    api.products(q).then(
-      (list) => !cancelled && setFound({ q, list }),
-      (e: Error) => !cancelled && setError(e.message),
-    )
-    return () => {
-      cancelled = true
-    }
-  }, [q])
 
   const show = (next: ProductDetail) => {
     const { product, decks } = next
@@ -106,51 +92,20 @@ export function BoxImportPanel({ initialKey, onImported }: Props) {
     setError(null)
     try {
       const box = await api.importProduct(detail.product.key, { file_names: selected, name: name.trim() || null, own })
-      onImported(box.box.id)
+      onOpenBox(box.box.id)
     } catch (e) {
       setError((e as Error).message)
       setBusy(false)
     }
   }
 
-  const results = found?.q === q ? found.list : null
-
   if (!detail) {
     return (
       <section className="panel box-import">
         <p className="muted small">{t.boxes.intro}</p>
-        <div className="precon-search">
-          <input
-            className="input"
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t.boxes.placeholder}
-            aria-label={t.boxes.placeholder}
-          />
-          {opening && !results?.some((p) => p.key === opening) && (
-            <p className="muted small">{t.boxes.loadingDecks}</p>
-          )}
-          {results !== null && results.length === 0 && <p className="muted small">{t.boxes.none}</p>}
-          {results !== null && results.length > 0 && (
-            <ul className="precon-results box-results">
-              {results.map((p) => (
-                <li key={p.key}>
-                  <button onClick={() => open(p.key)} disabled={opening !== null}>
-                    <strong>{p.name}</strong>
-                    <span className="muted small">
-                      {' '}
-                      · {p.set_name ?? p.code.toUpperCase()}
-                      {p.release_date && ` · ${p.release_date.slice(0, 4)}`} · {t.boxes.decks(p.decks)}
-                    </span>
-                    {opening === p.key && <span className="muted small"> {t.boxes.loadingDecks}</span>}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {opening && <p className="muted small">{t.boxes.loadingDecks}</p>}
         {error && <p className="status error">{error}</p>}
+        <ProductBrowser opening={opening} onOpen={open} onOpenBox={onOpenBox} />
       </section>
     )
   }

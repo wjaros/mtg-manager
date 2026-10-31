@@ -27,7 +27,9 @@ from mtgdm.mtgjson.products import (
     ProductImportError,
     ProductImportRequest,
     ProductNotFound,
+    ProductOverview,
     ProductSummary,
+    browse_products,
     get_product,
     get_product_deck,
     import_product,
@@ -57,6 +59,12 @@ def products(
 ) -> list[ProductSummary]:
     """Products holding several small decks (Beginner Box, Starter Kit, Jumpstart), newest first."""
     return search_products(db, q, limit)
+
+
+@router.get("/precons/products/overview")
+def products_overview(db: Db) -> list[ProductOverview]:
+    """Every product with its cards' colors, what you own of them and the cards' value."""
+    return browse_products(db)
 
 
 @router.get("/precons/products/{key}")
