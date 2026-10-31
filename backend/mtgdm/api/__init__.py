@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from mtgdm.api import (
     backup,
+    boxes,
     cards,
     cardtrader,
     collection,
@@ -21,6 +22,7 @@ from mtgdm.api import (
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
 api_router.include_router(backup.router)
+api_router.include_router(boxes.router)
 api_router.include_router(cards.router)
 api_router.include_router(cardtrader.router)
 api_router.include_router(collection.router)

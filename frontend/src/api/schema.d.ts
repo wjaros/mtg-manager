@@ -144,6 +144,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/boxes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Boxes
+         * @description Boxes of small decks (imported from Import › Boxes), newest first.
+         */
+        get: operations["list_boxes_api_boxes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/boxes/{box_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Box
+         * @description The box with its own decks and the decks combined from them.
+         */
+        get: operations["get_box_api_boxes__box_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Box
+         * @description The box and its decks; with_cards also removes its location and the copies in it.
+         */
+        delete: operations["delete_box_api_boxes__box_id__delete"];
+        options?: never;
+        head?: never;
+        /** Rename Box */
+        patch: operations["rename_box_api_boxes__box_id__patch"];
+        trace?: never;
+    };
+    "/api/boxes/{box_id}/combine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Combine
+         * @description A new deck in the box made of these parts' cards (a copy: the parts stay).
+         */
+        post: operations["combine_api_boxes__box_id__combine_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cards": {
         parameters: {
             query?: never;
@@ -1068,7 +1133,7 @@ export interface paths {
         put?: never;
         /**
          * Product Import
-         * @description Decks from the product's decks, each alone or several combined; optionally into the collection.
+         * @description A box (in Decks) holding these decks of the product; optionally its cards into the collection.
          */
         post: operations["product_import_api_precons_products__key__import_post"];
         delete?: never;
@@ -1919,6 +1984,49 @@ export interface components {
             /** Engine */
             engine?: string | null;
         };
+        /** BoxCombineRequest */
+        BoxCombineRequest: {
+            /** Name */
+            name: string;
+            /** Deck Ids */
+            deck_ids: number[];
+        };
+        /** BoxDetail */
+        BoxDetail: {
+            box: components["schemas"]["BoxSummary"];
+            /** Parts */
+            parts: components["schemas"]["DeckSummary"][];
+            /** Combined */
+            combined: components["schemas"]["CombinedDeck"][];
+        };
+        /** BoxSummary */
+        BoxSummary: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Set Code */
+            set_code: string | null;
+            /** Product Key */
+            product_key: string | null;
+            /** Location Id */
+            location_id: number | null;
+            /** Created At */
+            created_at: string;
+            /** Parts */
+            parts: number;
+            /** Combined */
+            combined: number;
+            /** Cover Card Id */
+            cover_card_id: string | null;
+            /** Color Identity */
+            color_identity: string[];
+        };
+        /** BoxUpdate */
+        BoxUpdate: {
+            /** Name */
+            name: string;
+        };
         /** CalibrationResult */
         CalibrationResult: {
             profile: components["schemas"]["PrinterProfile"];
@@ -2385,6 +2493,12 @@ export interface components {
             /** Other Sources */
             other_sources: number;
         };
+        /** CombinedDeck */
+        CombinedDeck: {
+            deck: components["schemas"]["DeckSummary"];
+            /** Part Ids */
+            part_ids: number[];
+        };
         /** Combo */
         Combo: {
             /** Id */
@@ -2647,6 +2761,12 @@ export interface components {
             color_identity: string[];
             /** Location Id */
             location_id: number | null;
+            /** Box Id */
+            box_id: number | null;
+            /** Box Role */
+            box_role: ("part" | "combined") | null;
+            /** Box Name */
+            box_name: string | null;
             counts: components["schemas"]["DeckCounts"];
             /** Unsaved Changes */
             unsaved_changes: number;
@@ -2763,6 +2883,12 @@ export interface components {
             color_identity: string[];
             /** Location Id */
             location_id: number | null;
+            /** Box Id */
+            box_id: number | null;
+            /** Box Role */
+            box_role: ("part" | "combined") | null;
+            /** Box Name */
+            box_name: string | null;
             counts: components["schemas"]["DeckCounts"];
             /** Unsaved Changes */
             unsaved_changes: number;
@@ -3471,13 +3597,6 @@ export interface components {
             /** Lines */
             lines: components["schemas"]["ImportLine"][];
         };
-        /** ProductDeckPlan */
-        ProductDeckPlan: {
-            /** Name */
-            name: string;
-            /** File Names */
-            file_names: string[];
-        };
         /** ProductDetail */
         ProductDetail: {
             product: components["schemas"]["ProductSummary"];
@@ -3486,29 +3605,15 @@ export interface components {
         };
         /** ProductImportRequest */
         ProductImportRequest: {
-            /** Decks */
-            decks: components["schemas"]["ProductDeckPlan"][];
+            /** File Names */
+            file_names: string[];
+            /** Name */
+            name?: string | null;
             /**
              * Own
-             * @default false
+             * @default true
              */
             own?: boolean;
-            /**
-             * Add Unused
-             * @default false
-             */
-            add_unused?: boolean;
-            /** Unused Location Id */
-            unused_location_id?: number | null;
-        };
-        /** ProductImportResult */
-        ProductImportResult: {
-            /** Deck Ids */
-            deck_ids: number[];
-            /** Added */
-            added: number;
-            /** Skipped */
-            skipped: number;
         };
         /** ProductSummary */
         ProductSummary: {
@@ -4268,6 +4373,158 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    list_boxes_api_boxes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoxSummary"][];
+                };
+            };
+        };
+    };
+    get_box_api_boxes__box_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoxDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_box_api_boxes__box_id__delete: {
+        parameters: {
+            query?: {
+                with_cards?: boolean;
+            };
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_box_api_boxes__box_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoxUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoxSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    combine_api_boxes__box_id__combine_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoxCombineRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };
@@ -6142,7 +6399,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProductImportResult"];
+                    "application/json": components["schemas"]["BoxDetail"];
                 };
             };
             /** @description Validation Error */

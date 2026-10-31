@@ -36,11 +36,11 @@ Deck
 
 interface Props {
   onImported: (deckId: number) => void
-  onDecksImported: (deckIds: number[]) => void
+  onBoxImported: (boxId: number) => void
   onCollectionImported: (locationId: number | null) => void
 }
 
-export function ImportView({ onImported, onDecksImported, onCollectionImported }: Props) {
+export function ImportView({ onImported, onBoxImported, onCollectionImported }: Props) {
   const [kind, setKind] = useState<'deck' | 'collection' | 'precons' | 'boxes'>('deck')
   const [text, setText] = useState('')
   const [platform, setPlatform] = useState<'' | Platform>('')
@@ -99,7 +99,7 @@ export function ImportView({ onImported, onDecksImported, onCollectionImported }
       {kind === 'collection' ? (
         <CollectionImportPanel onImported={onCollectionImported} />
       ) : kind === 'boxes' ? (
-        <BoxImportPanel initialKey={boxKey} onImported={onDecksImported} />
+        <BoxImportPanel initialKey={boxKey} onImported={onBoxImported} />
       ) : kind === 'precons' ? (
         <PreconBrowser
           onImport={(fileName) =>

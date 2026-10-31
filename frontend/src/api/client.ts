@@ -77,7 +77,8 @@ export type ProductSummary = Schemas['ProductSummary']
 export type ProductDetail = Schemas['ProductDetail']
 export type ProductDeck = Schemas['ProductDeck']
 export type ProductImportRequest = Schemas['ProductImportRequest']
-export type ProductImportResult = Schemas['ProductImportResult']
+export type BoxSummary = Schemas['BoxSummary']
+export type BoxDetail = Schemas['BoxDetail']
 export type CloudBackupStatus = Schemas['CloudBackupStatus']
 export type UpdateInfo = Schemas['UpdateInfo']
 export type MarkResult = Schemas['MarkResult']
@@ -243,7 +244,16 @@ export const api = {
   productDeck: (key: string, fileName: string) =>
     request<ProductDeck>(`/api/precons/products/${encodeURIComponent(key)}/decks/${encodeURIComponent(fileName)}`),
   importProduct: (key: string, body: ProductImportRequest) =>
-    request<ProductImportResult>(`/api/precons/products/${encodeURIComponent(key)}/import`, jsonBody('POST', body)),
+    request<BoxDetail>(`/api/precons/products/${encodeURIComponent(key)}/import`, jsonBody('POST', body)),
+  boxes: () => request<BoxSummary[]>('/api/boxes'),
+  box: (id: number) => request<BoxDetail>(`/api/boxes/${id}`),
+  renameBox: (id: number, name: string) => request<BoxSummary>(`/api/boxes/${id}`, jsonBody('PATCH', { name })),
+  deleteBox: (id: number, withCards = false) =>
+    fetch(`/api/boxes/${id}${withCards ? '?with_cards=true' : ''}`, { method: 'DELETE' }).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+    }),
+  combineBox: (id: number, deckIds: number[], name: string) =>
+    request<DeckDetail>(`/api/boxes/${id}/combine`, jsonBody('POST', { deck_ids: deckIds, name })),
 
   collection: (filter: {
     card_id?: string

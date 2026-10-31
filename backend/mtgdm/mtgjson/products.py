@@ -1,6 +1,7 @@
 """Products that hold several small decks (a Beginner Box's ten 20-card halves, a Starter Kit's two
 decks, Jumpstart packs): grouped from the precon list, each deck previewed with its matched cards,
-then imported as decks on their own or combined (two halves = one 40-card deck), optionally owned.
+then imported as a box (`decks/boxes.py`) holding the chosen decks, optionally owned; combining them
+into bigger decks happens in the box, any time later.
 
 MTGJSON has no product grouping in DeckList.json (a deck file's `sealedProductUuids` would need every
 file fetched), so products are guessed: decks of one set and type sharing a "Product - Deck" name
@@ -15,10 +16,9 @@ from difflib import SequenceMatcher
 
 from pydantic import BaseModel, Field
 
-from mtgdm.collection.models import CollectionItemCreate
-from mtgdm.collection.service import add_deck_to_collection, add_item, get_location
 from mtgdm.decks import importer
-from mtgdm.decks.models import DeckCardEntry, ImportCommitRequest, ImportLine
+from mtgdm.decks.boxes import BoxDetail, BoxPart, create_box
+from mtgdm.decks.models import DeckCardEntry, ImportLine
 from mtgdm.i18n import tr
 from mtgdm.mtgjson.client import MtgjsonClient
 from mtgdm.mtgjson.precons import COLOR_ORDER, precon_decklist
@@ -64,22 +64,10 @@ class ProductDetail(BaseModel):
     decks: list[ProductDeck]
 
 
-class ProductDeckPlan(BaseModel):
-    name: str = Field(min_length=1, max_length=200)
-    file_names: list[str] = Field(min_length=1)  # these decks' cards together make the new deck
-
-
 class ProductImportRequest(BaseModel):
-    decks: list[ProductDeckPlan] = Field(min_length=1)
-    own: bool = False             # "I own this box": each new deck's cards into its own box location
-    add_unused: bool = False      # with own: the decks no plan uses also go into the collection...
-    unused_location_id: int | None = None  # ...here (none = no location)
-
-
-class ProductImportResult(BaseModel):
-    deck_ids: list[int]
-    added: int         # copies put into the collection
-    skipped: int       # copies whose card wasn't found in the card data
+    file_names: list[str] = Field(min_length=1)  # the decks to put into the box
+    name: str | None = Field(default=None, max_length=200)  # default: "Beginner Box (TLA)"
+    own: bool = True    # its cards go into the collection, in the box's location
 
 
 @dataclass
@@ -127,53 +115,25 @@ def get_product_deck(conn: sqlite3.Connection, client: MtgjsonClient | None, key
 
 
 def import_product(conn: sqlite3.Connection, client: MtgjsonClient | None, key: str,
-                   request: ProductImportRequest) -> ProductImportResult:
-    """Create one deck per plan; with `own`, put the cards into the collection as well."""
+                   request: ProductImportRequest) -> BoxDetail:
+    """A box with these decks of the product (cards not found in the card data are left out)."""
     group = _group(conn, key)
     names = {f: name for f, name, _ in group.decks}
-    used: set[str] = set()
-    for plan in request.decks:
-        for file_name in plan.file_names:
-            if file_name not in names:
-                raise ProductImportError(tr("product_deck_unknown", name=file_name))
-            if file_name in used:  # a box holds each half once
-                raise ProductImportError(tr("product_deck_reused", name=names[file_name]))
-            used.add(file_name)
-    if request.own and request.add_unused and request.unused_location_id is not None:
-        get_location(conn, request.unused_location_id)  # checked before anything is created
-
-    with_unused = request.own and request.add_unused
-    decks = {f: _deck(conn, client, f, name, True) for f, name, _ in group.decks if f in used or with_unused}
+    file_names = list(dict.fromkeys(request.file_names))
+    for file_name in file_names:
+        if file_name not in names:
+            raise ProductImportError(tr("product_deck_unknown", name=file_name))
     product = group.summary
-    deck_ids, added, skipped = [], 0, 0
-    for plan in request.decks:
-        parts = [decks[f] for f in plan.file_names]
-        lines = [line for part in parts for line in part.lines]
-        skipped += sum(line.quantity for line in lines if line.card is None)
-        deck = importer.commit(conn, ImportCommitRequest(
-            name=plan.name.strip(), format="freeform", platform="paper",
-            description=f"{product.name} ({product.code.upper()}): {' + '.join(p.name for p in parts)}\n"
-                        f"source: MTGJSON {', '.join(plan.file_names)}",
+    parts = []
+    for file_name in file_names:
+        deck = _deck(conn, client, file_name, names[file_name], True)
+        parts.append(BoxPart(
+            name=deck.name, description=f"{product.name} ({product.code.upper()})\nsource: MTGJSON {file_name}",
             entries=[DeckCardEntry(card_id=line.card.id, quantity=line.quantity, board=line.board)
-                     for line in lines if line.card],
+                     for line in deck.lines if line.card],
         ))
-        deck_ids.append(deck.id)
-        if request.own:
-            added += add_deck_to_collection(conn, deck.id).added
-
-    if with_unused:
-        for part in decks.values():
-            if part.file_name in used:
-                continue
-            for line in part.lines:
-                if line.card is None:
-                    skipped += line.quantity
-                    continue
-                add_item(conn, CollectionItemCreate(
-                    card_id=line.card.id, quantity=line.quantity, location_id=request.unused_location_id,
-                ), source="import")
-                added += line.quantity
-    return ProductImportResult(deck_ids=deck_ids, added=added, skipped=skipped)
+    name = (request.name or "").strip() or f"{product.name} ({product.set_name or product.code.upper()})"
+    return create_box(conn, name, parts, set_code=product.code, product_key=key, own=request.own)
 
 
 def _deck(conn: sqlite3.Connection, client: MtgjsonClient | None, file_name: str, name: str,

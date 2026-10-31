@@ -30,17 +30,12 @@ MTGJSON too, with exact printings.
 
 1. Find a box by its name, set or a deck's name (the newest are shown before you type; a small typo
    is fine). The search in the **Deck** tab shows boxes too – clicking one opens it here.
-2. Each deck has a tile with its colors and card count; **Preview** shows its cards.
-3. Tick decks and **Combine selected** – two 20-card halves make a 40-card deck. A single ticked deck
-   becomes a deck of its own, and **The rest on their own** adds every deck not used yet. Each deck
-   of the box can be used once.
-4. In **Decks to create** you can rename them and preview the combined decks.
-5. **I own this box** also adds the cards to the collection: each new deck goes into its own box
-   (like "I own this deck"), and the unused decks can go to a location of your choice.
-6. **Create decks** saves them all at once (freeform format).
-
-In big pools (Jumpstart has over a hundred packs) a deck's cards are downloaded when you preview or
-tick it, and a name filter sits above the tiles.
+2. Each deck has a tile with its colors and card count; **Preview** shows its cards. The ticked decks
+   go into the box – all of a Beginner Box by default; in Jumpstart pools tick the packs you have
+   (their cards load when you preview or tick them, and a filter sits above the tiles).
+3. **I own this box** (on by default) adds the cards to the collection, in the box's location.
+4. **Import the box** creates the box with those decks in [Decks](decks.md#boxes). Combining them
+   into bigger decks happens there, whenever you like.
 
 ## Importing a collection
 

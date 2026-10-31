@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from mtgdm.api.deps import Db
 from mtgdm.collection.missing import missing_report
 from mtgdm.collection.service import LocationNotFound
+from mtgdm.decks.boxes import BoxDetail
 from mtgdm.decks.service import DeckNotFound
 from mtgdm.i18n import tr
 from mtgdm.mtgjson.client import MtgjsonError
@@ -25,7 +26,6 @@ from mtgdm.mtgjson.products import (
     ProductDetail,
     ProductImportError,
     ProductImportRequest,
-    ProductImportResult,
     ProductNotFound,
     ProductSummary,
     get_product,
@@ -72,8 +72,8 @@ def product_deck(db: Db, request: Request, key: str, file_name: str) -> ProductD
 
 
 @router.post("/precons/products/{key}/import", status_code=201)
-def product_import(db: Db, request: Request, key: str, body: ProductImportRequest) -> ProductImportResult:
-    """Decks from the product's decks, each alone or several combined; optionally into the collection."""
+def product_import(db: Db, request: Request, key: str, body: ProductImportRequest) -> BoxDetail:
+    """A box (in Decks) holding these decks of the product; optionally its cards into the collection."""
     return _product_call(lambda: import_product(db, request.app.state.mtgjson, key, body))
 
 

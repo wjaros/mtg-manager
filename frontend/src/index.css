@@ -4082,22 +4082,45 @@ label.button.disabled {
   border-top: 1px solid var(--border);
 }
 
-.box-plans .input {
-  flex: 1 1 240px;
+.box-filter {
+  width: min(320px, 100%);
 }
 
-.box-unused {
+.box-select-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
 }
 
-.box-unused .checkbox {
-  margin: 0;
+.box-combine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
 }
 
-.box-filter {
-  width: min(320px, 100%);
+.box-combine .input {
+  flex: 1 1 260px;
+}
+
+.box-view .view-header h1 {
+  margin: 0.25rem 0 0;
+}
+
+.box-view .view-header p {
+  margin: 0.2rem 0 0;
+}
+
+/* A box of decks in the decks list: a tile with a second edge under it, like a stack. */
+.deck-tile.box-tile {
+  overflow: visible;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: 4px 4px 0 -1px var(--bg-elevated), 4px 4px 0 0 color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.deck-tile.box-tile .deck-tile-open {
+  border-radius: 10px;
+  overflow: hidden;
 }

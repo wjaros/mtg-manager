@@ -11,6 +11,21 @@ creates an empty deck. Load a decklist or a precon in [Import](import-export.md)
 **Also remove the cards in its box from the collection**: then they leave the collection (proxies
 included) along with the box itself.
 
+## Boxes
+
+A box of small decks (e.g. a Beginner Box, imported in [Import › Boxes](import-export.md#boxes)) is
+a single tile in the deck list. Open it to see:
+- **Decks in the box** – each small deck as it came; **Open** shows it in the deckbuilder,
+  **Preview** shows its cards.
+- Tick two (or more) and **Combine into a deck**: a new deck with their cards (e.g. 2 × 20 = 40).
+  It's a copy – you edit it on its own and the box's decks stay as they are. Combine as often and
+  in as many ways as you like.
+- **Combined decks** – the decks combined so far, with what they were made from.
+
+The box's cards sit in the collection in the box's location (link **cards in the collection**), so
+the box's decks count them as owned and have no "I own this deck" button. **Delete box** removes it
+with its decks; the cards stay in the collection unless you choose to remove them too.
+
 ![Decks](../images/en/decks.webp)
 
 ## The deckbuilder

@@ -10,8 +10,7 @@ from mtgdm.mtgjson import products
 from mtgdm.mtgjson.client import MtgjsonClient
 from mtgdm.mtgjson.precons import precon_decklist, search_precons, sync_precons
 from mtgdm.mtgjson.products import (
-    ProductDeckPlan,
-    ProductImportRequest,
+        ProductImportRequest,
     get_product,
     get_product_deck,
     import_product,
@@ -198,32 +197,42 @@ def test_product_decks_are_fetched_and_matched(db):
     assert fake.requests == []
 
 
-def test_import_combined_halves_into_owned_decks(card_settings):
+def test_import_a_box_then_combine_its_decks(card_settings):
     fake = FakeMtgjson()
     with TestClient(create_app(card_settings, mtgjson=mtgjson_client(fake))) as client:
         conn = connect(card_settings.db_path)
         sync_precons(conn, mtgjson_client(fake))
-        assert client.get("/api/precons/products", params={"q": "beginner"}).json()[0]["key"] == "tla-beginner-box"
-        decks = {d["name"]: d["file_name"] for d in client.get("/api/precons/products/tla-beginner-box").json()["decks"]}
-        url = "/api/precons/products/tla-beginner-box/import"
-
-        plan = {"name": "Aang vs Zuko", "file_names": [decks["Aang Tutorial"], decks["Zuko Tutorial"]]}
-        reused = client.post(url, json={"decks": [plan, {"name": "Again", "file_names": [decks["Zuko Tutorial"]]}]})
-        assert reused.status_code == 400 and "Zuko Tutorial" in reused.json()["detail"]
-        assert client.post(url, json={"decks": [{"name": "X", "file_names": ["Nope"]}]}).status_code == 400
-        assert client.post("/api/precons/products/nope/import", json={"decks": [plan]}).status_code == 404
-        assert conn.execute("SELECT COUNT(*) FROM decks").fetchone()[0] == 0  # nothing created by those
-
-        result = client.post(url, json={"decks": [plan], "own": True, "add_unused": True}).json()
-        assert (result["added"], result["skipped"]) == (60, 0)
-        deck = client.get(f"/api/decks/{result['deck_ids'][0]}").json()
-        assert (deck["name"], deck["format"], deck["counts"]["main"]) == ("Aang vs Zuko", "freeform", 40)
-        assert "Aang Tutorial + Zuko Tutorial" in deck["description"]
-        in_box = conn.execute("SELECT SUM(quantity) FROM collection_items WHERE location_id = ?",
-                              (deck["location_id"],)).fetchone()[0]
-        unused = conn.execute("SELECT SUM(quantity) FROM collection_items WHERE location_id IS NULL").fetchone()[0]
-        assert (in_box, unused) == (40, 20)
         conn.close()
+        assert client.get("/api/precons/products", params={"q": "beginner"}).json()[0]["key"] == "tla-beginner-box"
+        files = [d["file_name"] for d in client.get("/api/precons/products/tla-beginner-box").json()["decks"]]
+        url = "/api/precons/products/tla-beginner-box/import"
+        assert client.post(url, json={"file_names": ["Nope"]}).status_code == 400
+        assert client.post("/api/precons/products/nope/import", json={"file_names": files}).status_code == 404
+        assert client.get("/api/boxes").json() == []  # nothing created by those
+
+        box = client.post(url, json={"file_names": files}).json()
+        assert box["box"]["name"].startswith("Beginner Box (") and box["box"]["parts"] == 3
+        parts = {d["name"]: d for d in box["parts"]}
+        assert {d["counts"]["main"] for d in parts.values()} == {20}
+        assert all(d["box_id"] == box["box"]["id"] and d["location_id"] is None for d in parts.values())
+        # Owned by default: all 60 cards in the box's location.
+        items = client.get("/api/collection").json()
+        assert sum(i["quantity"] for i in items if i["location"]["id"] == box["box"]["location_id"]) == 60
+
+        # Combining any time later: a 40-card copy in the box, the parts stay.
+        box_url = f"/api/boxes/{box['box']['id']}"
+        aang, zuko = parts["Aang Tutorial"]["id"], parts["Zuko Tutorial"]["id"]
+        deck = client.post(f"{box_url}/combine", json={"name": "Aang vs Zuko", "deck_ids": [aang, zuko]}).json()
+        assert (deck["counts"]["main"], deck["box_role"], deck["description"]) == (40, "combined", "Aang Tutorial + Zuko Tutorial")
+        detail = client.get(box_url).json()
+        assert len(detail["parts"]) == 3 and [c["part_ids"] for c in detail["combined"]] == [[aang, zuko]]
+        assert client.post(f"{box_url}/combine", json={"name": "X", "deck_ids": [deck["id"]]}).status_code == 400
+
+        assert client.patch(box_url, json={"name": "Avatar"}).json()["name"] == "Avatar"
+        assert client.get(f"/api/decks/{aang}").json()["box_name"] == "Avatar"
+        # Deleting the box takes its decks; its cards go only when asked.
+        assert client.delete(box_url, params={"with_cards": True}).status_code == 204
+        assert client.get("/api/decks").json() == [] and client.get("/api/collection").json() == []
 
 
 def test_big_products_fetch_decks_one_by_one(db, monkeypatch):
@@ -239,8 +248,7 @@ def test_big_products_fetch_decks_one_by_one(db, monkeypatch):
     assert (aang.loaded, aang.cards, fake.requests) == (True, 20, ["decks/BeginnerBoxAangTutorial_TLA.json"])
     assert [d.loaded for d in get_product(db, client, "tla-beginner-box").decks] == [True, False, False]
 
-    # The import fetches only the decks it uses.
+    # The import fetches only the decks it takes.
     fake.requests.clear()
-    plan = ProductDeckPlan(name="Zuko", file_names=["BeginnerBoxZukoTutorial_TLA"])
-    result = import_product(db, client, "tla-beginner-box", ProductImportRequest(decks=[plan]))
-    assert len(result.deck_ids) == 1 and fake.requests == ["decks/BeginnerBoxZukoTutorial_TLA.json"]
+    box = import_product(db, client, "tla-beginner-box", ProductImportRequest(file_names=["BeginnerBoxZukoTutorial_TLA"]))
+    assert [d.name for d in box.parts] == ["Zuko Tutorial"] and fake.requests == ["decks/BeginnerBoxZukoTutorial_TLA.json"]

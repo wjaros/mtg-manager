@@ -10,6 +10,21 @@ tworzy pustą talię. Gotową listę albo precon wczytasz w [Imporcie](import-ex
 **×** na kafelku usuwa talię. Karty z jej pudełka zostają w kolekcji, chyba że zaznaczysz
 **Usuń też z kolekcji karty z jej pudełka**: wtedy znikają z kolekcji (razem z proxy) i samo pudełko.
 
+## Pudełka
+
+Pudełko z małymi taliami (np. Beginner Box, zaimportowany w [Imporcie › Pudełka](import-export.md))
+jest na liście talii jednym kafelkiem. Po otwarciu widać:
+- **Talie w pudełku** – każda mała talia jak przyszła; **Otwórz** pokazuje ją w deckbuilderze,
+  **Podgląd** – jej karty.
+- Zaznacz dwie (lub więcej) i **Połącz w talię**: powstaje nowa talia z ich kartami (np. 2 × 20 = 40).
+  To kopia – edytujesz ją osobno, a talie w pudełku zostają bez zmian. Łączyć możesz dowolnie
+  i wielokrotnie.
+- **Talie złożone** – połączone dotąd talie, z informacją, z czego powstały.
+
+Karty pudełka leżą w kolekcji w lokalizacji pudełka (link **karty w kolekcji**), więc talie z pudełka
+mają je jako posiadane i nie mają przycisku „Mam tę talię”. **Usuń pudełko** usuwa je razem z jego
+taliami; karty zostają w kolekcji, chyba że zaznaczysz, żeby też je usunąć.
+
 ![Talie](../images/pl/decks.webp)
 
 ## Deckbuilder

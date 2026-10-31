@@ -10,6 +10,7 @@ import { CollectionView } from './views/CollectionView'
 import { LocationsView } from './views/LocationsView'
 import { DeckBuilderView, type DeckTab } from './views/DeckBuilderView'
 import { DecksView } from './views/DecksView'
+import { BoxView } from './views/BoxView'
 import { ImportView } from './views/ImportView'
 import { ProxiesView } from './views/ProxiesView'
 import { ScanView } from './views/ScanView'
@@ -29,6 +30,7 @@ type Route =
   | { view: 'import' }
   | { view: 'scan' }
   | { view: 'deck'; deckId: number; tab: DeckTab }
+  | { view: 'box'; boxId: number }
 
 const NAV: { id: keyof typeof t.nav; label: string; icon: string }[] = [
   // 24×24 stroke paths, shown alone when the sidebar is collapsed
@@ -58,6 +60,8 @@ function routeFromHash(): Route {
   const deck = hash.match(/^#\/decks\/(\d+)(?:\/(stats|combos|missing|history|compare))?$/)
   if (deck) return { view: 'deck', deckId: Number(deck[1]), tab: (deck[2] as DeckTab | undefined) ?? 'pool' }
   if (hash === '#/decks') return { view: 'decks' }
+  const box = hash.match(/^#\/boxes\/(\d+)$/)
+  if (box) return { view: 'box', boxId: Number(box[1]) }
   const items = hash.match(/^#\/collection\/items(?:\/(none|\d+))?$/)
   if (items) return { view: 'items', location: items[1] ? (items[1] === 'none' ? 'none' : Number(items[1])) : 'all' }
   if (hash === '#/collection/locations') return { view: 'locations' }
@@ -118,7 +122,7 @@ export default function App() {
     window.location.assign(`#/${path}`)
   }
   const activeNav =
-    route.view === 'deck'
+    route.view === 'deck' || route.view === 'box'
       ? 'decks'
       : route.view === 'items' || route.view === 'locations' || route.view === 'proxies' || route.view === 'wants'
         ? 'collection'
@@ -187,13 +191,21 @@ export default function App() {
         ) : route.view === 'settings' ? (
           <SettingsView status={status} onStatusChange={refreshStatus} />
         ) : route.view === 'decks' ? (
-          <DecksView onOpen={(id) => go(`decks/${id}`)} />
+          <DecksView onOpen={(id) => go(`decks/${id}`)} onOpenBox={(id) => go(`boxes/${id}`)} />
+        ) : route.view === 'box' ? (
+          <BoxView
+            key={route.boxId}
+            boxId={route.boxId}
+            onBack={() => go('decks')}
+            onOpenDeck={(id) => go(`decks/${id}`)}
+            onOpenLocation={(id) => go(`collection/items/${id}`)}
+          />
         ) : route.view === 'scan' ? (
           <ScanView />
         ) : route.view === 'import' ? (
           <ImportView
             onImported={(id) => go(`decks/${id}`)}
-            onDecksImported={(ids) => go(ids.length === 1 ? `decks/${ids[0]}` : 'decks')}
+            onBoxImported={(id) => go(`boxes/${id}`)}
             onCollectionImported={(loc) => go(loc === null ? 'collection/items/none' : `collection/items/${loc}`)}
           />
         ) : route.view === 'deck' ? (
@@ -204,6 +216,7 @@ export default function App() {
             onTabChange={(tab) => go(`decks/${route.deckId}${tab === 'pool' ? '' : `/${tab}`}`)}
             onBack={() => go('decks')}
             onOpenDeck={(id) => go(`decks/${id}${route.tab === 'pool' ? '' : `/${route.tab}`}`)}
+            onOpenBox={(id) => go(`boxes/${id}`)}
           />
         ) : (
           <CollectionPage

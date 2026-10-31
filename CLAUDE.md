@@ -25,10 +25,11 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
     in `wants.py`, `/decks/{id}/proxy-candidates|tokens|proxies` in `printing.py`, `/decks/{id}/missing/precons`
     in `precons.py`. Request/response models in each package's `models.py` (or next to the logic)
   - `db/` – `connect()` (WAL), `migrate()`; `migrations/NNN_name.sql` applied on startup, tracked in
-    `schema_version`. Tables: `meta` (key/value: settings, tokens, `ui:` prefs); cards: `sets`, `cards` +
+    `schema_version` (one row per file; every file without a row is applied, so numbers taken on two
+    branches merged in either order still all run). Tables: `meta` (key/value: settings, tokens, `ui:` prefs); cards: `sets`, `cards` +
     `cards_fts`, `card_details`, `oracle_cards`, `card_tags`, `oracle_tags`, `oracle_tag_parents`,
     `oracle_taggings`, `user_tags`; yours: `locations`, `collection_items`, `decks`, `deck_cards`,
-    `deck_versions`, `wants`; `scans`, `scan_items`; `printer_profiles`, `print_jobs`; `precons`, `precon_cards`
+    `deck_versions`, `wants`, `boxes`; `scans`, `scan_items`; `printer_profiles`, `print_jobs`; `precons`, `precon_cards`
   - `scryfall/` – `client.py` (headers, rate limits), `sets.py`, `bulk.py` (`default_cards` import, rebuilds
     `oracle_cards`), `sync.py` (stages; `mtgdm sync`), `manager.py` (background sync + SSE progress),
     `images.py` (image cache, `/api/images/...`), `tags.py` (Tagger's `oracle_tags` bulk, weekly: all tags with
@@ -40,7 +41,9 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
   - `decks/` – `service.py` (storage), `textformat.py` (Arena list parser), `matcher.py` (line → printing;
     warnings, never silent fallbacks), `importer.py`, `export.py`, `validation.py` (format rules → issues,
     `allowed_copies`), `stats.py`, `pdf.py` (one card per page, Pillow), `compare.py` (two decks by oracle id:
-    copies, price, whether a card fits each deck; tab Compare), `versions.py` (history snapshots)
+    copies, price, whether a card fits each deck; tab Compare), `versions.py` (history snapshots),
+    `boxes.py` (a box of small decks: its decks have `box_id`, role part/combined; combining copies the
+    parts' cards into a new deck; owned cards sit in the box's location, its decks have none)
   - `collection/` – `service.py` (copies, locations; "I own this deck" fills the deck's box location),
     `missing.py` (missing cards + exports), `wants.py` (shopping list per oracle id; real copies added after a
     row count as bought, via `owned_at_add`), `usage.py` (where a card is, for the deckbuilder hover),
@@ -57,7 +60,7 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
   - external services, each with its own client and politeness rules (details in the docstrings):
     `mtgjson/` (precon card lists only, joined by Scryfall id; last sync stage, its failure doesn't fail the
     sync; `precons.py`: list sync, search, decklist text, Commander browser, precons for missing cards;
-    `products.py`: boxes of several small decks guessed from the list, Import → Boxes), `cardtrader/` (user's token in `meta`, never in backups; the shopping list as one wishlist,
+    `products.py`: products of several small decks guessed from the list, imported as a box), `cardtrader/` (user's token in `meta`, never in backups; the shopping list as one wishlist,
     recreated on each send since the API can't edit one; API facts in `docs/ideas/cardtrader.md`),
     `spellbook/` (Commander Spellbook combos, ≥1 s between requests, cached in memory for a day),
     `updates.py` (GitHub releases; notify only, no self-update: the macOS app is unsigned)
@@ -72,7 +75,7 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
 - `frontend/` – React 19 + TypeScript + Vite, no state library, no test runner (build + lint are the checks)
   - `src/App.tsx` – sidebar + hash routing (`routeFromHash`): `#/` CollectionView (search), `#/collection/items/
     {id|none}` CollectionItemsView, `#/collection/locations|proxies|wants` LocationsView / ProxiesView /
-    WantsView, `#/decks` DecksView, `#/decks/{id}[/stats|combos|missing|history|compare]` DeckBuilderView,
+    WantsView, `#/decks` DecksView (boxes first, their decks hidden), `#/boxes/{id}` BoxView, `#/decks/{id}[/stats|combos|missing|history|compare]` DeckBuilderView,
     `#/import` ImportView, `#/scan` ScanView, `#/settings` SettingsView (all in `src/views/`)
   - `src/api/client.ts` – `api.*` calls (one per endpoint, sends Accept-Language), type aliases of the
     generated `schema.d.ts` (never edit it), URL builders for downloads and images
@@ -83,8 +86,8 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
     `HoverPreview` / `hooks/useHoverPreview`, `ProxyDialog`, `PrintingPanel`, `ExportDialog`, charts in
     `components/charts/`; small stores with a hook: `printQueue.ts`, `wants.ts`; `prefs.ts`, `theme.ts`
   - import: `views/ImportView.tsx` tabs Deck (text + `PreconSearch`, report → save), Collection
-    (`CollectionImportPanel`), Precons (`PreconBrowser`), Boxes (`BoxImportPanel`); `DeckVisual` with no-op
-    handlers doubles as a read-only card preview of any `DeckCard[]`
+    (`CollectionImportPanel`), Precons (`PreconBrowser`), Boxes (`BoxImportPanel`); `components/BoxDecks.tsx`: deck tile + read-only
+    card preview (`DeckVisual` with no-op handlers) shared with `views/BoxView.tsx`
   - styles: one `src/index.css` (tokens on `:root`, see Rules)
 - `packaging/` + `scripts/build_*` – PyInstaller (macOS + Windows); see Packaging below
 - `docs/` – user guide, Jekyll-ready (`docs/ideas/` = developer notes, excluded); `seeds/` – example decklists

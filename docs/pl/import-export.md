@@ -31,17 +31,12 @@ pochodzą z MTGJSON, z dokładnymi wydaniami kart.
 1. Wyszukaj pudełko po nazwie, secie albo nazwie talii (bez wpisywania widać najnowsze; drobna
    literówka nie przeszkadza). Pudełka pokazuje też wyszukiwarka w zakładce **Talia** – kliknięte
    otwiera się tutaj.
-2. Każda talia ma kafelek z kolorami i liczbą kart; **Podgląd** pokazuje jej karty.
-3. Zaznacz talie i **Połącz zaznaczone** – dwie połówki po 20 kart dają talię 40 kart. Jedna
-   zaznaczona talia to osobna talia, a **Pozostałe osobno** dodaje wszystkie jeszcze nieużyte.
-   Każdą talię z pudełka da się użyć raz.
-4. Na liście **Talie do utworzenia** możesz zmienić nazwy i podejrzeć połączone talie.
-5. **Mam to pudełko** od razu dodaje karty do kolekcji: każda nowa talia trafia do swojego
-   pudełka (jak „Mam tę talię”), a nieużyte talie możesz dodać do wybranej lokalizacji.
-6. **Utwórz talie** zapisuje wszystkie naraz (format freeform).
-
-W dużych pulach (Jumpstart ma ponad sto pakietów) karty talii pobierają się dopiero przy podglądzie
-albo zaznaczeniu, a nad kafelkami jest filtr po nazwie.
+2. Każda talia ma kafelek z kolorami i liczbą kart; **Podgląd** pokazuje jej karty. Zaznaczone talie
+   trafią do pudełka – w Beginner Boxie domyślnie wszystkie, w pulach Jumpstart zaznacz pakiety,
+   które masz (karty pobierają się przy podglądzie albo zaznaczeniu, nad kafelkami jest filtr).
+3. **Mam to pudełko** (domyślnie włączone) dodaje karty do kolekcji, do lokalizacji pudełka.
+4. **Importuj pudełko** tworzy w [Taliach](decks.md) pudełko z tymi taliami. Łączenie ich w
+   większe talie odbywa się tam, kiedy chcesz.
 
 ## Import kolekcji
 
