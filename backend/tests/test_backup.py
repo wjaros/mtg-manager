@@ -5,6 +5,8 @@ from fastapi.testclient import TestClient
 
 from mtgdm.app import create_app
 from mtgdm.config import Settings
+from mtgdm.db import connect
+from mtgdm.decks.boxes import BoxCombineRequest, BoxPart, combine, create_box
 from tests.helpers import SEEDS_DIR
 
 
@@ -133,3 +135,23 @@ def test_deck_history_round_trip(source, target):
     del backup["decks"][0]["versions"]
     target.post("/api/backup/import", json=backup, params={"replace": True})
     assert history(target) == ([(1, "Przywrócono z kopii", 100, 102, 0)], 0)
+
+
+def test_boxes_round_trip(source, target):
+
+    bolt = source.get("/api/cards", params={"q": "lightning bolt"}).json()["items"][0]["id"]
+    conn = connect(source.app.state.settings.db_path)
+    box = create_box(conn, "Box", [BoxPart(name=n, entries=[{"card_id": bolt, "quantity": 2}]) for n in ("A", "B")],
+                     set_code="tla", own=True)
+    combine(conn, box.box.id, BoxCombineRequest(name="A + B", deck_ids=[d.id for d in box.parts]))
+    conn.close()
+
+    resp = target.post("/api/backup/import", params={"replace": True}, json=source.get("/api/backup/export").json())
+    assert resp.status_code == 200, resp.text
+    [restored] = target.get("/api/boxes").json()
+    detail = target.get(f"/api/boxes/{restored['id']}").json()
+    assert (restored["name"], restored["parts"], restored["combined"]) == ("Box", 2, 1)
+    assert [c["part_ids"] for c in detail["combined"]] == [[d["id"] for d in detail["parts"]]]
+    assert detail["combined"][0]["deck"]["counts"]["main"] == 4
+    items = target.get("/api/collection").json()
+    assert [(i["quantity"], i["location"]["name"]) for i in items] == [(4, "Box")]

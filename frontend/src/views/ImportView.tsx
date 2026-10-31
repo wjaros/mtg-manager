@@ -11,6 +11,7 @@ import {
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { FORMAT_LABEL } from '../decks'
 import { t } from '../i18n'
+import { BoxImportPanel } from '../components/BoxImportPanel'
 import { CollectionImportPanel } from '../components/CollectionImportPanel'
 import { PreconBrowser } from '../components/PreconBrowser'
 import { PreconSearch } from '../components/PreconSearch'
@@ -35,17 +36,19 @@ Deck
 
 interface Props {
   onImported: (deckId: number) => void
+  onBoxImported: (boxId: number) => void
   onCollectionImported: (locationId: number | null) => void
 }
 
-export function ImportView({ onImported, onCollectionImported }: Props) {
-  const [kind, setKind] = useState<'deck' | 'collection' | 'precons'>('deck')
+export function ImportView({ onImported, onBoxImported, onCollectionImported }: Props) {
+  const [kind, setKind] = useState<'deck' | 'collection' | 'precons' | 'boxes'>('deck')
   const [text, setText] = useState('')
   const [platform, setPlatform] = useState<'' | Platform>('')
   const [seeds, setSeeds] = useState<SeedInfo[]>([])
   const [report, setReport] = useState<ImportReport | null>(null)
   const [parsing, setParsing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [boxKey, setBoxKey] = useState<string | null>(null)
 
   useEffect(() => {
     api.seeds().then(setSeeds, () => setSeeds([]))
@@ -87,11 +90,16 @@ export function ImportView({ onImported, onCollectionImported }: Props) {
           <button className={kind === 'precons' ? 'on' : ''} onClick={() => setKind('precons')} role="tab">
             {t.collectionImport.tabPrecons}
           </button>
+          <button className={kind === 'boxes' ? 'on' : ''} onClick={() => setKind('boxes')} role="tab">
+            {t.collectionImport.tabBoxes}
+          </button>
         </div>
       </div>
 
       {kind === 'collection' ? (
         <CollectionImportPanel onImported={onCollectionImported} />
+      ) : kind === 'boxes' ? (
+        <BoxImportPanel initialKey={boxKey} onOpenBox={onBoxImported} />
       ) : kind === 'precons' ? (
         <PreconBrowser
           onImport={(fileName) =>
@@ -113,6 +121,10 @@ export function ImportView({ onImported, onCollectionImported }: Props) {
             onLoad={(deckText) => {
               setText(deckText)
               analyze(deckText)
+            }}
+            onOpenBox={(key) => {
+              setBoxKey(key)
+              setKind('boxes')
             }}
           />
           {seeds.length > 0 && (

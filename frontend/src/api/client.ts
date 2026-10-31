@@ -73,6 +73,14 @@ export type PreconSummary = Schemas['PreconSummary']
 export type PreconDecklist = Schemas['PreconDecklist']
 export type PreconOverview = Schemas['PreconOverview']
 export type PreconSuggestion = Schemas['PreconSuggestion']
+export type ProductSummary = Schemas['ProductSummary']
+export type ProductDetail = Schemas['ProductDetail']
+export type ProductDeck = Schemas['ProductDeck']
+export type ProductOverview = Schemas['ProductOverview']
+export type CardPrices = Schemas['CardPrices']
+export type ProductImportRequest = Schemas['ProductImportRequest']
+export type BoxSummary = Schemas['BoxSummary']
+export type BoxDetail = Schemas['BoxDetail']
 export type CloudBackupStatus = Schemas['CloudBackupStatus']
 export type UpdateInfo = Schemas['UpdateInfo']
 export type MarkResult = Schemas['MarkResult']
@@ -232,6 +240,24 @@ export const api = {
     request<PreconSuggestion[]>(`/api/decks/${deckId}/missing/precons?exclude_other_decks=${excludeOtherDecks}`),
   preconDecklist: (fileName: string) =>
     request<PreconDecklist>(`/api/precons/${encodeURIComponent(fileName)}/decklist`),
+  products: (q: string, limit?: number) =>
+    request<ProductSummary[]>(`/api/precons/products?${toSearchParams({ q, limit })}`),
+  cardPrices: (ids: string[]) => request<CardPrices>('/api/cards/prices', jsonBody('POST', { ids })),
+  productsOverview: () => request<ProductOverview[]>('/api/precons/products/overview'),
+  product: (key: string) => request<ProductDetail>(`/api/precons/products/${encodeURIComponent(key)}`),
+  productDeck: (key: string, fileName: string) =>
+    request<ProductDeck>(`/api/precons/products/${encodeURIComponent(key)}/decks/${encodeURIComponent(fileName)}`),
+  importProduct: (key: string, body: ProductImportRequest) =>
+    request<BoxDetail>(`/api/precons/products/${encodeURIComponent(key)}/import`, jsonBody('POST', body)),
+  boxes: () => request<BoxSummary[]>('/api/boxes'),
+  box: (id: number) => request<BoxDetail>(`/api/boxes/${id}`),
+  renameBox: (id: number, name: string) => request<BoxSummary>(`/api/boxes/${id}`, jsonBody('PATCH', { name })),
+  deleteBox: (id: number, withCards = false) =>
+    fetch(`/api/boxes/${id}${withCards ? '?with_cards=true' : ''}`, { method: 'DELETE' }).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText)
+    }),
+  combineBox: (id: number, deckIds: number[], name: string) =>
+    request<DeckDetail>(`/api/boxes/${id}/combine`, jsonBody('POST', { deck_ids: deckIds, name })),
 
   collection: (filter: {
     card_id?: string

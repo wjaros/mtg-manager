@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { api, type DeckFormat, type DeckSummary, type Location, type Platform } from '../api/client'
+import { api, type BoxSummary, type DeckFormat, type DeckSummary, type Location, type Platform } from '../api/client'
 import { CardImage } from '../components/CardImage'
 import { ManaCost } from '../components/ManaCost'
 import { deckSizeTarget, FORMAT_LABEL, PLATFORM_LABEL } from '../decks'
@@ -7,16 +7,20 @@ import { t } from '../i18n'
 
 interface Props {
   onOpen: (deckId: number) => void
+  onOpenBox: (boxId: number) => void
 }
 
-export function DecksView({ onOpen }: Props) {
+export function DecksView({ onOpen, onOpenBox }: Props) {
   const [decks, setDecks] = useState<DeckSummary[] | null>(null)
+  const [boxes, setBoxes] = useState<BoxSummary[]>([])
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [deleting, setDeleting] = useState<DeckSummary | null>(null)
 
   useEffect(() => {
-    api.decks().then(setDecks, (e: Error) => setError(e.message))
+    // A box's decks are shown in the box, not here.
+    api.decks().then((all) => setDecks(all.filter((d) => d.box_id === null)), (e: Error) => setError(e.message))
+    api.boxes().then(setBoxes, () => setBoxes([]))
   }, [])
 
   const remove = async (deck: DeckSummary, withCards: boolean) => {
@@ -51,13 +55,42 @@ export function DecksView({ onOpen }: Props) {
 
       {decks === null ? (
         <p className="muted">{t.common.loading}</p>
-      ) : decks.length === 0 && !creating ? (
+      ) : decks.length === 0 && boxes.length === 0 && !creating ? (
         <section className="panel empty-state">
           <p>{t.decks.empty}</p>
           <p className="muted">{t.decks.emptyHint}</p>
         </section>
       ) : (
         <div className="deck-tiles">
+          {boxes.map((box) => (
+            <div key={`box-${box.id}`} className="deck-tile box-tile">
+              <button className="deck-tile-open" onClick={() => onOpenBox(box.id)}>
+                <div className="deck-tile-art">
+                  {box.cover_card_id ? (
+                    <CardImage cardId={box.cover_card_id} name={box.name} size="normal" />
+                  ) : (
+                    <div className="card-image placeholder">
+                      <span className="card-image-name">{box.name}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="deck-tile-body">
+                  <strong className="deck-tile-name">{box.name}</strong>
+                  <span className="muted small">
+                    {t.boxes.boxLabel}
+                    {box.set_code && ` · ${box.set_code.toUpperCase()}`}
+                  </span>
+                  <span className="deck-tile-meta">
+                    <ManaCost cost={box.color_identity.map((c) => `{${c}}`).join('')} />
+                    <span className="muted">
+                      {t.boxes.decks(box.parts)}
+                      {box.combined > 0 && ` · ${t.boxes.combinedCount(box.combined)}`}
+                    </span>
+                  </span>
+                </div>
+              </button>
+            </div>
+          ))}
           {decks.map((deck) => {
             const target = deckSizeTarget(deck.format)
             return (

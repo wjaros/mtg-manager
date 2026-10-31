@@ -35,6 +35,10 @@ def list_decks(conn: sqlite3.Connection) -> list[DeckSummary]:
     return [_summary(conn, r["id"]) for r in rows]
 
 
+def get_summary(conn: sqlite3.Connection, deck_id: int) -> DeckSummary:
+    return _summary(conn, deck_id)
+
+
 def get_deck(conn: sqlite3.Connection, deck_id: int) -> DeckDetail:
     _require_deck(conn, deck_id)
     changes = versions.unsaved_changes(conn, deck_id)
@@ -250,7 +254,9 @@ def _after_change(conn: sqlite3.Connection, deck_id: int) -> None:
 
 
 def _summary(conn: sqlite3.Connection, deck_id: int, changes: DeckChanges | None = None) -> DeckSummary:
-    deck = conn.execute("SELECT * FROM decks WHERE id = ?", (deck_id,)).fetchone()
+    deck = conn.execute(
+        "SELECT d.*, b.name AS box_name FROM decks d LEFT JOIN boxes b ON b.id = d.box_id WHERE d.id = ?", (deck_id,)
+    ).fetchone()
     if deck is None:
         raise DeckNotFound(deck_id)
     changes = changes or versions.unsaved_changes(conn, deck_id)
@@ -290,6 +296,9 @@ def _summary(conn: sqlite3.Connection, deck_id: int, changes: DeckChanges | None
         cover_card_id=deck["commander_card_id"] or deck["companion_card_id"] or _cover_card(conn, deck_id),
         color_identity=[c for c in COLOR_ORDER if c in identity],
         location_id=deck["location_id"],
+        box_id=deck["box_id"],
+        box_role=deck["box_role"],
+        box_name=deck["box_name"],
         counts=DeckCounts(**counts, total=counts["main"] + counts["commander"]),
         unsaved_changes=len(changes.cards) + bool(changes.format_before) + bool(changes.platform_before),
         created_at=deck["created_at"],

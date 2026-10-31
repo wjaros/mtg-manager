@@ -8,6 +8,7 @@ from mtgdm.api.deps import AppSettings, Db
 from mtgdm.cards.models import (
     CardDetail,
     CardPage,
+    CardPrices,
     CardSummary,
     ColorMode,
     Order,
@@ -18,6 +19,7 @@ from mtgdm.cards.models import (
 from mtgdm.cards.search import (
     CardQuery,
     InvalidQuery,
+    card_prices,
     get_card,
     get_printings,
     list_sets,
@@ -26,6 +28,7 @@ from mtgdm.cards.search import (
 from mtgdm.cards.similar import DeckNotFound, SimilarCards, similar_cards
 from mtgdm.cards.user_tags import UserTag, all_tags, set_tags
 from mtgdm.collection.usage import CardUsage, card_usage
+from mtgdm.scryfall.bulk import META_UPDATED_AT, get_meta
 
 router = APIRouter(tags=["cards"])
 
@@ -70,6 +73,16 @@ def cards(
         return search_cards(db, query)
     except InvalidQuery as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+class PricesRequest(BaseModel):
+    ids: list[str]
+
+
+@router.post("/cards/prices")
+def prices(db: Db, body: PricesRequest) -> CardPrices:
+    """Prices of many printings at once (a box's or product's card list)."""
+    return CardPrices(prices=card_prices(db, list(dict.fromkeys(body.ids))), as_of=get_meta(db, META_UPDATED_AT))
 
 
 @router.get("/cards/{card_id}")

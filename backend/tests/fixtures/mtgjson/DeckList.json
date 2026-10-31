@@ -24,6 +24,48 @@
    "name": "Angelic Host",
    "releaseDate": "2018-04-27",
    "type": "Theme Deck"
+  },
+  {
+   "code": "TLA",
+   "fileName": "BeginnerBoxAangTutorial_TLA",
+   "name": "Beginner Box - Aang Tutorial",
+   "releaseDate": "2025-11-14",
+   "type": "Box Set"
+  },
+  {
+   "code": "TLA",
+   "fileName": "BeginnerBoxZukoTutorial_TLA",
+   "name": "Beginner Box - Zuko Tutorial",
+   "releaseDate": "2025-11-14",
+   "type": "Box Set"
+  },
+  {
+   "code": "TLA",
+   "fileName": "BeginnerBoxAllies_TLA",
+   "name": "Beginner Box - Allies",
+   "releaseDate": "2025-11-14",
+   "type": "Box Set"
+  },
+  {
+   "code": "TLA",
+   "fileName": "TeaTimeAtTheJasmineDragon_TLA",
+   "name": "Tea Time at the Jasmine Dragon",
+   "releaseDate": "2025-11-14",
+   "type": "Box Set"
+  },
+  {
+   "code": "BLB",
+   "fileName": "HareRaising_BLB",
+   "name": "Hare Raising",
+   "releaseDate": "2024-08-02",
+   "type": "Starter Kit"
+  },
+  {
+   "code": "BLB",
+   "fileName": "OtterLimits_BLB",
+   "name": "Otter Limits",
+   "releaseDate": "2024-08-02",
+   "type": "Starter Kit"
   }
  ]
 }
