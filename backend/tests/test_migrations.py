@@ -21,7 +21,7 @@ def test_fresh_db_reaches_latest_version(db):
 
 def test_migrate_is_idempotent(db):
     assert migrate(db) == LATEST
-    assert db.execute("SELECT COUNT(*) FROM schema_version").fetchone()[0] == LATEST
+    assert db.execute("SELECT COUNT(*) FROM schema_version").fetchone()[0] == len(available_migrations())
 
 
 def test_wal_and_foreign_keys(tmp_path):
@@ -104,3 +104,15 @@ def test_proxy_tracking_migration_keeps_items_as_real(tmp_path):
     assert tuple(row) == (3, "foil", "EX", 7, "n", "real", None, None)
     with pytest.raises(sqlite3.IntegrityError):
         conn.execute("INSERT INTO collection_items(card_id, kind) VALUES ('c1', 'fake')")
+
+
+def test_a_gap_in_applied_migrations_is_filled(tmp_path):
+    # A database that ran another branch's migration 14 (not in this tree) still gets 13 and 15.
+    conn = connect(tmp_path / "gap.sqlite")
+    migrate(conn, until=12)
+    conn.execute("INSERT INTO schema_version(version) VALUES (14)")
+    conn.commit()
+    migrate(conn)
+    tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    assert {"wants", "boxes"} <= tables
+    conn.close()
