@@ -997,6 +997,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/precons/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products
+         * @description Products holding several small decks (Beginner Box, Starter Kit, Jumpstart), newest first.
+         */
+        get: operations["products_api_precons_products_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Product
+         * @description The product's decks with their cards matched (fetched from MTGJSON when not stored yet).
+         */
+        get: operations["product_api_precons_products__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products/{key}/decks/{file_name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Product Deck
+         * @description One deck of a big product (its decks aren't all fetched when it is opened).
+         */
+        get: operations["product_deck_api_precons_products__key__decks__file_name__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products/{key}/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Product Import
+         * @description Decks from the product's decks, each alone or several combined; optionally into the collection.
+         */
+        post: operations["product_import_api_precons_products__key__import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/precons/commander": {
         parameters: {
             query?: never;
@@ -3375,6 +3455,77 @@ export interface components {
             calibrated_at: string | null;
             /** Note */
             note: string | null;
+        };
+        /** ProductDeck */
+        ProductDeck: {
+            /** File Name */
+            file_name: string;
+            /** Name */
+            name: string;
+            /** Loaded */
+            loaded: boolean;
+            /** Cards */
+            cards: number;
+            /** Colors */
+            colors: string[];
+            /** Lines */
+            lines: components["schemas"]["ImportLine"][];
+        };
+        /** ProductDeckPlan */
+        ProductDeckPlan: {
+            /** Name */
+            name: string;
+            /** File Names */
+            file_names: string[];
+        };
+        /** ProductDetail */
+        ProductDetail: {
+            product: components["schemas"]["ProductSummary"];
+            /** Decks */
+            decks: components["schemas"]["ProductDeck"][];
+        };
+        /** ProductImportRequest */
+        ProductImportRequest: {
+            /** Decks */
+            decks: components["schemas"]["ProductDeckPlan"][];
+            /**
+             * Own
+             * @default false
+             */
+            own?: boolean;
+            /**
+             * Add Unused
+             * @default false
+             */
+            add_unused?: boolean;
+            /** Unused Location Id */
+            unused_location_id?: number | null;
+        };
+        /** ProductImportResult */
+        ProductImportResult: {
+            /** Deck Ids */
+            deck_ids: number[];
+            /** Added */
+            added: number;
+            /** Skipped */
+            skipped: number;
+        };
+        /** ProductSummary */
+        ProductSummary: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /** Set Name */
+            set_name: string | null;
+            /** Type */
+            type: string;
+            /** Release Date */
+            release_date: string | null;
+            /** Decks */
+            decks: number;
         };
         /** ProfileCreate */
         ProfileCreate: {
@@ -5861,6 +6012,137 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PreconSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    products_api_precons_products_get: {
+        parameters: {
+            query?: {
+                /** @description Words of the product's, its set's or a deck's name, or the set code */
+                q?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    product_api_precons_products__key__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    product_deck_api_precons_products__key__decks__file_name__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+                file_name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDeck"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    product_import_api_precons_products__key__import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductImportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductImportResult"];
                 };
             };
             /** @description Validation Error */

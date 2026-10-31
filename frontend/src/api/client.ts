@@ -73,6 +73,11 @@ export type PreconSummary = Schemas['PreconSummary']
 export type PreconDecklist = Schemas['PreconDecklist']
 export type PreconOverview = Schemas['PreconOverview']
 export type PreconSuggestion = Schemas['PreconSuggestion']
+export type ProductSummary = Schemas['ProductSummary']
+export type ProductDetail = Schemas['ProductDetail']
+export type ProductDeck = Schemas['ProductDeck']
+export type ProductImportRequest = Schemas['ProductImportRequest']
+export type ProductImportResult = Schemas['ProductImportResult']
 export type CloudBackupStatus = Schemas['CloudBackupStatus']
 export type UpdateInfo = Schemas['UpdateInfo']
 export type MarkResult = Schemas['MarkResult']
@@ -232,6 +237,12 @@ export const api = {
     request<PreconSuggestion[]>(`/api/decks/${deckId}/missing/precons?exclude_other_decks=${excludeOtherDecks}`),
   preconDecklist: (fileName: string) =>
     request<PreconDecklist>(`/api/precons/${encodeURIComponent(fileName)}/decklist`),
+  products: (q: string) => request<ProductSummary[]>(`/api/precons/products?${toSearchParams({ q })}`),
+  product: (key: string) => request<ProductDetail>(`/api/precons/products/${encodeURIComponent(key)}`),
+  productDeck: (key: string, fileName: string) =>
+    request<ProductDeck>(`/api/precons/products/${encodeURIComponent(key)}/decks/${encodeURIComponent(fileName)}`),
+  importProduct: (key: string, body: ProductImportRequest) =>
+    request<ProductImportResult>(`/api/precons/products/${encodeURIComponent(key)}/import`, jsonBody('POST', body)),
 
   collection: (filter: {
     card_id?: string

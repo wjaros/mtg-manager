@@ -1,0 +1,191 @@
+{
+ "data": {
+  "code": "TLA",
+  "name": "Beginner Box - Aang Tutorial",
+  "type": "Box Set",
+  "releaseDate": "2025-11-14",
+  "mainBoard": [
+   {
+    "name": "Aang, Air Nomad",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "265",
+    "identifiers": {
+     "scryfallId": "cdd47fc3-6ea7-4516-ad66-b73f545f8221"
+    }
+   },
+   {
+    "name": "Aang's Defense",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "266",
+    "identifiers": {
+     "scryfallId": "0dbb9439-6a4c-482a-83e7-5d6aa80d0cbd"
+    }
+   },
+   {
+    "name": "Aardvark Sloth",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "267",
+    "identifiers": {
+     "scryfallId": "75cfa6e8-5a4d-4a10-bd99-d45df8775549"
+    }
+   },
+   {
+    "name": "Appa, Aang's Companion",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "268",
+    "identifiers": {
+     "scryfallId": "cf5b4b3b-fb88-48da-ac3f-6a423be9cd44"
+    }
+   },
+   {
+    "name": "Katara, Heroic Healer",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "269",
+    "identifiers": {
+     "scryfallId": "fb0c34e3-5235-413c-a6b2-4a041a6b3da9"
+    }
+   },
+   {
+    "name": "Momo, Rambunctious Rascal",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "270",
+    "identifiers": {
+     "scryfallId": "6eebedac-4b53-4b4f-a96b-a5a804b90a83"
+    }
+   },
+   {
+    "name": "Path to Redemption",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "271",
+    "identifiers": {
+     "scryfallId": "dca6553f-4ba0-416b-8c04-f1c455a7cfc2"
+    }
+   },
+   {
+    "name": "Razor Rings",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "272",
+    "identifiers": {
+     "scryfallId": "878571d5-cc25-45a7-aab1-25f01c173c77"
+    }
+   },
+   {
+    "name": "Sledding Otter-Penguin",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "273",
+    "identifiers": {
+     "scryfallId": "dcdb397d-3f68-4ede-b28a-4fa5c6f934dd"
+    }
+   },
+   {
+    "name": "Sokka, Wolf Cove's Protector",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "274",
+    "identifiers": {
+     "scryfallId": "ef442a4a-c58d-4b63-b751-9d3bd82fcc1d"
+    }
+   },
+   {
+    "name": "Tundra Wall",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "275",
+    "identifiers": {
+     "scryfallId": "5ce9ea15-6ec0-4044-a130-8e75f4d32ebb"
+    }
+   },
+   {
+    "name": "Wolf Cove Villager",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "276",
+    "identifiers": {
+     "scryfallId": "993652d5-b44b-4142-a081-427edb480dcf"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "297",
+    "identifiers": {
+     "scryfallId": "9045a9a2-e63f-4a68-9f20-28a43518f71f"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "298",
+    "identifiers": {
+     "scryfallId": "8fb2afd8-7958-4864-81d4-210d91470aca"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "299",
+    "identifiers": {
+     "scryfallId": "d5e327d5-2e51-4fdc-a0c8-edd3dd77c058"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "300",
+    "identifiers": {
+     "scryfallId": "c62977b4-ffbd-43e5-9b36-2d3e6557b56b"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "301",
+    "identifiers": {
+     "scryfallId": "51bb9dee-0246-41f7-bcc6-e402ebc2b701"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "302",
+    "identifiers": {
+     "scryfallId": "ebb35754-99e3-47de-8df5-ee485b5a7b49"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "303",
+    "identifiers": {
+     "scryfallId": "2f05ea5f-891e-4a66-82db-3ffb17efd002"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "304",
+    "identifiers": {
+     "scryfallId": "3912c5c8-3b80-4e92-abc2-eb482e49e9b1"
+    }
+   }
+  ],
+  "sideBoard": []
+ }
+}

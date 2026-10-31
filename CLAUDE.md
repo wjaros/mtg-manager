@@ -56,7 +56,8 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
     (synthetic photos and A4 pages for tests)
   - external services, each with its own client and politeness rules (details in the docstrings):
     `mtgjson/` (precon card lists only, joined by Scryfall id; last sync stage, its failure doesn't fail the
-    sync), `cardtrader/` (user's token in `meta`, never in backups; the shopping list as one wishlist,
+    sync; `precons.py`: list sync, search, decklist text, Commander browser, precons for missing cards;
+    `products.py`: boxes of several small decks guessed from the list, Import → Boxes), `cardtrader/` (user's token in `meta`, never in backups; the shopping list as one wishlist,
     recreated on each send since the API can't edit one; API facts in `docs/ideas/cardtrader.md`),
     `spellbook/` (Commander Spellbook combos, ≥1 s between requests, cached in memory for a day),
     `updates.py` (GitHub releases; notify only, no self-update: the macOS app is unsigned)
@@ -81,6 +82,9 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
   - shared: `CardGrid`, `CardDetailPanel`, `Filters` (+ `src/filters.ts` → query), `ContextMenu`,
     `HoverPreview` / `hooks/useHoverPreview`, `ProxyDialog`, `PrintingPanel`, `ExportDialog`, charts in
     `components/charts/`; small stores with a hook: `printQueue.ts`, `wants.ts`; `prefs.ts`, `theme.ts`
+  - import: `views/ImportView.tsx` tabs Deck (text + `PreconSearch`, report → save), Collection
+    (`CollectionImportPanel`), Precons (`PreconBrowser`), Boxes (`BoxImportPanel`); `DeckVisual` with no-op
+    handlers doubles as a read-only card preview of any `DeckCard[]`
   - styles: one `src/index.css` (tokens on `:root`, see Rules)
 - `packaging/` + `scripts/build_*` – PyInstaller (macOS + Windows); see Packaging below
 - `docs/` – user guide, Jekyll-ready (`docs/ideas/` = developer notes, excluded); `seeds/` – example decklists
@@ -103,6 +107,9 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
 - After changing API models: `scripts/gen_api_types.sh` (no server needed)
 - Dev: `scripts/dev.sh` (backend :8765 with reload, Vite :5173 proxying `/api`)
 - Window app: `cd frontend && npm run build && cd ../backend && uv run mtgdm app`
+- Try a change on real data without touching it: `sqlite3 "<data dir>/db.sqlite" ".backup <copy>/db.sqlite"`
+  (macOS data dir: `~/Library/Application Support/MTGDeckManager`), link `images/` there, then
+  `MTGDM_DATA_DIR=<copy> uv run python -m mtgdm serve --port 8799` (serves the built `frontend/dist`)
 - Card data: `cd backend && uv run python -m mtgdm sync` (~2 min, ~700 MB DB; needs network)
 - Docs screenshots: `cd frontend && npm run build && cd ../backend && uv run --with playwright python
   ../scripts/docs_screenshots.py [--only stats,history] [--lang pl]` (runs on a copy of the app's data; a new
@@ -149,6 +156,11 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
   not on Arena or with printing filters.
 - `deck_cards` is the source of truth; `decks.commander/partner/companion_card_id` are derived. `deck_versions`
   holds snapshots; "unsaved" = diff vs the latest one, per card name + board (a printing swap isn't a removal).
+- MTGJSON `DeckList.json` has only code / fileName / name / type / releaseDate; no product grouping
+  (`sealedProductUuids` is only in each deck file). Types seen: Jumpstart (~570 packs, 20 cards), Commander
+  Deck (the only ones fetched at sync), Box Set (Beginner Boxes as "Beginner Box - Aang Tutorial", but also
+  one-offs), Starter Kit, Halfdeck, Secret Lair Drop… Deck files: `mainBoard` / `sideBoard` / `commander`
+  with `count`, `setCode`, `number`, `identifiers.scryfallId`, `isFoil`.
 - Scryfall `arena_code` can collide with another set's `code` (me1 → `med`): resolve set codes by `code` first.
 
 ## Packaging

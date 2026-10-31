@@ -193,6 +193,7 @@ export default function App() {
         ) : route.view === 'import' ? (
           <ImportView
             onImported={(id) => go(`decks/${id}`)}
+            onDecksImported={(ids) => go(ids.length === 1 ? `decks/${ids[0]}` : 'decks')}
             onCollectionImported={(loc) => go(loc === null ? 'collection/items/none' : `collection/items/${loc}`)}
           />
         ) : route.view === 'deck' ? (

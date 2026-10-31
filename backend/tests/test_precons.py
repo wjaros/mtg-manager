@@ -6,8 +6,17 @@ from fastapi.testclient import TestClient
 
 from mtgdm.app import create_app
 from mtgdm.db import connect
+from mtgdm.mtgjson import products
 from mtgdm.mtgjson.client import MtgjsonClient
 from mtgdm.mtgjson.precons import precon_decklist, search_precons, sync_precons
+from mtgdm.mtgjson.products import (
+    ProductDeckPlan,
+    ProductImportRequest,
+    get_product,
+    get_product_deck,
+    import_product,
+    search_products,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures" / "mtgjson"
 QUINTORIUS = "Quintorius, History Chaser"
@@ -50,7 +59,8 @@ def test_sync_stores_the_list_and_fetches_commander_decks(db):
     # deck stays a list entry until imported.
     assert fetched == 1
     loaded = {r[0]: r[1] is not None for r in db.execute("SELECT file_name, loaded_at FROM precons")}
-    assert loaded == {"LoreholdSpirit_SOC": True, "LoreholdLegacies_C21": False, "AngelicHost_DOM": False}
+    assert {k: v for k, v in loaded.items() if v} == {"LoreholdSpirit_SOC": True}
+    assert {"LoreholdLegacies_C21", "AngelicHost_DOM", "BeginnerBoxAllies_TLA"} <= loaded.keys()
     assert progress[-1] == ("precons", 2, 2) and all(p[0] == "precons" for p in progress)
 
     # The next sync only asks for what is still missing.
@@ -148,3 +158,82 @@ def test_browse_and_missing_suggestions(card_settings):
             client.post(f"/api/decks/{small['id']}/cards", json={"card_id": c["card_id"]})
         assert client.get(f"/api/decks/{small['id']}/missing/precons").json() == []
         assert client.get("/api/decks/999/missing/precons").status_code == 404
+
+
+def test_products_group_decks_of_one_box(db):
+    sync_precons(db, mtgjson_client(FakeMtgjson()))
+    products = {p.key: p for p in search_products(db)}
+    # "Beginner Box - X" decks of one set make a product; Starter Kit decks of a set are one box; a lone
+    # Box Set deck and Commander decks are no product.
+    assert products.keys() == {"tla-beginner-box", "blb-starter-kit"}
+    box = products["tla-beginner-box"]
+    assert (box.name, box.code, box.type, box.decks, box.set_name is not None) == ("Beginner Box", "tla", "Box Set", 3, True)
+    assert [p.key for p in search_products(db, "zuko")] == ["tla-beginner-box"]
+    assert [p.key for p in search_products(db, "blb")] == ["blb-starter-kit"]
+    assert search_products(db, "lorehold") == []
+
+
+def test_product_decks_are_fetched_and_matched(db):
+    fake = FakeMtgjson()
+    client = mtgjson_client(fake)
+    sync_precons(db, client)
+    fake.requests.clear()
+    detail = get_product(db, client, "tla-beginner-box")
+    assert sorted(fake.requests) == [f"decks/BeginnerBox{n}_TLA.json" for n in ("AangTutorial", "Allies", "ZukoTutorial")]
+    decks = {d.name: d for d in detail.decks}
+    assert list(decks) == ["Aang Tutorial", "Allies", "Zuko Tutorial"]
+    assert {d.cards for d in decks.values()} == {20}
+    assert (decks["Aang Tutorial"].colors, decks["Zuko Tutorial"].colors) == (["W"], ["R"])
+    assert all(line.status == "matched" for d in detail.decks for line in d.lines)
+    # Stored now: no download the second time.
+    fake.requests.clear()
+    get_product(db, client, "tla-beginner-box")
+    assert fake.requests == []
+
+
+def test_import_combined_halves_into_owned_decks(card_settings):
+    fake = FakeMtgjson()
+    with TestClient(create_app(card_settings, mtgjson=mtgjson_client(fake))) as client:
+        conn = connect(card_settings.db_path)
+        sync_precons(conn, mtgjson_client(fake))
+        assert client.get("/api/precons/products", params={"q": "beginner"}).json()[0]["key"] == "tla-beginner-box"
+        decks = {d["name"]: d["file_name"] for d in client.get("/api/precons/products/tla-beginner-box").json()["decks"]}
+        url = "/api/precons/products/tla-beginner-box/import"
+
+        plan = {"name": "Aang vs Zuko", "file_names": [decks["Aang Tutorial"], decks["Zuko Tutorial"]]}
+        reused = client.post(url, json={"decks": [plan, {"name": "Again", "file_names": [decks["Zuko Tutorial"]]}]})
+        assert reused.status_code == 400 and "Zuko Tutorial" in reused.json()["detail"]
+        assert client.post(url, json={"decks": [{"name": "X", "file_names": ["Nope"]}]}).status_code == 400
+        assert client.post("/api/precons/products/nope/import", json={"decks": [plan]}).status_code == 404
+        assert conn.execute("SELECT COUNT(*) FROM decks").fetchone()[0] == 0  # nothing created by those
+
+        result = client.post(url, json={"decks": [plan], "own": True, "add_unused": True}).json()
+        assert (result["added"], result["skipped"]) == (60, 0)
+        deck = client.get(f"/api/decks/{result['deck_ids'][0]}").json()
+        assert (deck["name"], deck["format"], deck["counts"]["main"]) == ("Aang vs Zuko", "freeform", 40)
+        assert "Aang Tutorial + Zuko Tutorial" in deck["description"]
+        in_box = conn.execute("SELECT SUM(quantity) FROM collection_items WHERE location_id = ?",
+                              (deck["location_id"],)).fetchone()[0]
+        unused = conn.execute("SELECT SUM(quantity) FROM collection_items WHERE location_id IS NULL").fetchone()[0]
+        assert (in_box, unused) == (40, 20)
+        conn.close()
+
+
+def test_big_products_fetch_decks_one_by_one(db, monkeypatch):
+    monkeypatch.setattr(products, "EAGER_DECKS", 2)  # the 3-deck box counts as big (Jumpstart has 121 packs)
+    fake = FakeMtgjson()
+    client = mtgjson_client(fake)
+    sync_precons(db, client)
+    fake.requests.clear()
+    detail = get_product(db, client, "tla-beginner-box")
+    assert fake.requests == [] and not any(d.loaded or d.lines for d in detail.decks)
+
+    aang = get_product_deck(db, client, "tla-beginner-box", "BeginnerBoxAangTutorial_TLA")
+    assert (aang.loaded, aang.cards, fake.requests) == (True, 20, ["decks/BeginnerBoxAangTutorial_TLA.json"])
+    assert [d.loaded for d in get_product(db, client, "tla-beginner-box").decks] == [True, False, False]
+
+    # The import fetches only the decks it uses.
+    fake.requests.clear()
+    plan = ProductDeckPlan(name="Zuko", file_names=["BeginnerBoxZukoTutorial_TLA"])
+    result = import_product(db, client, "tla-beginner-box", ProductImportRequest(decks=[plan]))
+    assert len(result.deck_ids) == 1 and fake.requests == ["decks/BeginnerBoxZukoTutorial_TLA.json"]

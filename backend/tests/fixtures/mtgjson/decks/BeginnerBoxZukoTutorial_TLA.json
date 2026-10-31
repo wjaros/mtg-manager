@@ -1,0 +1,191 @@
+{
+ "data": {
+  "code": "TLA",
+  "name": "Beginner Box - Zuko Tutorial",
+  "type": "Box Set",
+  "releaseDate": "2025-11-14",
+  "mainBoard": [
+   {
+    "name": "Capital Guard",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "277",
+    "identifiers": {
+     "scryfallId": "a8a10d10-18d3-46e6-99db-43b24dcf2ae0"
+    }
+   },
+   {
+    "name": "Dragon Moose",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "278",
+    "identifiers": {
+     "scryfallId": "71fb2595-b4b5-40b4-a3b6-236c0e2cdc83"
+    }
+   },
+   {
+    "name": "Explosive Shot",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "279",
+    "identifiers": {
+     "scryfallId": "37599371-29e6-4fae-a236-6a566bfeeff7"
+    }
+   },
+   {
+    "name": "Fire Nation Soldier",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "280",
+    "identifiers": {
+     "scryfallId": "3682f6c9-3f24-478f-abed-2583ea686457"
+    }
+   },
+   {
+    "name": "Fire Nation's Conquest",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "281",
+    "identifiers": {
+     "scryfallId": "44bd7972-c32b-4c39-9be9-5f81918786b7"
+    }
+   },
+   {
+    "name": "Iroh, Firebending Instructor",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "282",
+    "identifiers": {
+     "scryfallId": "fd440b2c-e843-4760-a467-5f61f1d74314"
+    }
+   },
+   {
+    "name": "Komodo Rhino",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "283",
+    "identifiers": {
+     "scryfallId": "d81fb19f-32f5-46ec-8532-ca24128fb0dc"
+    }
+   },
+   {
+    "name": "Run Amok",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "284",
+    "identifiers": {
+     "scryfallId": "083f501f-13f4-415b-b46b-4a365007a19a"
+    }
+   },
+   {
+    "name": "Warship Scout",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "285",
+    "identifiers": {
+     "scryfallId": "f47fc407-5b7d-4c9d-90b4-3eb234f9f18b"
+    }
+   },
+   {
+    "name": "Zhao, the Seething Flame",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "286",
+    "identifiers": {
+     "scryfallId": "ddfb5e68-324a-45e1-b2b5-d62a1c9e554c"
+    }
+   },
+   {
+    "name": "Zuko, Avatar Hunter",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "287",
+    "identifiers": {
+     "scryfallId": "90b5d4f1-273b-4293-8bc4-fcb29331e9da"
+    }
+   },
+   {
+    "name": "Zuko's Offense",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "288",
+    "identifiers": {
+     "scryfallId": "3959cf4e-57a5-4355-9837-56f70b321874"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "289",
+    "identifiers": {
+     "scryfallId": "c1b854c2-493b-4129-9688-c9db1524ee94"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "290",
+    "identifiers": {
+     "scryfallId": "344e6464-62a0-4766-b9cc-af719e3e211d"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "291",
+    "identifiers": {
+     "scryfallId": "430564c9-1cb7-4f46-8737-d5f78745846d"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "292",
+    "identifiers": {
+     "scryfallId": "137f41ee-e6a8-4e84-8d43-9e6fa269f31f"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "293",
+    "identifiers": {
+     "scryfallId": "aef2ab8e-49de-443a-9236-97356aae2bb1"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "294",
+    "identifiers": {
+     "scryfallId": "83ee7310-d5cc-4f1f-b0c9-f0bde22a695d"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "295",
+    "identifiers": {
+     "scryfallId": "068bbaea-874c-4f02-8188-9a15f3cd9cb9"
+    }
+   },
+   {
+    "name": "Mountain",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "296",
+    "identifiers": {
+     "scryfallId": "1ca86e9b-93af-461a-b69d-799711afddb8"
+    }
+   }
+  ],
+  "sideBoard": []
+ }
+}

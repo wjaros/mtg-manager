@@ -94,6 +94,9 @@ review the result and choose finish, condition and location before anything reac
   set code (lists from [MTGJSON](https://mtgjson.com), downloaded with the card data). *Import →
   Precons* lists the Commander precons with their colors, how much of each you own and the cards'
   value; a deck's *Missing* tab names the precons that contain several of its missing cards.
+  *Import → Boxes* opens products with several small decks (Beginner Box, Starter Kit, Jumpstart):
+  preview each deck, combine two 20-card halves into a 40-card deck, create them all at once and,
+  if you own the box, put the cards into the collection.
 - Collections: product contents as a card list, or Moxfield's collection CSV.
 - Exports:
   - MTG Arena (printings that aren't on Arena are swapped);

@@ -2,7 +2,7 @@
 
 [← Contents](index.md)
 
-**Import** has three tabs: **Deck**, **Collection** and **Precons**.
+**Import** has four tabs: **Deck**, **Collection**, **Precons** and **Boxes**.
 
 ![Import](../images/en/import.webp)
 
@@ -21,6 +21,25 @@ the card data), each with its colors, how many of its cards you own and the card
 also load a precon in the **Deck** tab by searching for its name, commander or set code.
 
 A deck's **Missing** tab suggests the precons that contain several of its missing cards.
+
+## Boxes
+
+**Boxes** are products with several small decks: a Beginner Box (e.g. Avatar: The Last Airbender –
+ten 20-card decks), a Starter Kit (two decks), Jumpstart packs, Halfdecks. The lists come from
+MTGJSON too, with exact printings.
+
+1. Find a box by its name, set or a deck's name (the newest are shown before you type).
+2. Each deck has a tile with its colors and card count; **Preview** shows its cards.
+3. Tick decks and **Combine selected** – two 20-card halves make a 40-card deck. A single ticked deck
+   becomes a deck of its own, and **The rest on their own** adds every deck not used yet. Each deck
+   of the box can be used once.
+4. In **Decks to create** you can rename them and preview the combined decks.
+5. **I own this box** also adds the cards to the collection: each new deck goes into its own box
+   (like "I own this deck"), and the unused decks can go to a location of your choice.
+6. **Create decks** saves them all at once (freeform format).
+
+In big pools (Jumpstart has over a hundred packs) a deck's cards are downloaded when you preview or
+tick it, and a name filter sits above the tiles.
 
 ## Importing a collection
 

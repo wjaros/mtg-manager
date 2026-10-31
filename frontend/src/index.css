@@ -4005,3 +4005,99 @@ label.button.disabled {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ---------- Boxes (Import › Boxes) ---------- */
+
+.box-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.box-title {
+  font-size: 1.1rem;
+}
+
+.box-decks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.box-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.box-deck.on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.box-deck.previewed {
+  border-color: var(--accent);
+}
+
+.box-deck.used {
+  opacity: 0.6;
+}
+
+.box-deck .checkbox {
+  margin: 0;
+}
+
+.box-deck-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+
+.box-preview {
+  margin-top: 1rem;
+}
+
+.box-plans {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.box-plans li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  padding: 0.3rem 0;
+}
+
+.box-plans li + li {
+  border-top: 1px solid var(--border);
+}
+
+.box-plans .input {
+  flex: 1 1 240px;
+}
+
+.box-unused {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.box-unused .checkbox {
+  margin: 0;
+}
+
+.box-filter {
+  width: min(320px, 100%);
+}
