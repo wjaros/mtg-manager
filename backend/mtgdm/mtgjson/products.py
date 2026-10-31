@@ -27,6 +27,7 @@ GROUP_TYPES = ("Starter Kit", "Arena Starter Kit", "Spellslinger Starter Kit", "
 # "Showcase: Kaldheim - X" are drops, not decks of one box.
 NOT_PRODUCTS = ("Secret Lair Drop", "MTGO Redemption")
 EAGER_DECKS = 12
+GENERIC_WORDS = {"starter", "kit", "beginner", "box", "deck", "decks", "set", "pack", "packs"}
 _PREFIX_SEP = " - "
 
 
@@ -87,16 +88,21 @@ class _Group:
 
 
 def search_products(conn: sqlite3.Connection, q: str = "", limit: int = 50) -> list[ProductSummary]:
-    """By product, set or deck name, or set code; newest first."""
+    """By product, set or deck name (words matched from their start), or set code; newest first.
+    Words for a kind of box ("starter kit") don't rule a product out when the query names something
+    else too: people call a Beginner Box a starter kit."""
     words = q.lower().split()
+    specific = [w for w in words if w not in GENERIC_WORDS] or words
     found = []
     for group in _groups(conn).values():
         s = group.summary
         text = " ".join([s.name, s.set_name or "", s.type, *(name for _, name, _ in group.decks)]).lower()
-        if all(w == s.code or w in text for w in words):
-            found.append(s)
-    found.sort(key=lambda s: (s.release_date or "", s.name), reverse=True)
-    return found[:limit]
+        matched = {w for w in words if w == s.code or re.search(rf"(?<![a-z0-9]){re.escape(w)}", text)}
+        if all(w in matched for w in specific):
+            found.append((len(matched), s))
+    # Ties: boxes before Jumpstart pools (those are boosters), then the newest.
+    found.sort(key=lambda x: (x[0], x[1].type != "Jumpstart", x[1].release_date or "", x[1].name), reverse=True)
+    return [s for _, s in found[:limit]]
 
 
 def get_product(conn: sqlite3.Connection, client: MtgjsonClient | None, key: str) -> ProductDetail:

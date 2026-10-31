@@ -170,6 +170,11 @@ def test_products_group_decks_of_one_box(db):
     assert (box.name, box.code, box.type, box.decks, box.set_name is not None) == ("Beginner Box", "tla", "Box Set", 3, True)
     assert [p.key for p in search_products(db, "zuko")] == ["tla-beginner-box"]
     assert [p.key for p in search_products(db, "blb")] == ["blb-starter-kit"]
+    # Words match from their start ("tla" isn't in "Atlantis"); a box called by another kind's name is
+    # still found, ranked after the products matching every word.
+    assert [p.key for p in search_products(db, "tla")] == ["tla-beginner-box"]
+    assert [p.key for p in search_products(db, "airbender starter kit")] == ["tla-beginner-box"]
+    assert [p.key for p in search_products(db, "starter kit")] == ["blb-starter-kit"]
     assert search_products(db, "lorehold") == []
 
 
