@@ -29,7 +29,7 @@ from mtgdm.printing.profiles import (
     ProfileUpdate,
 )
 from mtgdm.printing.render import Slot, render_calibration, render_duplex_test
-from mtgdm.printing.tokens import DeckToken, deck_tokens
+from mtgdm.printing.tokens import DeckToken, card_tokens, deck_tokens
 
 router = APIRouter(tags=["printing"])
 
@@ -100,6 +100,14 @@ def tokens(db: Db, deck_id: int) -> list[DeckToken]:
     if db.execute("SELECT 1 FROM decks WHERE id = ?", (deck_id,)).fetchone() is None:
         raise HTTPException(status_code=404, detail="Deck not found")
     return deck_tokens(db, deck_id)
+
+
+@router.get("/print/tokens")
+def print_tokens(
+    db: Db, card: Annotated[list[str], Query(description="Card printing ids")] = []
+) -> list[DeckToken]:
+    """Tokens and emblems these cards make: suggestions for cards added to a print list by hand."""
+    return card_tokens(db, list(dict.fromkeys(card)))
 
 
 @router.get("/print/settings")

@@ -34,6 +34,9 @@ Inne karty i tokeny wydrukujesz z **Kolekcja → Drukuj proxy**. Karty dodasz:
 - prawym przyciskiem → **Dodaj do druku proxy**;
 - wyszukując je w oknie albo wklejając listę.
 
+Tokeny, które tworzą dodane karty, pojawiają się w grupie **Tokeny**, niezaznaczone: zaznacz te,
+które chcesz wydrukować.
+
 ## Proxy w talii
 
 Proxy jest częścią talii, ale nigdy nie liczy się jako twoja karta:

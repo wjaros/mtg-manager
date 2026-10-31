@@ -1,4 +1,5 @@
-"""Tokens (and emblems) a deck's cards make, from Scryfall's all_parts links, for printing.
+"""Tokens (and emblems) a deck's cards, or any cards picked for printing, make, from Scryfall's
+all_parts links, for printing.
 
 A card's printing links the token printings of its own set; the same token made by several cards
 (same oracle id) is listed once, with every card that makes it."""
@@ -32,7 +33,29 @@ def deck_tokens(conn: sqlite3.Connection, deck_id: int) -> list[DeckToken]:
         """,
         (deck_id, *DECK_BOX_BOARDS),
     ).fetchall()
-    sources: dict[str, list[str]] = {}  # token printing id -> deck cards
+    return _tokens_of(conn, rows)
+
+
+def card_tokens(conn: sqlite3.Connection, card_ids: list[str]) -> list[DeckToken]:
+    """Tokens the given printings make (cards added by hand to a print list)."""
+    if not card_ids:
+        return []
+    rows = conn.execute(
+        f"""
+        SELECT c.id, c.name, json_extract(d.raw, '$.all_parts') AS parts
+        FROM cards c JOIN card_details d ON d.id = c.id
+        WHERE c.id IN ({", ".join("?" * len(card_ids))})
+        """,
+        card_ids,
+    ).fetchall()
+    # Sources listed in the order the cards were added.
+    order = {card_id: i for i, card_id in enumerate(card_ids)}
+    return _tokens_of(conn, sorted(rows, key=lambda r: order[r["id"]]))
+
+
+def _tokens_of(conn: sqlite3.Connection, rows: list[sqlite3.Row]) -> list[DeckToken]:
+    """Rows of (name, all_parts JSON) → the tokens they make, each with the cards that make it."""
+    sources: dict[str, list[str]] = {}  # token printing id -> cards that make it
     for row in rows:
         for part in json.loads(row["parts"] or "[]"):
             # A token version of the card itself (e.g. Ajani's Pridemate) is not something it makes.

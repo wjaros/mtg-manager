@@ -331,6 +331,7 @@ export const api = {
   markProxies: (historyId: number, body: { location_id?: number | null; dry_run?: boolean }) =>
     request<MarkResult>(`/api/print/history/${historyId}/mark-proxies`, jsonBody('POST', body)),
   deckTokens: (deckId: number) => request<DeckToken[]>(`/api/decks/${deckId}/tokens`),
+  printTokens: (cardIds: string[]) => request<DeckToken[]>(`/api/print/tokens?${toSearchParams({ card: cardIds })}`),
   printSettings: () => request<PrintSettings>('/api/print/settings'),
   savePrintSettings: (body: PrintSettings) => request<PrintSettings>('/api/print/settings', jsonBody('PUT', body)),
   printerProfiles: () => request<PrinterProfile[]>('/api/print/profiles'),
