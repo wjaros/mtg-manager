@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api, type PreconOverview } from '../api/client'
 import { formatNumber, t } from '../i18n'
+import { Loader } from './Loader'
 import { ManaCost } from './ManaCost'
 
 const COLORS = ['W', 'U', 'B', 'R', 'G'] as const
@@ -34,7 +35,7 @@ export function PreconBrowser({ onImport }: { onImport: (fileName: string) => vo
   }, [list, query, colors, order])
 
   if (error) return <p className="status error">{error}</p>
-  if (list === null) return <p className="muted">{t.common.loading}</p>
+  if (list === null) return <Loader />
   if (list.length === 0) return <p className="muted">{t.precons.notSynced}</p>
 
   return (

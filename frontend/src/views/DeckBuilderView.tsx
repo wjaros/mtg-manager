@@ -63,6 +63,7 @@ import { useDeck } from '../hooks/useDeck'
 import { useDeckView } from '../hooks/useDeckView'
 import { useStoredChoice } from '../hooks/useStoredChoice'
 import { getPref, setPref } from '../prefs'
+import { showDeckColors } from '../skins'
 import { formatNumber, locale, t } from '../i18n'
 
 export type DeckTab = 'pool' | 'stats' | 'combos' | 'missing' | 'history' | 'compare'
@@ -111,6 +112,12 @@ interface Props {
 export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOpenDeck, onOpenBox }: Props) {
   const actions = useDeck(deckId)
   const { deck } = actions
+  // With "skin from the deck's colors" on, the deck wears its colors while it is open.
+  const identity = deck?.color_identity.join('') ?? null
+  useEffect(() => {
+    showDeckColors(identity === null ? null : [...identity])
+  }, [identity])
+  useEffect(() => () => showDeckColors(null), [])
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
   const [constrain, setConstrain] = useState(true)
   const [hideAdded, setHideAdded] = useState(false)

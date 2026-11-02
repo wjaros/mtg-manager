@@ -66,6 +66,7 @@ ship inside the app in the `licenses` folder (collected at build time by
 | requests (Windows) | Apache-2.0 |
 | PyInstaller bootloader | GPL-2.0-or-later with the bootloader exception |
 | React, React DOM, TanStack Virtual (frontend) | MIT |
+| Cinzel font (frontend titles, via Fontsource) | SIL Open Font License 1.1 |
 
 Source code of the bundled components is available from their projects (PyPI and npm list the
 exact versions in `licenses/README.txt`); this includes the MPL-2.0 licensed certifi and tqdm. The

@@ -4,6 +4,7 @@ import { UpdateSettings } from '../components/AppUpdate'
 import { CardTraderSettings } from '../components/CardTraderSettings'
 import { CloudBackupSettings } from '../components/CloudBackupSettings'
 import { PrintingPanel } from '../components/PrintingPanel'
+import { SkinSettings } from '../components/SkinSettings'
 import { ThemeSettings } from '../components/ThemeSettings'
 import { UiScaleSettings } from '../components/UiScaleSettings'
 import { formatNumber, lang, LANGUAGES, locale, setLang, t, type Lang } from '../i18n'
@@ -118,6 +119,11 @@ export function SettingsView({ status, onStatusChange }: Props) {
           <span className="appearance-label">{t.settings.theme}</span>
           <ThemeSettings />
         </div>
+        <div className="appearance-row">
+          <span className="appearance-label">{t.skins.title}</span>
+          <span className="muted small">{t.skins.hint}</span>
+        </div>
+        <SkinSettings />
         <div className="appearance-row">
           <span className="appearance-label">{t.settings.uiScaleTitle}</span>
           <UiScaleSettings />

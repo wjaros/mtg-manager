@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { api, type SyncStatus } from './api/client'
 import { AppUpdateBanner } from './components/AppUpdate'
 import { CloudBackupBanner } from './components/CloudBackupBanner'
+import { Loader } from './components/Loader'
+import { Logo } from './components/Logo'
 import { UpdateBanner } from './components/UpdateBanner'
 import { t } from './i18n'
 import { CollectionItemsView, type LocationFilter } from './views/CollectionItemsView'
@@ -133,8 +135,7 @@ export default function App() {
     <div className={`shell ${collapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className="sidebar">
         <div className="brand">
-          <img src="/favicon.svg" alt="" width={28} height={28} />
-          <span>MTG Deck Manager</span>
+          <Logo size={32} />
         </div>
         <nav>
           {NAV.map((item) => (
@@ -185,8 +186,9 @@ export default function App() {
             </section>
           </div>
         ) : !status ? (
-          <div className="view">
-            <p className="muted">{t.app.connecting}</p>
+          <div className="view start-screen">
+            <Logo size={140} stacked />
+            <Loader label={t.app.connecting} />
           </div>
         ) : route.view === 'settings' ? (
           <SettingsView status={status} onStatusChange={refreshStatus} />
