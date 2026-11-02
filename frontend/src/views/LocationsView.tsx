@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { api, type Location, type LocationKind } from '../api/client'
+import { Loader } from '../components/Loader'
 import { t } from '../i18n'
 
 const KIND_LABEL: Record<LocationKind, string> = {
@@ -69,7 +70,7 @@ export function LocationsView({ onOpen }: Props) {
       {error && <p className="status error">{error}</p>}
 
       {locations === null ? (
-        <p className="muted">{t.common.loading}</p>
+        <Loader />
       ) : locations.length === 0 ? (
         <p className="muted">{t.locations.empty}</p>
       ) : (

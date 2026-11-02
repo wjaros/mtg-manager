@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { api, type BoxSummary, type DeckFormat, type DeckSummary, type Location, type Platform } from '../api/client'
 import { CardImage } from '../components/CardImage'
+import { Loader } from '../components/Loader'
 import { ManaCost } from '../components/ManaCost'
 import { deckSizeTarget, FORMAT_LABEL, PLATFORM_LABEL } from '../decks'
 import { t } from '../i18n'
@@ -54,7 +55,7 @@ export function DecksView({ onOpen, onOpenBox }: Props) {
       {error && <p className="status error">{error}</p>}
 
       {decks === null ? (
-        <p className="muted">{t.common.loading}</p>
+        <Loader />
       ) : decks.length === 0 && boxes.length === 0 && !creating ? (
         <section className="panel empty-state">
           <p>{t.decks.empty}</p>

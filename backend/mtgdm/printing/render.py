@@ -33,11 +33,20 @@ MARK_COLOR = Color(0, 0, 0)
 FRAME_COLOR = Color(0.55, 0.55, 0.55)
 TEXT_COLOR = Color(0.25, 0.25, 0.25)
 LINE_WIDTH_MM = 0.1
-# The app's card back (packaging/icon.svg colours): a dark card with two cards and a gold circle.
-BACK_TOP, BACK_BOTTOM = Color(0x26 / 255, 0x2C / 255, 0x38 / 255), Color(0x0F / 255, 0x12 / 255, 0x18 / 255)
-BACK_CARD = Color(0x1F / 255, 0x24 / 255, 0x30 / 255)
-BACK_GREY = Color(0x8B / 255, 0x93 / 255, 0xA6 / 255)
-GOLD_LIGHT, GOLD_DARK = Color(0xF0 / 255, 0xC9 / 255, 0x68 / 255), Color(0xB8 / 255, 0x86 / 255, 0x2C / 255)
+# The app's card back (frontend/public/favicon.svg): a purple d20 with a gold edge on a dark purple card.
+def _hex(rgb: int) -> Color:
+    return Color((rgb >> 16) / 255, (rgb >> 8 & 0xFF) / 255, (rgb & 0xFF) / 255)
+
+
+BACK_TOP, BACK_BOTTOM = _hex(0x271247), _hex(0x0D0718)
+DIE_FILL, DIE_FACE, DIE_LINE = _hex(0x2E1065), _hex(0x9333EA), _hex(0xD8B4FE)
+OUTLINE_PURPLE = _hex(0xA855F7)
+GOLD_LIGHT, GOLD, GOLD_DARK = _hex(0xFFE699), _hex(0xEAB308), _hex(0xA16207)
+# The d20 in the favicon's 64-unit grid, centred, y down: its outline, the front face and the edges between.
+DIE_HEX = [(0, -26), (24, -12), (24, 12), (0, 26), (-24, 12), (-24, -12)]
+DIE_FRONT = [(0, -18), (16, 10), (-16, 10)]
+DIE_EDGES = [((0, -26), (0, -18)), ((-24, -12), (-16, 10)), ((24, -12), (16, 10)), ((0, 26), (-16, 10)),
+             ((0, 26), (16, 10))]
 CORNER_RADIUS_MM = 3.0  # Magic cards have ~3 mm round corners
 Duplex = Literal["off", "long", "short"]
 
@@ -219,26 +228,18 @@ class _Page:
         path.roundRect(x, y, w, h, radius)
         c.clipPath(path, stroke=0, fill=0)
         c.linearGradient(x, y + h, x, y, (BACK_TOP, BACK_BOTTOM), extend=True)
-        # The icon's motif, scaled to the card: a tilted grey card behind a gold-edged one and a gold circle.
+        # The icon's d20, scaled to the card (0.62 mm per grid unit: about half the card's width).
         unit = w / 63  # points per mm of the nominal card width
-        cx, cy = x + w / 2, y + h / 2 + 4 * unit
-        c.setLineWidth(0.9 * unit)
         c.saveState()
-        c.translate(cx - 4 * unit, cy + 1 * unit)
-        c.rotate(10)
-        c.setFillColor(BACK_CARD)
-        c.setStrokeColor(BACK_GREY)
-        c.roundRect(-11 * unit, -15.5 * unit, 22 * unit, 31 * unit, 2.2 * unit, stroke=1, fill=1)
+        c.translate(x + w / 2, y + h / 2 + 4 * unit)
+        c.scale(0.62 * unit, -0.62 * unit)
+        _polygon(c, DIE_HEX, fill=DIE_FILL, stroke=GOLD, width=2)
+        _polygon(c, DIE_FRONT, fill=DIE_FACE, stroke=DIE_LINE, width=1.4)
+        _edges(c, DIE_LINE, 1.2)
         c.restoreState()
-        c.setFillColor(BACK_CARD)
-        c.setStrokeColor(GOLD_DARK)
-        c.setLineWidth(1.3 * unit)
-        c.roundRect(cx - 9 * unit, cy - 19 * unit, 23 * unit, 32 * unit, 2.4 * unit, stroke=1, fill=1)
-        c.setFillColor(GOLD_LIGHT)
-        c.circle(cx + 2.5 * unit, cy - 3 * unit, 5.8 * unit, stroke=0, fill=1)
         c.setFont(_fonts()[1], 4.2 * unit)
         c.setFillColor(GOLD_LIGHT)
-        c.drawCentredString(cx, y + h * 0.16, "MTG Deck Manager")
+        c.drawCentredString(x + w / 2, y + h * 0.16, "MTG Deck Manager")
         c.restoreState()
 
     def text(self, text: str, x: float, y: float, size: float = 6, bold: bool = False, max_width: float | None = None,
@@ -459,22 +460,38 @@ def _symbols(mana_cost: str) -> list[str]:
 
 
 def _logo_outline(c: Canvas, cx: float, cy: float, scale: float) -> None:
-    """The icon's motif as outlines, centred at (cx, cy) in y-down millimetres."""
+    """The icon's d20 as outlines, centred at (cx, cy) in y-down millimetres."""
     c.saveState()
     c.translate(cx, cy)
-    c.scale(scale, scale)
-    c.setLineWidth(0.6)
-    c.saveState()
-    c.translate(-4, -1)
-    c.rotate(-10)
-    c.setStrokeColor(BACK_GREY)
-    c.roundRect(-11, -15.5, 22, 31, 2.2, stroke=1, fill=0)
+    c.scale(0.55 * scale, 0.55 * scale)
+    _polygon(c, DIE_HEX, stroke=GOLD_DARK, width=1.6)
+    _polygon(c, DIE_FRONT, stroke=OUTLINE_PURPLE, width=1.1)
+    _edges(c, OUTLINE_PURPLE, 1.1)
     c.restoreState()
-    c.setStrokeColor(GOLD_DARK)
-    c.setLineWidth(0.9)
-    c.roundRect(-9, -13, 23, 32, 2.4, stroke=1, fill=0)
-    c.circle(2.5, 3, 5.8, stroke=1, fill=0)
-    c.restoreState()
+
+
+def _polygon(c: Canvas, points: list[tuple[float, float]], *, stroke: Color, width: float,
+             fill: Color | None = None) -> None:
+    path = c.beginPath()
+    path.moveTo(*points[0])
+    for point in points[1:]:
+        path.lineTo(*point)
+    path.close()
+    c.setLineJoin(1)  # round, like the SVG
+    c.setLineCap(1)
+    c.setLineWidth(width)
+    c.setStrokeColor(stroke)
+    if fill is not None:
+        c.setFillColor(fill)
+    c.drawPath(path, stroke=1, fill=int(fill is not None))
+
+
+def _edges(c: Canvas, color: Color, width: float) -> None:
+    c.setStrokeColor(color)
+    c.setLineWidth(width)
+    c.setLineCap(1)
+    for (x1, y1), (x2, y2) in DIE_EDGES:
+        c.line(x1, y1, x2, y2)
 
 
 def _shifted(r: Rect, shift: tuple[float, float]) -> Rect:

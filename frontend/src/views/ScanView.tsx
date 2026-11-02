@@ -9,6 +9,7 @@ import {
   type ScanItemUpdate,
 } from '../api/client'
 import { CardImage } from '../components/CardImage'
+import { Loader } from '../components/Loader'
 import { PageScanHeader } from '../components/PageScanHeader'
 import { useDebounced } from '../hooks/useDebounced'
 import { useHoverPreview } from '../hooks/useHoverPreview'
@@ -181,7 +182,7 @@ export function ScanView() {
       {message && <p className={`status ${message.ok ? 'ok' : 'error'}`}>{message.text}</p>}
 
       {scans === null ? (
-        <p className="muted">{t.common.loading}</p>
+        <Loader />
       ) : scans.length === 0 ? (
         <p className="muted">{t.scan.empty}</p>
       ) : (

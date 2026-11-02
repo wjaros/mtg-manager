@@ -91,8 +91,25 @@ Code, comments, API and DB names, commit messages in English. UI texts in Polish
     shared with `views/BoxView.tsx`: `BoxDecks.tsx` (deck tile), `BoxCardList.tsx` (a box's cards like a
     deck list: grouped by its decks or `groupCards`, prices from `POST /api/cards/prices`; read-only
     `DeckVisual` for images). Gotcha: `.panel .muted.small` adds a top margin to any such element
-  - styles: one `src/index.css` (tokens on `:root`, see Rules)
-- `packaging/` + `scripts/build_*` – PyInstaller (macOS + Windows); see Packaging below
+  - styles: one `src/index.css` (tokens on `:root`, see Rules) = the classic skin; titles (h1, the logo) in
+    Cinzel (`--font-display`, bundled by `@fontsource-variable/cinzel`: the app is offline, no Google Fonts),
+    the rest in the system UI font (Inter was tried: wider, it wrapped dense tiles)
+  - skins: `src/skins.ts` – a skin is JSON {name, hue, tint, accent, glow, overrides?}; `skinTokens` derives the
+    surface/text/accent/`--glow` tokens per light/dark in OKLCH at the classic lightness steps (so status,
+    mana and `--series-*` colors stay valid; accent/glow moved until 4.5:1) and sets them on <html>.
+    Built-ins in `BUILT_IN` (basic + mono/guild/shard/wedge from `COMBOS` via `manaSkin`: surface, accent, glow
+    colors), user skins in pref `mtgdm.skins`, the choice in `mtgdm.skin`; with `mtgdm.skinByDeck` the open deck
+    (DeckBuilderView → `showDeckColors`) wears `skinForColors(color_identity)` until it closes.
+    Loaded after prefs (`main.tsx`: it imports i18n), follows `data-theme` by a MutationObserver.
+    UI: `components/SkinSettings.tsx` (tiles + editor: mana colors, sliders, JSON, live preview)
+  - branding: `components/Logo.tsx` paints the logo with the skin's tokens (`--bg`, `--bg-hover`, `--bg-elevated`,
+    `--border`, `--text`, `--accent`, `--glow`; the mapping of Gemini's per-skin logo/favicon set), so every skin,
+    custom ones too, gets its logo; `Loader.tsx` and the tab icon (`setFavicon` in skins.ts) likewise.
+    `public/favicon.svg` = the classic skin's; `public/logo.svg` = the purple logo (three cards); the proxy card back's
+    d20 in `printing/render.py` is purple too
+- `packaging/` + `scripts/build_*` – PyInstaller (macOS + Windows); see Packaging below. App icon = the Ink
+  skin's logo: `icon.svg` (macOS 824/1024 grid), `icon-full.svg`, `icon-small.svg` (plain d20 for 16–32 px) →
+  `scripts/build_icons.sh` (Inkscape + iconutil + Pillow) writes `icon.icns` and `icon.ico`
 - `docs/` – user guide, Jekyll-ready (`docs/ideas/` = developer notes, excluded); `seeds/` – example decklists
   offered in Import (`seeds/collection/`: non-deck products; a trailing `# note` becomes the item's note)
 

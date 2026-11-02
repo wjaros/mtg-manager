@@ -7,6 +7,7 @@ import {
   type PrintHistory,
   type ReplaceWithReal,
 } from '../api/client'
+import { Loader } from '../components/Loader'
 import { ProxyDialog } from '../components/ProxyDialog'
 import { useHoverPreview } from '../hooks/useHoverPreview'
 import { locale, t } from '../i18n'
@@ -111,7 +112,7 @@ export function ProxiesView() {
   }
 
   if (error && proxies === null) return <p className="status error">{error}</p>
-  if (proxies === null) return <p className="muted">{t.common.loading}</p>
+  if (proxies === null) return <Loader />
 
   return (
     <div className="view proxies-view">

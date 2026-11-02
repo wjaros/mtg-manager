@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg_grad_ink" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#152034" />
+      <stop offset="100%" stop-color="#050c1a" />
+    </radialGradient>
+    <linearGradient id="accent_grad_ink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eceff3" />
+      <stop offset="35%" stop-color="#eab308" />
+      <stop offset="100%" stop-color="#eab308" />
+    </linearGradient>
+    <linearGradient id="hl_grad_ink" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6ea8ff" />
+      <stop offset="100%" stop-color="#152034" />
+    </linearGradient>
+    <linearGradient id="card_left_ink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ea8ff" />
+      <stop offset="100%" stop-color="#0c1525" />
+    </linearGradient>
+    <linearGradient id="card_right_ink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eab308" />
+      <stop offset="100%" stop-color="#0c1525" />
+    </linearGradient>
+    <filter id="glow_ink" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Tile -->
+  <rect width="512" height="512" rx="105" fill="url(#bg_grad_ink)" stroke="#1f2d49" stroke-width="8" />
+
+  <!-- A d20's outline behind -->
+  <g stroke="#1f2d49" stroke-width="6" fill="none" stroke-linejoin="round">
+    <polygon points="256,36 446,146 446,366 256,476 66,366 66,146" />
+    <line x1="256" y1="36" x2="256" y2="160" />
+    <line x1="66" y1="146" x2="446" y2="146" />
+    <line x1="66" y1="146" x2="160" y2="366" />
+    <line x1="446" y1="146" x2="352" y2="366" />
+    <line x1="66" y1="366" x2="256" y2="410" />
+    <line x1="446" y1="366" x2="256" y2="410" />
+    <line x1="256" y1="410" x2="256" y2="476" />
+  </g>
+
+  <!-- An open book -->
+  <g stroke="url(#accent_grad_ink)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="#0c1525">
+    <path d="M 96,190 L 96,360 L 226,360 C 240,360 250,372 256,372 C 262,372 272,360 286,360 L 416,360 L 416,190" />
+    <path d="M 118,172 C 172,172 226,188 256,215 C 286,188 340,172 394,172 L 394,340 C 340,340 286,350 256,368 C 226,350 172,340 118,340 Z" fill="#152034" />
+  </g>
+
+  <!-- Two cards coming out of it -->
+  <g stroke="url(#accent_grad_ink)" stroke-width="7" stroke-linejoin="round">
+    <rect x="150" y="155" width="80" height="112" rx="10" transform="rotate(-16 190 211)" fill="url(#card_left_ink)" />
+    <rect x="282" y="155" width="80" height="112" rx="10" transform="rotate(16 322 211)" fill="url(#card_right_ink)" />
+  </g>
+
+  <!-- The d20 with a glow -->
+  <g filter="url(#glow_ink)">
+    <polygon points="256,188 322,226 322,302 256,340 190,302 190,226" fill="#0c1525" stroke="#6ea8ff" stroke-width="10" stroke-linejoin="round" />
+    <g stroke="#eceff3" stroke-width="5" stroke-linejoin="round" fill="none">
+      <polygon points="256,214 298,286 214,286" fill="url(#hl_grad_ink)" />
+      <line x1="256" y1="188" x2="256" y2="214" />
+      <line x1="190" y1="226" x2="256" y2="214" />
+      <line x1="322" y1="226" x2="256" y2="214" />
+      <line x1="190" y1="226" x2="214" y2="286" />
+      <line x1="322" y1="226" x2="298" y2="286" />
+      <line x1="190" y1="302" x2="214" y2="286" />
+      <line x1="322" y1="302" x2="298" y2="286" />
+      <line x1="256" y1="340" x2="214" y2="286" />
+      <line x1="256" y1="340" x2="298" y2="286" />
+    </g>
+  </g>
+
+  <!-- A sparkle above -->
+  <path d="M256,118 Q256,148 286,148 Q256,148 256,178 Q256,148 226,148 Q256,148 256,118 Z" fill="url(#accent_grad_ink)" />
+</svg>
