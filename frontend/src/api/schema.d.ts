@@ -144,6 +144,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/boxes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Boxes
+         * @description Boxes of small decks (imported from Import › Boxes), newest first.
+         */
+        get: operations["list_boxes_api_boxes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/boxes/{box_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Box
+         * @description The box with its own decks and the decks combined from them.
+         */
+        get: operations["get_box_api_boxes__box_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Box
+         * @description The box and its decks; with_cards also removes its location and the copies in it.
+         */
+        delete: operations["delete_box_api_boxes__box_id__delete"];
+        options?: never;
+        head?: never;
+        /** Rename Box */
+        patch: operations["rename_box_api_boxes__box_id__patch"];
+        trace?: never;
+    };
+    "/api/boxes/{box_id}/combine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Combine
+         * @description A new deck in the box made of these parts' cards (a copy: the parts stay).
+         */
+        post: operations["combine_api_boxes__box_id__combine_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cards": {
         parameters: {
             query?: never;
@@ -155,6 +220,26 @@ export interface paths {
         get: operations["cards_api_cards_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cards/prices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prices
+         * @description Prices of many printings at once (a box's or product's card list).
+         */
+        post: operations["prices_api_cards_prices_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -991,6 +1076,106 @@ export interface paths {
         get: operations["search_api_precons_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products
+         * @description Products holding several small decks (Beginner Box, Starter Kit, Jumpstart), newest first.
+         */
+        get: operations["products_api_precons_products_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Products Overview
+         * @description Every product with its cards' colors, what you own of them and the cards' value.
+         */
+        get: operations["products_overview_api_precons_products_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Product
+         * @description The product's decks with their cards matched (fetched from MTGJSON when not stored yet).
+         */
+        get: operations["product_api_precons_products__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products/{key}/decks/{file_name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Product Deck
+         * @description One deck of a big product (its decks aren't all fetched when it is opened).
+         */
+        get: operations["product_deck_api_precons_products__key__decks__file_name__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/precons/products/{key}/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Product Import
+         * @description A box (in Decks) holding these decks of the product; optionally its cards into the collection.
+         */
+        post: operations["product_import_api_precons_products__key__import_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1839,6 +2024,49 @@ export interface components {
             /** Engine */
             engine?: string | null;
         };
+        /** BoxCombineRequest */
+        BoxCombineRequest: {
+            /** Name */
+            name: string;
+            /** Deck Ids */
+            deck_ids: number[];
+        };
+        /** BoxDetail */
+        BoxDetail: {
+            box: components["schemas"]["BoxSummary"];
+            /** Parts */
+            parts: components["schemas"]["DeckSummary"][];
+            /** Combined */
+            combined: components["schemas"]["CombinedDeck"][];
+        };
+        /** BoxSummary */
+        BoxSummary: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Set Code */
+            set_code: string | null;
+            /** Product Key */
+            product_key: string | null;
+            /** Location Id */
+            location_id: number | null;
+            /** Created At */
+            created_at: string;
+            /** Parts */
+            parts: number;
+            /** Combined */
+            combined: number;
+            /** Cover Card Id */
+            cover_card_id: string | null;
+            /** Color Identity */
+            color_identity: string[];
+        };
+        /** BoxUpdate */
+        BoxUpdate: {
+            /** Name */
+            name: string;
+        };
         /** CalibrationResult */
         CalibrationResult: {
             profile: components["schemas"]["PrinterProfile"];
@@ -1988,6 +2216,22 @@ export interface components {
             items: components["schemas"]["CardSummary"][];
             /** Type Hint */
             type_hint?: string | null;
+        };
+        /** CardPrice */
+        CardPrice: {
+            /** Eur */
+            eur: number | null;
+            /** Usd */
+            usd: number | null;
+        };
+        /** CardPrices */
+        CardPrices: {
+            /** Prices */
+            prices: {
+                [key: string]: components["schemas"]["CardPrice"];
+            };
+            /** As Of */
+            as_of: string | null;
         };
         /**
          * CardSummary
@@ -2305,6 +2549,12 @@ export interface components {
             /** Other Sources */
             other_sources: number;
         };
+        /** CombinedDeck */
+        CombinedDeck: {
+            deck: components["schemas"]["DeckSummary"];
+            /** Part Ids */
+            part_ids: number[];
+        };
         /** Combo */
         Combo: {
             /** Id */
@@ -2567,6 +2817,12 @@ export interface components {
             color_identity: string[];
             /** Location Id */
             location_id: number | null;
+            /** Box Id */
+            box_id: number | null;
+            /** Box Role */
+            box_role: ("part" | "combined") | null;
+            /** Box Name */
+            box_name: string | null;
             counts: components["schemas"]["DeckCounts"];
             /** Unsaved Changes */
             unsaved_changes: number;
@@ -2683,6 +2939,12 @@ export interface components {
             color_identity: string[];
             /** Location Id */
             location_id: number | null;
+            /** Box Id */
+            box_id: number | null;
+            /** Box Role */
+            box_role: ("part" | "combined") | null;
+            /** Box Name */
+            box_name: string | null;
             counts: components["schemas"]["DeckCounts"];
             /** Unsaved Changes */
             unsaved_changes: number;
@@ -3256,6 +3518,11 @@ export interface components {
             /** As Of */
             as_of: string | null;
         };
+        /** PricesRequest */
+        PricesRequest: {
+            /** Ids */
+            ids: string[];
+        };
         /** PrintHistory */
         PrintHistory: {
             /** Id */
@@ -3375,6 +3642,72 @@ export interface components {
             calibrated_at: string | null;
             /** Note */
             note: string | null;
+        };
+        /** ProductDeck */
+        ProductDeck: {
+            /** File Name */
+            file_name: string;
+            /** Name */
+            name: string;
+            /** Loaded */
+            loaded: boolean;
+            /** Cards */
+            cards: number;
+            /** Colors */
+            colors: string[];
+            /** Lines */
+            lines: components["schemas"]["ImportLine"][];
+        };
+        /** ProductDetail */
+        ProductDetail: {
+            product: components["schemas"]["ProductSummary"];
+            /** Decks */
+            decks: components["schemas"]["ProductDeck"][];
+        };
+        /** ProductImportRequest */
+        ProductImportRequest: {
+            /** File Names */
+            file_names: string[];
+            /** Name */
+            name?: string | null;
+            /**
+             * Own
+             * @default true
+             */
+            own?: boolean;
+        };
+        /** ProductOverview */
+        ProductOverview: {
+            product: components["schemas"]["ProductSummary"];
+            /** Loaded */
+            loaded: boolean;
+            /** Colors */
+            colors: string[];
+            /** Cards */
+            cards: number;
+            /** Owned */
+            owned: number;
+            /** Price Eur */
+            price_eur: number;
+            /** Box Id */
+            box_id: number | null;
+        };
+        /** ProductSummary */
+        ProductSummary: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /** Set Name */
+            set_name: string | null;
+            /** Type */
+            type: string;
+            /** Release Date */
+            release_date: string | null;
+            /** Decks */
+            decks: number;
         };
         /** ProfileCreate */
         ProfileCreate: {
@@ -4120,6 +4453,158 @@ export interface operations {
             };
         };
     };
+    list_boxes_api_boxes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoxSummary"][];
+                };
+            };
+        };
+    };
+    get_box_api_boxes__box_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoxDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_box_api_boxes__box_id__delete: {
+        parameters: {
+            query?: {
+                with_cards?: boolean;
+            };
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_box_api_boxes__box_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoxUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoxSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    combine_api_boxes__box_id__combine_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                box_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoxCombineRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeckDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     cards_api_cards_get: {
         parameters: {
             query?: {
@@ -4174,6 +4659,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CardPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prices_api_cards_prices_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PricesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardPrices"];
                 };
             };
             /** @description Validation Error */
@@ -5861,6 +6379,157 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PreconSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    products_api_precons_products_get: {
+        parameters: {
+            query?: {
+                /** @description Words of the product's, its set's or a deck's name, or the set code */
+                q?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    products_overview_api_precons_products_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductOverview"][];
+                };
+            };
+        };
+    };
+    product_api_precons_products__key__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    product_deck_api_precons_products__key__decks__file_name__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+                file_name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDeck"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    product_import_api_precons_products__key__import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductImportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoxDetail"];
                 };
             };
             /** @description Validation Error */

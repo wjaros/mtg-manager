@@ -43,8 +43,10 @@ class PreconDecklist(BaseModel):
     text: str        # for the import: header lines, then sections, "1 Name (SET) 123"
 
 
-def sync_precons(conn: sqlite3.Connection, client: MtgjsonClient, on_progress: Progress | None = None) -> int:
-    """Store the deck list and fetch new Commander decks. Returns how many decks were fetched."""
+def sync_precons(conn: sqlite3.Connection, client: MtgjsonClient, on_progress: Progress | None = None,
+                 also: Callable[[sqlite3.Connection], list[str]] | None = None) -> int:
+    """Store the deck list and fetch new Commander decks, and the decks `also` names once the list is
+    stored (the small boxes' decks, products.small_product_files). Returns how many decks were fetched."""
     if on_progress:
         on_progress("precons", 0, 0)
     decks = client.get_json("DeckList.json")["data"]
@@ -62,6 +64,8 @@ def sync_precons(conn: sqlite3.Connection, client: MtgjsonClient, on_progress: P
         " ORDER BY release_date DESC",
         EAGER_TYPES,
     )]
+    if also:
+        todo += [f for f in also(conn) if f not in todo]
     fetched = 0
     for i, file_name in enumerate(todo):
         if on_progress:
@@ -104,11 +108,11 @@ def load_precon(conn: sqlite3.Connection, client: MtgjsonClient, file_name: str)
 
 def search_precons(conn: sqlite3.Connection, q: str = "", types: list[str] | None = None,
                    limit: int = 50) -> list[PreconSummary]:
-    """By deck name or commander name; Commander decks and newer products first."""
+    """By deck, commander or set name, or set code; Commander decks and newer products first."""
     where, params = [], []
     for word in q.split():
-        where.append("(p.name LIKE ? OR p.commanders LIKE ? OR p.code LIKE ?)")
-        params += [f"%{word}%", f"%{word}%", word]
+        where.append("(p.name LIKE ? OR p.commanders LIKE ? OR s.name LIKE ? OR p.code LIKE ?)")
+        params += [f"%{word}%", f"%{word}%", f"%{word}%", word]
     if types:
         where.append(f"p.type IN ({', '.join('?' * len(types))})")
         params += types
@@ -246,12 +250,13 @@ def precons_for_missing(conn: sqlite3.Connection, missing: dict[str, tuple[str, 
 
 
 def _deck_stats(conn: sqlite3.Connection, types: tuple[str, ...] | None) -> dict[str, dict]:
-    """Per loaded precon: copies needed per oracle id, commander colors, cards' value (EUR)."""
+    """Per loaded precon: copies needed per oracle id, commander colors, all its cards' colors, cards' value
+    (EUR)."""
     where = f"AND p.type IN ({', '.join('?' * len(types))})" if types else ""
     stats: dict[str, dict] = {}
     for r in conn.execute(
         f"""
-        SELECT pc.file_name, pc.board, pc.quantity, c.oracle_id, c.type_line,
+        SELECT pc.file_name, pc.board, pc.quantity, c.oracle_id, c.type_line, c.colors AS card_colors,
                CASE WHEN pc.board = 'commander' THEN c.color_identity END AS colors,
                COALESCE(json_extract(d.prices, '$.eur'), json_extract(d.prices, '$.eur_foil')) AS eur
         FROM precon_cards pc JOIN precons p ON p.file_name = pc.file_name
@@ -260,13 +265,16 @@ def _deck_stats(conn: sqlite3.Connection, types: tuple[str, ...] | None) -> dict
         """,
         list(types or ()),
     ):
-        s = stats.setdefault(r["file_name"], {"need": {}, "colors": set(), "price": 0.0, "basics": set()})
+        s = stats.setdefault(r["file_name"], {"need": {}, "colors": set(), "card_colors": set(), "price": 0.0,
+                                              "basics": set()})
         if r["oracle_id"]:
             s["need"][r["oracle_id"]] = s["need"].get(r["oracle_id"], 0) + r["quantity"]
             if (r["type_line"] or "").startswith("Basic"):
                 s["basics"].add(r["oracle_id"])
         if r["colors"]:
             s["colors"].update(json.loads(r["colors"]))
+        if r["card_colors"]:
+            s["card_colors"].update(json.loads(r["card_colors"]))
         if r["eur"]:
             s["price"] += float(r["eur"]) * r["quantity"]
     return stats

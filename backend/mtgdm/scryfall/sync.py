@@ -10,6 +10,7 @@ from mtgdm.config import Settings
 from mtgdm.db import connect, migrate
 from mtgdm.mtgjson.client import MtgjsonClient, MtgjsonError
 from mtgdm.mtgjson.precons import sync_precons
+from mtgdm.mtgjson.products import small_product_files
 from mtgdm.scryfall.bulk import CardSyncResult, sync_cards
 from mtgdm.scryfall.client import ScryfallClient, ScryfallError
 from mtgdm.scryfall.sets import Progress, sync_sets
@@ -50,7 +51,7 @@ def run_sync(
             own_mtgjson = mtgjson is None
             mtgjson = mtgjson or MtgjsonClient()
             try:
-                fetched = sync_precons(conn, mtgjson, on_progress)
+                fetched = sync_precons(conn, mtgjson, on_progress, also=small_product_files)
             except (MtgjsonError, KeyError, ValueError):
                 log.warning("precon sync failed", exc_info=True)
             finally:

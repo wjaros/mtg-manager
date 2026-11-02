@@ -1,4 +1,7 @@
-"""Numbered SQL migrations (NNN_name.sql) tracked in the schema_version table."""
+"""Numbered SQL migrations (NNN_name.sql) tracked in the schema_version table, one row per applied file.
+Every file without a row is applied, in number order, not only those above the highest: a feature branch
+may take a number while another branch, merged earlier or later, holds a lower one (a database that ran
+both branches has both)."""
 
 import re
 import sqlite3
@@ -39,7 +42,8 @@ def migrate(conn: sqlite3.Connection, until: int | None = None) -> int:
     change a column's constraints in place) without cascading deletes into the tables that
     reference it; every migration must leave no broken reference behind (checked before commit)."""
     version = current_version(conn)
-    pending = [(n, p) for n, p in available_migrations() if n > version and (until is None or n <= until)]
+    applied = {r[0] for r in conn.execute("SELECT version FROM schema_version")}
+    pending = [(n, p) for n, p in available_migrations() if n not in applied and (until is None or n <= until)]
     if not pending:
         return version
     foreign_keys = conn.execute("PRAGMA foreign_keys").fetchone()[0]
@@ -61,7 +65,7 @@ def migrate(conn: sqlite3.Connection, until: int | None = None) -> int:
                 if conn.in_transaction:
                     conn.rollback()
                 raise
-            version = number
+            version = max(version, number)
     finally:
         conn.execute(f"PRAGMA foreign_keys = {'ON' if foreign_keys else 'OFF'}")
     return version

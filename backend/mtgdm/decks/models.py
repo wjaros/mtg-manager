@@ -40,6 +40,9 @@ class DeckSummary(BaseModel):
     # The commanders' identity; without a commander, the colours of the main deck's cards.
     color_identity: list[str]
     location_id: int | None    # deck box in the collection ("I own this deck")
+    box_id: int | None         # in a box of small decks (Decks › box); then no location of its own
+    box_role: Literal["part", "combined"] | None
+    box_name: str | None
     counts: DeckCounts
     unsaved_changes: int  # cards changed since the latest saved version
     created_at: str

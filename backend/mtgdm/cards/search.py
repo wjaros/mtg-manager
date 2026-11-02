@@ -10,6 +10,7 @@ from mtgdm.cards.models import (
     CardDetail,
     CardFace,
     CardPage,
+    CardPrice,
     CardSummary,
     ColorMode,
     Order,
@@ -183,6 +184,24 @@ def card_summaries(conn: sqlite3.Connection, ids: list[str]) -> list[CardSummary
     ).fetchall()
     by_id = {r["id"]: r for r in rows}
     return [_summary(by_id[i]) for i in ids if i in by_id]
+
+
+def card_prices(conn: sqlite3.Connection, ids: list[str]) -> dict[str, CardPrice]:
+    """Prices of these printings (per copy; foil when the card has no non-foil price, like deck stats)."""
+    result = {}
+    for start in range(0, len(ids), 500):
+        chunk = ids[start:start + 500]
+        for card_id, raw in conn.execute(
+            f"SELECT id, prices FROM card_details WHERE id IN ({', '.join('?' * len(chunk))})", chunk
+        ):
+            prices = _load(raw, {})
+            result[card_id] = CardPrice(eur=_money(prices, "eur"), usd=_money(prices, "usd"))
+    return result
+
+
+def _money(prices: dict, currency: str) -> float | None:
+    value = prices.get(currency) or prices.get(f"{currency}_foil")
+    return float(value) if value else None
 
 
 def get_card(conn: sqlite3.Connection, card_id: str) -> CardDetail | None:

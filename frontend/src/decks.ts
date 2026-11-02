@@ -263,3 +263,15 @@ export function matchesCardQuery(card: { name: string; printed_name?: string | n
   const text = fold(`${card.name} ${card.printed_name ?? ''}`)
   return words.every((w) => text.includes(w))
 }
+
+/** Cards of several decks as one list (the same printing in two decks becomes one entry). */
+export function mergeCards(entries: DeckCard[]): DeckCard[] {
+  const byKey = new Map<string, DeckCard>()
+  for (const entry of entries) {
+    const key = `${entry.board}|${entry.card.id}`
+    const known = byKey.get(key)
+    if (known) known.quantity += entry.quantity
+    else byKey.set(key, { ...entry })
+  }
+  return [...byKey.values()]
+}

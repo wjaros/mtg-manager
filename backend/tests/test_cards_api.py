@@ -159,3 +159,9 @@ def test_identity_param_combines_with_colors(client):
     assert found == ["Giada, Font of Hope", "Luxior, Giada's Gift"]
     # Colorless commander: only colorless identity.
     assert all(c["color_identity"] == [] for c in get(client, identity="C"))
+
+
+def test_prices_of_many_cards(client):
+    bolt = client.get("/api/cards", params={"q": "lightning bolt"}).json()["items"][0]["id"]
+    body = client.post("/api/cards/prices", json={"ids": [bolt, bolt, "nope"]}).json()
+    assert list(body["prices"]) == [bolt] and set(body["prices"][bolt]) == {"eur", "usd"}

@@ -105,9 +105,10 @@ interface Props {
   onTabChange: (tab: DeckTab) => void
   onBack: () => void
   onOpenDeck: (id: number) => void
+  onOpenBox: (id: number) => void
 }
 
-export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOpenDeck }: Props) {
+export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOpenDeck, onOpenBox }: Props) {
   const actions = useDeck(deckId)
   const { deck } = actions
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
@@ -465,9 +466,15 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
       style={shownLayout === 'split' ? { gridTemplateRows: splitRows(share) } : undefined}
     >
       <header className="deckbuilder-header" ref={headerRef}>
-        <button className="link-button" onClick={onBack}>
-          {t.builder.back}
-        </button>
+        {deck.box_id !== null ? (
+          <button className="link-button" onClick={() => onOpenBox(deck.box_id!)}>
+            {t.boxes.backToBox(deck.box_name ?? '')}
+          </button>
+        ) : (
+          <button className="link-button" onClick={onBack}>
+            {t.builder.back}
+          </button>
+        )}
         <h1 className="deck-title" onDoubleClick={rename} title={t.builder.renameTitle}>
           {deck.name}
         </h1>
@@ -515,7 +522,7 @@ export function DeckBuilderView({ deckId, tab, onTabChange: setTab, onBack, onOp
             )}
           </span>
         )}
-        {deck.platform === 'paper' && (
+        {deck.platform === 'paper' && deck.box_id === null && (
           <button
             className="button header-action"
             onClick={toCollection}

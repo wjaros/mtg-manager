@@ -1,0 +1,137 @@
+{
+ "data": {
+  "code": "TLA",
+  "name": "Beginner Box - Allies",
+  "type": "Box Set",
+  "releaseDate": "2025-11-14",
+  "mainBoard": [
+   {
+    "name": "Kyoshi Warrior Guard",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "216",
+    "identifiers": {
+     "scryfallId": "7a2acb28-c0e2-492b-a227-ef49e905e0fb"
+    }
+   },
+   {
+    "name": "Jeong Jeong's Deserters",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "25",
+    "identifiers": {
+     "scryfallId": "060966f9-5e56-4512-9ef3-2b216daf093c"
+    }
+   },
+   {
+    "name": "Glider Kids",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "21",
+    "identifiers": {
+     "scryfallId": "0613afb5-4cee-4132-8adf-404767ed8d07"
+    }
+   },
+   {
+    "name": "Avatar Enthusiasts",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "11",
+    "identifiers": {
+     "scryfallId": "7292e5f2-d5a1-4e39-8f75-eba471819f04"
+    }
+   },
+   {
+    "name": "Allied Teamwork",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "213",
+    "identifiers": {
+     "scryfallId": "8a347283-eb16-4339-945e-316a5ce9e2c5"
+    }
+   },
+   {
+    "name": "Aang, the Last Airbender",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "4",
+    "identifiers": {
+     "scryfallId": "245e008c-e073-443f-9592-6f628c0026ec"
+    }
+   },
+   {
+    "name": "Suki, Kyoshi Warrior",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "243",
+    "identifiers": {
+     "scryfallId": "3e311480-04f8-4b8f-938e-1cc6d06b9902"
+    }
+   },
+   {
+    "name": "Rabaroo Troop",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "32",
+    "identifiers": {
+     "scryfallId": "62a983b4-ac73-4949-9317-05a75a8ce164"
+    }
+   },
+   {
+    "name": "Master Piandao",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "28",
+    "identifiers": {
+     "scryfallId": "3e4a042c-f2a6-45e7-9444-acd1ca838b87"
+    }
+   },
+   {
+    "name": "Mechanical Glider",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "256",
+    "identifiers": {
+     "scryfallId": "9deda16b-ce26-4228-9bc2-28b7358d3f7c"
+    }
+   },
+   {
+    "name": "Path to Redemption",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "31",
+    "identifiers": {
+     "scryfallId": "f936d64a-0db4-49c1-8a57-6d99e012a555"
+    }
+   },
+   {
+    "name": "Airbending Lesson",
+    "count": 1,
+    "setCode": "TLA",
+    "number": "8",
+    "identifiers": {
+     "scryfallId": "e2bcd0a6-e94d-4a21-a334-a57459c1b8cc"
+    }
+   },
+   {
+    "name": "Thriving Heath",
+    "count": 1,
+    "setCode": "TLE",
+    "number": "262",
+    "identifiers": {
+     "scryfallId": "202ae1e5-df13-4a6f-9202-6a2573809f73"
+    }
+   },
+   {
+    "name": "Plains",
+    "count": 7,
+    "setCode": "TLA",
+    "number": "282",
+    "identifiers": {
+     "scryfallId": "4069fb4a-8ee1-41ef-ab93-39a8cc58e0e5"
+    }
+   }
+  ],
+  "sideBoard": []
+ }
+}

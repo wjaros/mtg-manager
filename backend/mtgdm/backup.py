@@ -1,4 +1,4 @@
-"""Backup of the user's own data: collection, locations, decks and printer profiles as JSON, without the
+"""Backup of the user's own data: collection, locations, decks (and boxes of them) and printer profiles as JSON, without the
 Scryfall card data. Cards are stored by Scryfall id plus name / set / number, so a backup can be
 restored after Scryfall data changed or on another machine."""
 
@@ -93,6 +93,9 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
             "preferred_sets": json.loads(d["preferred_sets"]) if d["preferred_sets"] else [],
             "location_id": d["location_id"], "created_at": d["created_at"], "cards": cards, "versions": history,
             "wants": wants.get(d["id"], []),
+            # Ids only link decks to their box and a combined deck to its parts.
+            "id": d["id"], "box_id": d["box_id"], "box_role": d["box_role"],
+            "box_parts": json.loads(d["box_parts"]) if d["box_parts"] else None,
         })
     return {
         "format": FORMAT,
@@ -102,6 +105,9 @@ def export_backup(conn: sqlite3.Connection) -> dict[str, Any]:
         "locations": locations,
         "collection": collection,
         "decks": decks,
+        "boxes": [dict(r) for r in conn.execute(
+            "SELECT id, name, set_code, product_key, location_id, created_at FROM boxes ORDER BY id"
+        )],
         # Cards to buy added by hand (a deck's own are with the deck).
         "wants": wants.get(None, []),
         # Calibration of the user's printers (raw measurements included) and the card size.
@@ -127,7 +133,8 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
     try:
         with conn:
             if replace:
-                for table in ("wants", "deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "locations",
+                for table in ("wants", "deck_versions", "deck_cards", "collection_items", "print_jobs", "decks", "boxes",
+                              "locations",
                               "printer_profiles", "user_tags"):
                     conn.execute(f"DELETE FROM {table}")
 
@@ -155,6 +162,15 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
                 )
                 result.collection_items += 1
 
+            box_ids: dict[Any, int] = {}
+            for box in data.get("boxes", []):
+                box_ids[box["id"]] = conn.execute(
+                    "INSERT INTO boxes(name, set_code, product_key, location_id) VALUES (?, ?, ?, ?)",
+                    (box["name"], box.get("set_code"), box.get("product_key"), location_ids.get(box.get("location_id"))),
+                ).lastrowid
+
+            deck_ids: dict[Any, int] = {}
+            combined: list[tuple[int, list[Any]]] = []
             for deck in data.get("decks", []):
                 deck_id = conn.execute(
                     """
@@ -182,6 +198,15 @@ def import_backup(conn: sqlite3.Connection, data: dict[str, Any], replace: bool 
                 _restore_versions(conn, deck_id, deck.get("versions") or [], resolver)
                 result.missing_cards += restore_wants(conn, deck.get("wants") or [], deck_id)
                 result.decks += 1
+                deck_ids[deck.get("id")] = deck_id
+                if box_ids.get(deck.get("box_id")):
+                    conn.execute("UPDATE decks SET box_id = ?, box_role = ? WHERE id = ?",
+                                 (box_ids[deck["box_id"]], deck.get("box_role") or "part", deck_id))
+                    if deck.get("box_parts"):
+                        combined.append((deck_id, deck["box_parts"]))
+            for deck_id, parts in combined:
+                conn.execute("UPDATE decks SET box_parts = ? WHERE id = ?",
+                             (json.dumps([deck_ids[p] for p in parts if p in deck_ids]), deck_id))
 
             result.missing_cards += restore_wants(conn, data.get("wants") or [], None)
 

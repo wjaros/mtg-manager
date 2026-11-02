@@ -77,6 +77,16 @@ class CardPage(BaseModel):
     type_hint: str | None = None
 
 
+class CardPrice(BaseModel):
+    eur: float | None   # non-foil, else foil
+    usd: float | None
+
+
+class CardPrices(BaseModel):
+    prices: dict[str, CardPrice]  # by card id; cards without data are left out
+    as_of: str | None             # date of the Scryfall data the prices come from
+
+
 class SetInfo(BaseModel):
     code: str
     name: str
